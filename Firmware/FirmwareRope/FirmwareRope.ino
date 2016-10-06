@@ -73,7 +73,7 @@ void resetarMotores() {
   motor2.setCurrentPosition(0);
 
   float rate = acoes[acoesContExec];
-  tempo = new TimerObject(TEMPO_EXE/abs(rate-0.5));
+  tempo = new TimerObject(TEMPO_EXE/abs(rate)-0.5);
   tempo->setOnTimer(&pararMotor);
 }
 
@@ -221,7 +221,6 @@ void executar() {
     }
   }
 
-  delay(1000);
   acoesContExec++;
 
   if (acoesContExec > acoesContProg) {
