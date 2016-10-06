@@ -18,10 +18,10 @@ bool emEspera = false;
 
 //Entradas
 
-Button btnDireita = Button (A1); //Tras
-Button btnEsquerda = Button (A2); //Frente
-Button btnFrente = Button (A4); //
-Button btnTras = Button (A3);
+Button btnDireita = Button (A4); //Tras
+Button btnEsquerda = Button (A3); //Frente
+Button btnFrente = Button (A1); //
+Button btnTras = Button (A2);
 Button btnIr = Button (A5);
 
 //Saidas
@@ -53,16 +53,18 @@ AccelStepper motor2(8, MOTOR2_F1, MOTOR2_F3, MOTOR2_F2, MOTOR2_F4);
 
 //Flags Possíveis
 bool temSom = false;
+
 bool estaProgramando = false;
+
 bool LED_1Aceso = false;
 bool LED_2Aceso = false;
 bool LED_3Aceso = false;
 bool LED_4Aceso = false;
 
-const int acaoFrente = 10;
-const int acaoTras = 20;
-const int acaoEsquerda = 30;
-const int acaoDireita = 40;
+const int acaoDireita = 1;
+const int acaoEsquerda = -1;
+const int acaoFrente = 2;
+const int acaoTras = -2;
 
 int ESTADO_ATUAL;
 
@@ -70,6 +72,7 @@ const int qtdAcoes = 45;
 
 int acoesContExec = 0;
 int acoesContProg = 0;
+
 int acoes[qtdAcoes] = {0};
 
 
@@ -80,22 +83,18 @@ void resetarMotores()
   motor1.setCurrentPosition(0);
   motor2.setCurrentPosition(0);
 
-  switch (acoes[acoesContExec])
+  switch (abs(acoes[acoesContExec]))
   {
-    case acaoFrente:
+    case 1:
       tempo = new TimerObject(TEMPO_IR);
       tempo->setOnTimer(&pararMotor);
       break;
-    case acaoTras:
+    case 2:
+      tempo = new TimerObject(TEMPO_GIRAR);
+      tempo->setOnTimer(&pararMotor);
+      break;
+    default:
       tempo = new TimerObject(TEMPO_IR);
-      tempo->setOnTimer(&pararMotor);
-      break;
-    case acaoEsquerda:
-      tempo = new TimerObject(TEMPO_GIRAR);
-      tempo->setOnTimer(&pararMotor);
-      break;
-    case acaoDireita:
-      tempo = new TimerObject(TEMPO_GIRAR);
       tempo->setOnTimer(&pararMotor);
       break;
   }
@@ -114,7 +113,7 @@ void acionarMotores(int motor1Vel, int motor2Vel)
 void esperar(int tempo)
 {
   tempoFeedback = new TimerObject(tempo);
-  tempoFeedback->setOnTimer(&pararFeedback);
+  tempoFeedback->setOnTimer(&pararEsperar);
   emEspera = true;
   tempoFeedback->Start();
   while (emEspera)
@@ -123,7 +122,7 @@ void esperar(int tempo)
   }
 }
 
-void pararFeedback()
+void pararEsperar()
 {
   emEspera = false;
   tempoFeedback->Stop();
@@ -210,24 +209,23 @@ void feedbackEspera() {
 }
 
 void irFrente() {
-  acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_HORARIO);
+  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
 }
 
 void irTras() {
-  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
+  acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_ANTIHORARIO);
 }
 
 void girarEsquerda() {
-  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
+  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
 }
 
 void girarDireita() {
-  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
+  acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_HORARIO);
 }
 
 void verificarFeedback(int acoesContExec) {
-  switch (acoes[acoesContExec])
-  {
+  switch (acoes[acoesContExec]) {
     case acaoFrente:
       feedbackFrente(false);
       break;
@@ -375,13 +373,13 @@ void definirCallBack() {
 }
 
 void setup() {
-
   Serial.begin(9600);
 
   pinMode(LED_1, OUTPUT);
   pinMode(LED_2, OUTPUT);
   pinMode(LED_3, OUTPUT);
   pinMode(LED_4, OUTPUT);
+  
   pinMode(SAIDA_SOM, OUTPUT);
 
   definirMotor();
