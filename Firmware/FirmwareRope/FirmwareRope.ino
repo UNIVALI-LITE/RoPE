@@ -4,19 +4,24 @@
 
 TimerObject *tempo;
 
-#define TEMPO_EXE 3000
+TimerObject *tempoFeedback;
+
+#define TEMPO_IR 3000
+#define TEMPO_GIRAR 1265
 
 #define VEL_SENTIDO_HORARIO 1000
 #define VEL_SENTIDO_ANTIHORARIO -1000
 
 bool motorLigado = false;
 
+bool emEspera = false;
+
 //Entradas
 
-Button btnDireita = Button (A4); //Tras
-Button btnEsquerda = Button (A3); //Frente
-Button btnFrente = Button (A1); //
-Button btnTras = Button (A2);
+Button btnDireita = Button (A1); //Tras
+Button btnEsquerda = Button (A2); //Frente
+Button btnFrente = Button (A4); //
+Button btnTras = Button (A3);
 Button btnIr = Button (A5);
 
 //Saidas
@@ -27,15 +32,15 @@ Button btnIr = Button (A5);
 
 #define SAIDA_SOM A0
 
-#define MOTOR1_F1  2 
-#define MOTOR1_F2  3 
-#define MOTOR1_F3  4 
-#define MOTOR1_F4  5 
+#define MOTOR1_F1  2
+#define MOTOR1_F2  3
+#define MOTOR1_F3  4
+#define MOTOR1_F4  5
 
-#define MOTOR2_F1  6 
-#define MOTOR2_F2  7 
-#define MOTOR2_F3  8 
-#define MOTOR2_F4  9 
+#define MOTOR2_F1  6
+#define MOTOR2_F2  7
+#define MOTOR2_F3  8
+#define MOTOR2_F4  9
 
 AccelStepper motor1(8, MOTOR1_F1, MOTOR1_F3, MOTOR1_F2, MOTOR1_F4);
 AccelStepper motor2(8, MOTOR2_F1, MOTOR2_F3, MOTOR2_F2, MOTOR2_F4);
@@ -54,41 +59,80 @@ bool LED_2Aceso = false;
 bool LED_3Aceso = false;
 bool LED_4Aceso = false;
 
-const int acaoDireita = 1;
-const int acaoEsquerda = -1;
-const int acaoFrente = 3;
-const int acaoTras = -3;
+const int acaoFrente = 10;
+const int acaoTras = 20;
+const int acaoEsquerda = 30;
+const int acaoDireita = 40;
 
 int ESTADO_ATUAL;
 
 const int qtdAcoes = 45;
+
 int acoesContExec = 0;
 int acoesContProg = 0;
 int acoes[qtdAcoes] = {0};
 
 
 // !--- Acoes de Execucao ----
-void resetarMotores() {
+void resetarMotores()
+{
+
   motor1.setCurrentPosition(0);
   motor2.setCurrentPosition(0);
 
-  float rate = acoes[acoesContExec];
-  tempo = new TimerObject(TEMPO_EXE/abs(rate)-0.5);
-  tempo->setOnTimer(&pararMotor);
+  switch (acoes[acoesContExec])
+  {
+    case acaoFrente:
+      tempo = new TimerObject(TEMPO_IR);
+      tempo->setOnTimer(&pararMotor);
+      break;
+    case acaoTras:
+      tempo = new TimerObject(TEMPO_IR);
+      tempo->setOnTimer(&pararMotor);
+      break;
+    case acaoEsquerda:
+      tempo = new TimerObject(TEMPO_GIRAR);
+      tempo->setOnTimer(&pararMotor);
+      break;
+    case acaoDireita:
+      tempo = new TimerObject(TEMPO_GIRAR);
+      tempo->setOnTimer(&pararMotor);
+      break;
+  }
 }
 
-void acionarMotores(int motor1Vel, int motor2Vel) {
+void acionarMotores(int motor1Vel, int motor2Vel)
+{
+
   motor1.setSpeed(motor1Vel);
   motor2.setSpeed(motor2Vel);
   motor1.runSpeed();
   motor2.runSpeed();
+
 }
 
+void esperar(int tempo)
+{
+  tempoFeedback = new TimerObject(tempo);
+  tempoFeedback->setOnTimer(&pararFeedback);
+  emEspera = true;
+  tempoFeedback->Start();
+  while (emEspera)
+  {
+    tempoFeedback->Update();
+  }
+}
+
+void pararFeedback()
+{
+  emEspera = false;
+  tempoFeedback->Stop();
+}
 void feedback(int nota, int duracao, int led)
 {
   digitalWrite(led, HIGH);
   tone(SAIDA_SOM, nota);
-  delay(duracao);
+  esperar(duracao);
   noTone(SAIDA_SOM);
   digitalWrite(led, LOW);
 }
@@ -97,12 +141,13 @@ void feedbackFrente(bool programando) {
   switch (programando)
   {
     case true:
+      feedback(440, 30, LED_1);
       break;
     case false:
       feedback(440, 30, LED_1);
-      delay(50);
+      esperar(50);
       feedback(660, 30, LED_1);
-      delay(50);
+      esperar(50);
       feedback(880, 90, LED_1);
       break;
   }
@@ -112,12 +157,13 @@ void feedbackTras(bool programando) {
   switch (programando)
   {
     case true:
+      feedback(880, 30, LED_2);
       break;
     case false:
       feedback(880, 30, LED_2);
-      delay(50);
+      esperar(50);
       feedback(660, 30, LED_2);
-      delay(50);
+      esperar(50);
       feedback(440, 90, LED_2);
       break;
   }
@@ -127,12 +173,13 @@ void feedbackEsquerda(bool programando) {
   switch (programando)
   {
     case true:
+      feedback(880, 45, LED_3);
       break;
     case false:
       feedback(880, 45, LED_3);
-      delay(75);
+      esperar(75);
       feedback(1320, 45, LED_3);
-      delay(75);
+      esperar(75);
       feedback(704, 135, LED_3);
       break;
   }
@@ -142,12 +189,13 @@ void feedbackDireita(bool programando) {
   switch (programando)
   {
     case true:
+      feedback(880, 45, LED_4);
       break;
     case false:
       feedback(880, 45, LED_4);
-      delay(75);
+      esperar(75);
       feedback(729, 45, LED_4);
-      delay(75);
+      esperar(75);
       feedback(1056, 135, LED_4);
       break;
   }
@@ -162,26 +210,38 @@ void feedbackEspera() {
 }
 
 void irFrente() {
-  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
-  //feedbackFrente(false);
+  acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_HORARIO);
 }
 
 void irTras() {
-  acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_ANTIHORARIO);
-  //feedbackTras(false);
+  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
 }
 
 void girarEsquerda() {
-  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
-  //feedbackEsquerda(false);
+  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
 }
 
 void girarDireita() {
-  acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_HORARIO);
-  //feedbackDireita(false);
+  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
 }
 
-
+void verificarFeedback(int acoesContExec) {
+  switch (acoes[acoesContExec])
+  {
+    case acaoFrente:
+      feedbackFrente(false);
+      break;
+    case acaoTras:
+      feedbackTras(false);
+      break;
+    case acaoEsquerda:
+      feedbackEsquerda(false);
+      break;
+    case acaoDireita:
+      feedbackDireita(false);
+      break;
+  }
+}
 
 void verificarInstrucao(int acoesContExec) {
   switch (acoes[acoesContExec]) {
@@ -208,12 +268,12 @@ void pararMotor() {
 }
 
 void executar() {
+
   motorLigado = true;
-  resetarMotores();
 
   if (acoesContExec < acoesContProg) {
-    int rate = acoes[acoesContProg];
-   
+    resetarMotores();
+    verificarFeedback(acoesContExec);
     tempo->Start();
     while (motorLigado) {
       verificarInstrucao(acoesContExec);
@@ -248,7 +308,7 @@ void aguardar() {
   motorLigado = true;
   zerarArrayInstrucoes();
   desligarMotor();
-  
+
   //feedbackAguardando();
 
 }
@@ -281,29 +341,28 @@ void onPress(Button &b) {
   }
 
   if (b.pin == btnFrente.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO) {
-    Serial.println ("Programei pra frente!");
     acoes[acoesContProg] = acaoFrente;
     acoesContProg++;
-    //feedbackFrente(true);
+    feedbackFrente(true);
 
   } else if (b.pin == btnTras.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO) {
-    Serial.println ("Programei pra Tras!");
     acoes[acoesContProg] = acaoTras;
     acoesContProg++;
-    //feedbackTras(true);
-  } else if (b.pin == btnEsquerda.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO) {
+    feedbackTras(true);
 
-    Serial.println ("Programei pra Esquerda!");
+  } else if (b.pin == btnEsquerda.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO) {
     acoes[acoesContProg] = acaoEsquerda;
     acoesContProg++;
+    feedbackEsquerda(true);
 
   } else if (b.pin == btnDireita.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO) {
-    Serial.println ("Programei pra Direita!");
     acoes[acoesContProg] = acaoDireita;
     acoesContProg++;
-    //feedbackDireita(true);
+    feedbackDireita(true);
+
   } else if (b.pin == btnIr.pin && acoesContProg > 0) {
     ESTADO_ATUAL = ESTADO_EXECUTANDO;
+
   }
 }
 
@@ -316,24 +375,20 @@ void definirCallBack() {
 }
 
 void setup() {
-  Serial.begin(9600); 
+
+  Serial.begin(9600);
 
   pinMode(LED_1, OUTPUT);
   pinMode(LED_2, OUTPUT);
   pinMode(LED_3, OUTPUT);
   pinMode(LED_4, OUTPUT);
+  pinMode(SAIDA_SOM, OUTPUT);
 
   definirMotor();
   definirCallBack();
 
   ESTADO_ATUAL = ESTADO_AGUARDANDO;
 
-  tempo = new TimerObject(TEMPO_EXE);
-  tempo->setOnTimer(&pararMotor);
-
-  digitalWrite(10, HIGH);
-  delay(500);
-  digitalWrite(10,LOW);
 }
 
 void loop() {
@@ -353,7 +408,7 @@ void loop() {
       executar();
       break;
     case ESTADO_EM_ESPERA:
-      
+
       break;
     default:
       break;
