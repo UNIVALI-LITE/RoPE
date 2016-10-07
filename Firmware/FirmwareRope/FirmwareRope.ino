@@ -2,12 +2,12 @@
 #include <Button.h>
 #include <TimerObject.h>
 
-TimerObject *tempo;
+TimerObject *tempo = new TimerObject(3000);
 
-TimerObject *tempoEsperar;
+TimerObject *tempoEsperar = new TimerObject(100);
 
 #define TEMPO_IR 3000
-#define TEMPO_GIRAR 1265
+#define TEMPO_GIRAR 1275
 
 #define VEL_SENTIDO_HORARIO 1000
 #define VEL_SENTIDO_ANTIHORARIO -1000
@@ -79,40 +79,24 @@ int acoes[qtdAcoes] = {0};
 // !--- Acoes de Execucao ----
 void resetarMotores()
 {
-
   motor1.setCurrentPosition(0);
   motor2.setCurrentPosition(0);
-
-  switch (abs(acoes[acoesContExec]))
-  {
-    case 1:
-      tempo = new TimerObject(TEMPO_IR);
-      tempo->setOnTimer(&pararMotor);
-      break;
-
-    case 2:
-      tempo = new TimerObject(TEMPO_GIRAR);
-      tempo->setOnTimer(&pararMotor);
-      break;
-
-    default:
-      tempo = new TimerObject(TEMPO_IR);
-      tempo->setOnTimer(&pararMotor);
-      break;
-  }
 }
 
 void acionarMotores(int motor1Vel, int motor2Vel)
 {
   motor1.setSpeed(motor1Vel);
   motor2.setSpeed(motor2Vel);
+
   motor1.runSpeed();
   motor2.runSpeed();
 }
 
 void esperar(int tempo)
 {
-  tempoEsperar = new TimerObject(tempo);
+  if(!tempoEsperar->isEnabled())
+  {
+  tempoEsperar->setInterval(tempo);
   tempoEsperar->setOnTimer(&pararEsperar);
 
   emEspera = true;
@@ -122,6 +106,7 @@ void esperar(int tempo)
   while (emEspera)
   {
     tempoEsperar->Update();
+  }
   }
 }
 
@@ -225,22 +210,68 @@ void feedbackEspera()
 
 void irFrente()
 {
-  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
+  if(!tempo->isEnabled())
+  {
+  tempo->setInterval(TEMPO_GIRAR);
+  tempo->setOnTimer(&pararMotor);
+  tempo->Start();
+  while (motorLigado)
+  {
+    acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
+    tempo->Update();
+  }
+  tempo->Stop();
+  }
 }
 
 void irTras()
 {
-  acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_ANTIHORARIO);
+  if(!tempo->isEnabled())
+  {
+  tempo->setInterval(TEMPO_GIRAR);
+  tempo->setOnTimer(&pararMotor);
+  tempo->Start();
+  while (motorLigado)
+  {
+    acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_ANTIHORARIO);
+    tempo->Update();
+  }
+  tempo->Stop();
+  }
 }
 
 void girarEsquerda()
 {
-  acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
+  if(!tempo->isEnabled())
+  {
+  tempo->setInterval(TEMPO_IR);
+  tempo->setOnTimer(&pararMotor);
+  tempo->Start();
+  while (motorLigado)
+  {
+
+    acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
+    tempo->Update();
+  }
+  tempo->Stop();
+  }
 }
 
 void girarDireita()
 {
-  acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_HORARIO);
+  if(!tempo->isEnabled())
+  {
+  tempo->setInterval(TEMPO_IR);
+  tempo->setOnTimer(&pararMotor);
+  tempo->Start();
+  while (motorLigado)
+  {
+
+    acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_HORARIO);
+    tempo->Update();
+  }
+  tempo->Stop();
+  }
 }
 
 void verificarFeedback(int acoesContExec)
@@ -286,7 +317,7 @@ void verificarInstrucao(int acoesContExec)
       break;
 
     default:
-      ESTADO_ATUAL = ESTADO_AGUARDANDO;
+      //ESTADO_ATUAL = ESTADO_AGUARDANDO;
       break;
   }
 }
@@ -305,18 +336,13 @@ void executar() {
 
     verificarFeedback(acoesContExec);
 
-    tempo->Start();
+    verificarInstrucao(acoesContExec);
 
-    while (motorLigado)
-    {
-      verificarInstrucao(acoesContExec);
-      tempo->Update();
-    }
   }
 
   acoesContExec++;
 
-  if (acoesContExec > acoesContProg)
+  if (acoesContExec >= acoesContProg)
   {
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
     return;
