@@ -4,7 +4,7 @@
 
 TimerObject *tempo;
 
-TimerObject *tempoFeedback;
+TimerObject *tempoEsperar;
 
 #define TEMPO_IR 3000
 #define TEMPO_GIRAR 1265
@@ -89,10 +89,12 @@ void resetarMotores()
       tempo = new TimerObject(TEMPO_IR);
       tempo->setOnTimer(&pararMotor);
       break;
+
     case 2:
       tempo = new TimerObject(TEMPO_GIRAR);
       tempo->setOnTimer(&pararMotor);
       break;
+
     default:
       tempo = new TimerObject(TEMPO_IR);
       tempo->setOnTimer(&pararMotor);
@@ -102,41 +104,49 @@ void resetarMotores()
 
 void acionarMotores(int motor1Vel, int motor2Vel)
 {
-
   motor1.setSpeed(motor1Vel);
   motor2.setSpeed(motor2Vel);
   motor1.runSpeed();
   motor2.runSpeed();
-
 }
 
 void esperar(int tempo)
 {
-  tempoFeedback = new TimerObject(tempo);
-  tempoFeedback->setOnTimer(&pararEsperar);
+  tempoEsperar = new TimerObject(tempo);
+  tempoEsperar->setOnTimer(&pararEsperar);
+
   emEspera = true;
-  tempoFeedback->Start();
+
+  tempoEsperar->Start();
+
   while (emEspera)
   {
-    tempoFeedback->Update();
+    tempoEsperar->Update();
   }
 }
 
 void pararEsperar()
 {
   emEspera = false;
-  tempoFeedback->Stop();
+
+  tempoEsperar->Stop();
 }
+
 void feedback(int nota, int duracao, int led)
 {
   digitalWrite(led, HIGH);
+
   tone(SAIDA_SOM, nota);
+
   esperar(duracao);
+
   noTone(SAIDA_SOM);
+
   digitalWrite(led, LOW);
 }
 
-void feedbackFrente(bool programando) {
+void feedbackFrente(bool programando)
+{
   switch (programando)
   {
     case true:
@@ -152,7 +162,8 @@ void feedbackFrente(bool programando) {
   }
 }
 
-void feedbackTras(bool programando) {
+void feedbackTras(bool programando)
+{
   switch (programando)
   {
     case true:
@@ -168,7 +179,8 @@ void feedbackTras(bool programando) {
   }
 }
 
-void feedbackEsquerda(bool programando) {
+void feedbackEsquerda(bool programando)
+{
   switch (programando)
   {
     case true:
@@ -184,7 +196,8 @@ void feedbackEsquerda(bool programando) {
   }
 }
 
-void feedbackDireita(bool programando) {
+void feedbackDireita(bool programando)
+{
   switch (programando)
   {
     case true:
@@ -200,80 +213,102 @@ void feedbackDireita(bool programando) {
   }
 }
 
-void feedbackAguardando() {
+void feedbackAguardando()
+{
 
 }
 
-void feedbackEspera() {
+void feedbackEspera()
+{
 
 }
 
-void irFrente() {
+void irFrente()
+{
   acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
 }
 
-void irTras() {
+void irTras()
+{
   acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_ANTIHORARIO);
 }
 
-void girarEsquerda() {
+void girarEsquerda()
+{
   acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
 }
 
-void girarDireita() {
+void girarDireita()
+{
   acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_HORARIO);
 }
 
-void verificarFeedback(int acoesContExec) {
-  switch (acoes[acoesContExec]) {
+void verificarFeedback(int acoesContExec)
+{
+  switch (acoes[acoesContExec])
+  {
     case acaoFrente:
       feedbackFrente(false);
       break;
+
     case acaoTras:
       feedbackTras(false);
       break;
+
     case acaoEsquerda:
       feedbackEsquerda(false);
       break;
+
     case acaoDireita:
       feedbackDireita(false);
       break;
   }
 }
 
-void verificarInstrucao(int acoesContExec) {
-  switch (acoes[acoesContExec]) {
+void verificarInstrucao(int acoesContExec)
+{
+  switch (acoes[acoesContExec])
+  {
     case acaoFrente:
       irFrente();
       break;
+
     case acaoTras:
       irTras();
       break;
+
     case acaoEsquerda:
       girarEsquerda();
       break;
+
     case acaoDireita:
       girarDireita();
       break;
+
     default:
       ESTADO_ATUAL = ESTADO_AGUARDANDO;
       break;
   }
 }
 
-void pararMotor() {
+void pararMotor()
+{
   motorLigado = false;
 }
 
 void executar() {
-
   motorLigado = true;
 
-  if (acoesContExec < acoesContProg) {
+  if (acoesContExec < acoesContProg)
+  {
     resetarMotores();
+
     verificarFeedback(acoesContExec);
+
     tempo->Start();
-    while (motorLigado) {
+
+    while (motorLigado)
+    {
       verificarInstrucao(acoesContExec);
       tempo->Update();
     }
@@ -281,13 +316,15 @@ void executar() {
 
   acoesContExec++;
 
-  if (acoesContExec > acoesContProg) {
+  if (acoesContExec > acoesContProg)
+  {
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
     return;
   }
 }
 
-void desligarMotor() {
+void desligarMotor()
+{
   digitalWrite(MOTOR1_F1, LOW);
   digitalWrite(MOTOR1_F2, LOW);
   digitalWrite(MOTOR1_F3, LOW);
@@ -299,26 +336,27 @@ void desligarMotor() {
   digitalWrite(MOTOR2_F4, LOW);
 }
 
-void aguardar() {
+void aguardar()
+{
+  desligarMotor();
+  tempo->Stop();
+  zerarArrayInstrucoes();
+  motorLigado = true;
   acoesContProg = 0;
   acoesContExec = 0;
-  tempo->Stop();
-  motorLigado = true;
-  zerarArrayInstrucoes();
-  desligarMotor();
 
   //feedbackAguardando();
-
 }
 
-void zerarArrayInstrucoes() {
+void zerarArrayInstrucoes()
+{
   for (int i = 0; i < qtdAcoes; i++) {
     acoes[i] = 0;
   }
 }
 
-void definirMotor() {
-
+void definirMotor()
+{
   motor1.setMaxSpeed(2000);
   motor1.setSpeed(VEL_SENTIDO_HORARIO);
 
@@ -326,45 +364,56 @@ void definirMotor() {
   motor2.setSpeed(VEL_SENTIDO_HORARIO);
 }
 
-void onPress(Button &b) {
-
-  if (ESTADO_ATUAL == ESTADO_AGUARDANDO && b.pin != btnIr.pin) {
+void onPress(Button &b)
+{
+  if (ESTADO_ATUAL == ESTADO_AGUARDANDO && b.pin != btnIr.pin)
+  {
     ESTADO_ATUAL = ESTADO_PROGRAMANDO;
   }
 
-  if (acoesContProg > qtdAcoes) {
+  if (acoesContProg > qtdAcoes)
+  {
     ESTADO_ATUAL = ESTADO_EM_ESPERA;
     //feedbackEspera();
     return;
   }
 
-  if (b.pin == btnFrente.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO) {
+  if (b.pin == btnFrente.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO)
+  {
     acoes[acoesContProg] = acaoFrente;
     acoesContProg++;
     feedbackFrente(true);
+  }
 
-  } else if (b.pin == btnTras.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO) {
+  else if (b.pin == btnTras.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO)
+  {
     acoes[acoesContProg] = acaoTras;
     acoesContProg++;
     feedbackTras(true);
+  }
 
-  } else if (b.pin == btnEsquerda.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO) {
+  else if (b.pin == btnEsquerda.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO)
+  {
     acoes[acoesContProg] = acaoEsquerda;
     acoesContProg++;
     feedbackEsquerda(true);
+  }
 
-  } else if (b.pin == btnDireita.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO) {
+  else if (b.pin == btnDireita.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO)
+  {
     acoes[acoesContProg] = acaoDireita;
     acoesContProg++;
     feedbackDireita(true);
+  }
 
-  } else if (b.pin == btnIr.pin && acoesContProg > 0) {
+  else if (b.pin == btnIr.pin && acoesContProg > 0)
+  {
     ESTADO_ATUAL = ESTADO_EXECUTANDO;
-
   }
 }
 
-void definirCallBack() {
+void definirCallBack()
+{
   btnDireita.pressHandler(onPress);
   btnEsquerda.pressHandler(onPress);
   btnFrente.pressHandler(onPress);
@@ -379,24 +428,25 @@ void setup() {
   pinMode(LED_2, OUTPUT);
   pinMode(LED_3, OUTPUT);
   pinMode(LED_4, OUTPUT);
-  
+
   pinMode(SAIDA_SOM, OUTPUT);
 
   definirMotor();
   definirCallBack();
 
   ESTADO_ATUAL = ESTADO_AGUARDANDO;
-
 }
 
-void loop() {
+void loop()
+{
   btnDireita.process();
   btnEsquerda.process();
   btnFrente.process();
   btnTras.process();
   btnIr.process();
 
-  switch (ESTADO_ATUAL) {
+  switch (ESTADO_ATUAL)
+  {
     case ESTADO_AGUARDANDO:
       aguardar();
       break;
