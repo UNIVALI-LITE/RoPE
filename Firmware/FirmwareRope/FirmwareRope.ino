@@ -2,12 +2,10 @@
 #include <Button.h>
 #include <TimerObject.h>
 
-TimerObject *tempo = new TimerObject(3000);
-
-TimerObject *tempoEsperar = new TimerObject(100);
+TimerObject *Timer = new TimerObject(0);
 
 #define TEMPO_IR 3000
-#define TEMPO_GIRAR 1275
+#define TEMPO_GIRAR 1285
 
 #define VEL_SENTIDO_HORARIO 1000
 #define VEL_SENTIDO_ANTIHORARIO -1000
@@ -51,16 +49,7 @@ AccelStepper motor2(8, MOTOR2_F1, MOTOR2_F3, MOTOR2_F2, MOTOR2_F4);
 #define ESTADO_EXECUTANDO 3
 #define ESTADO_EM_ESPERA 4
 
-//Flags Possíveis
-bool temSom = false;
-
-bool estaProgramando = false;
-
-bool LED_1Aceso = false;
-bool LED_2Aceso = false;
-bool LED_3Aceso = false;
-bool LED_4Aceso = false;
-
+//Variaveis
 const int acaoDireita = 1;
 const int acaoEsquerda = -1;
 const int acaoFrente = 2;
@@ -92,41 +81,33 @@ void acionarMotores(int motor1Vel, int motor2Vel)
   motor2.runSpeed();
 }
 
-void esperar(int tempo)
+void esperar(int duracao)
 {
-  if(!tempoEsperar->isEnabled())
-  {
-  tempoEsperar->setInterval(tempo);
-  tempoEsperar->setOnTimer(&pararEsperar);
+  Timer->setInterval(duracao);
+  Timer->setOnTimer(&pararEsperar);
 
   emEspera = true;
 
-  tempoEsperar->Start();
+  Timer->Start();
 
   while (emEspera)
   {
-    tempoEsperar->Update();
-  }
+    Timer->Update();
   }
 }
 
 void pararEsperar()
 {
   emEspera = false;
-
-  tempoEsperar->Stop();
+  Timer->Stop();
 }
 
 void feedback(int nota, int duracao, int led)
 {
   digitalWrite(led, HIGH);
-
   tone(SAIDA_SOM, nota);
-
   esperar(duracao);
-
   noTone(SAIDA_SOM);
-
   digitalWrite(led, LOW);
 }
 
@@ -143,6 +124,9 @@ void feedbackFrente(bool programando)
       feedback(660, 30, LED_1);
       esperar(50);
       feedback(880, 90, LED_1);
+      break;
+    default:
+      feedback(250, 250, LED_1);
       break;
   }
 }
@@ -161,6 +145,9 @@ void feedbackTras(bool programando)
       esperar(50);
       feedback(440, 90, LED_2);
       break;
+    default:
+      feedback(250, 250, LED_2);
+      break;
   }
 }
 
@@ -177,6 +164,9 @@ void feedbackEsquerda(bool programando)
       feedback(1320, 45, LED_3);
       esperar(75);
       feedback(704, 135, LED_3);
+      break;
+    default:
+      feedback(250, 250, LED_3);
       break;
   }
 }
@@ -195,6 +185,9 @@ void feedbackDireita(bool programando)
       esperar(75);
       feedback(1056, 135, LED_4);
       break;
+    default:
+      feedback(250, 250, LED_4);
+      break;
   }
 }
 
@@ -210,68 +203,62 @@ void feedbackEspera()
 
 void irFrente()
 {
-  if(!tempo->isEnabled())
-  {
-  tempo->setInterval(TEMPO_GIRAR);
-  tempo->setOnTimer(&pararMotor);
-  tempo->Start();
+  Timer->setInterval(TEMPO_GIRAR);
+  Timer->setOnTimer(&pararMotor);
+
+  Timer->Start();
+
   while (motorLigado)
   {
     acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
-    tempo->Update();
+    Timer->Update();
   }
-  tempo->Stop();
-  }
+  Timer->Stop();
 }
 
 void irTras()
 {
-  if(!tempo->isEnabled())
-  {
-  tempo->setInterval(TEMPO_GIRAR);
-  tempo->setOnTimer(&pararMotor);
-  tempo->Start();
+  Timer->setInterval(TEMPO_GIRAR);
+  Timer->setOnTimer(&pararMotor);
+
+  Timer->Start();
+
   while (motorLigado)
   {
     acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_ANTIHORARIO);
-    tempo->Update();
+    Timer->Update();
   }
-  tempo->Stop();
-  }
+  Timer->Stop();
 }
 
 void girarEsquerda()
 {
-  if(!tempo->isEnabled())
-  {
-  tempo->setInterval(TEMPO_IR);
-  tempo->setOnTimer(&pararMotor);
-  tempo->Start();
+  Timer->setInterval(TEMPO_IR);
+  Timer->setOnTimer(&pararMotor);
+
+  Timer->Start();
+
   while (motorLigado)
   {
-
     acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
-    tempo->Update();
+    Timer->Update();
   }
-  tempo->Stop();
-  }
+  Timer->Stop();
 }
 
 void girarDireita()
 {
-  if(!tempo->isEnabled())
-  {
-  tempo->setInterval(TEMPO_IR);
-  tempo->setOnTimer(&pararMotor);
-  tempo->Start();
+  Timer->setInterval(TEMPO_IR);
+  Timer->setOnTimer(&pararMotor);
+
+  Timer->Start();
+
   while (motorLigado)
   {
-
     acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_HORARIO);
-    tempo->Update();
+    Timer->Update();
   }
-  tempo->Stop();
-  }
+  Timer->Stop();
 }
 
 void verificarFeedback(int acoesContExec)
@@ -365,7 +352,7 @@ void desligarMotor()
 void aguardar()
 {
   desligarMotor();
-  tempo->Stop();
+  Timer->Stop();
   zerarArrayInstrucoes();
   motorLigado = true;
   acoesContProg = 0;
