@@ -1,6 +1,6 @@
-#include <AccelStepper.h>
-#include <Button.h>
-#include <TimerObject.h>
+#include "libs/AccelStepper/AccelStepper.h"
+#include "libs/ArduinoTimerObject/TimerObject.h"
+#include "libs/Button/Button.h"
 
 TimerObject *Timer = new TimerObject(0);
 
@@ -10,16 +10,18 @@ TimerObject *Timer = new TimerObject(0);
 #define VEL_SENTIDO_HORARIO 1000
 #define VEL_SENTIDO_ANTIHORARIO -1000
 
+#define QUANTIDADE_MAXIMA_ACOES 45
+
 bool motorLigado = false;
 
 bool emEspera = false;
 
 //Entradas
 
-Button btnDireita = Button (A4); //Tras
-Button btnEsquerda = Button (A3); //Frente
-Button btnFrente = Button (A1); //
-Button btnTras = Button (A2);
+Button btnFrente = Button (A4); //Tras
+Button btnTras = Button (A3); //Frente
+Button btnDireita = Button (A1); //
+Button btnEsquerda = Button (A2);
 Button btnIr = Button (A5);
 
 //Saidas
@@ -45,9 +47,7 @@ AccelStepper motor2(8, MOTOR2_F1, MOTOR2_F3, MOTOR2_F2, MOTOR2_F4);
 
 //Estados possíveis
 #define ESTADO_AGUARDANDO 1
-#define ESTADO_PROGRAMANDO 2
-#define ESTADO_EXECUTANDO 3
-#define ESTADO_EM_ESPERA 4
+#define ESTADO_EXECUTANDO 2
 
 //Variaveis
 const int acaoDireita = 1;
@@ -56,13 +56,10 @@ const int acaoFrente = 2;
 const int acaoTras = -2;
 
 int ESTADO_ATUAL;
-
-const int qtdAcoes = 45;
-
 int acoesContExec = 0;
 int acoesContProg = 0;
 
-int acoes[qtdAcoes] = {0};
+int acoes[QUANTIDADE_MAXIMA_ACOES] = {0};
 
 
 // !--- Acoes de Execucao ----
@@ -165,7 +162,7 @@ void feedbackEsquerda(bool programando)
       esperar(75);
       feedback(704, 135, LED_3);
       break;
-    default:
+    default:                                                                                                                                                
       feedback(250, 250, LED_3);
       break;
   }
@@ -332,6 +329,7 @@ void executar() {
   if (acoesContExec >= acoesContProg)
   {
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
+    reiniciarProgramacao();
     return;
   }
 }
@@ -349,7 +347,7 @@ void desligarMotor()
   digitalWrite(MOTOR2_F4, LOW);
 }
 
-void aguardar()
+void reiniciarProgramacao()
 {
   desligarMotor();
   Timer->Stop();
@@ -363,7 +361,7 @@ void aguardar()
 
 void zerarArrayInstrucoes()
 {
-  for (int i = 0; i < qtdAcoes; i++) {
+  for (int i = 0; i < QUANTIDADE_MAXIMA_ACOES; i++) {
     acoes[i] = 0;
   }
 }
@@ -379,47 +377,42 @@ void definirMotor()
 
 void onPress(Button &b)
 {
-  if (ESTADO_ATUAL == ESTADO_AGUARDANDO && b.pin != btnIr.pin)
-  {
-    ESTADO_ATUAL = ESTADO_PROGRAMANDO;
-  }
-
-  if (acoesContProg > qtdAcoes)
-  {
-    ESTADO_ATUAL = ESTADO_EM_ESPERA;
-    //feedbackEspera();
+  if(ESTADO_ATUAL != ESTADO_AGUARDANDO){
     return;
   }
-
-  if (b.pin == btnFrente.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO)
+  
+  if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
-    acoes[acoesContProg] = acaoFrente;
-    acoesContProg++;
-    feedbackFrente(true);
+    if (b.pin == btnDireita.pin)
+    {
+      acoes[acoesContProg] = acaoFrente;
+      acoesContProg++;
+      feedbackFrente(true);
+    }
+  
+    else if (b.pin == btnEsquerda.pin)
+    {
+      acoes[acoesContProg] = acaoTras;
+      acoesContProg++;
+      feedbackTras(true);
+    }
+  
+    else if (b.pin == btnTras.pin)
+    {
+      acoes[acoesContProg] = acaoEsquerda;
+      acoesContProg++;
+      feedbackEsquerda(true);
+    }
+  
+    else if (b.pin == btnFrente.pin)
+    {
+      acoes[acoesContProg] = acaoDireita;
+      acoesContProg++;
+      feedbackDireita(true);
+    }
   }
 
-  else if (b.pin == btnTras.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO)
-  {
-    acoes[acoesContProg] = acaoTras;
-    acoesContProg++;
-    feedbackTras(true);
-  }
-
-  else if (b.pin == btnEsquerda.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO)
-  {
-    acoes[acoesContProg] = acaoEsquerda;
-    acoesContProg++;
-    feedbackEsquerda(true);
-  }
-
-  else if (b.pin == btnDireita.pin && ESTADO_ATUAL == ESTADO_PROGRAMANDO)
-  {
-    acoes[acoesContProg] = acaoDireita;
-    acoesContProg++;
-    feedbackDireita(true);
-  }
-
-  else if (b.pin == btnIr.pin && acoesContProg > 0)
+  if (b.pin == btnIr.pin && acoesContProg > 0)
   {
     ESTADO_ATUAL = ESTADO_EXECUTANDO;
   }
@@ -427,16 +420,33 @@ void onPress(Button &b)
 
 void definirCallBack()
 {
-  btnDireita.pressHandler(onPress);
-  btnEsquerda.pressHandler(onPress);
   btnFrente.pressHandler(onPress);
   btnTras.pressHandler(onPress);
+  btnDireita.pressHandler(onPress);
+  btnEsquerda.pressHandler(onPress);
   btnIr.pressHandler(onPress);
+}
+
+void setup_processar_estados_invalidos_iniciacao(){
+  btnFrente.process();
+  btnTras.process();
+  btnDireita.process();
+  btnEsquerda.process();
+  reiniciarProgramacao();
+  btnIr.process();
+}
+
+void instrucoes_de_teste(){
+  onPress(btnTras);
+  onPress(btnFrente);
+  onPress(btnDireita);
+  onPress(btnEsquerda);
+  onPress(btnIr);
 }
 
 void setup() {
   Serial.begin(9600);
-
+  
   pinMode(LED_1, OUTPUT);
   pinMode(LED_2, OUTPUT);
   pinMode(LED_3, OUTPUT);
@@ -448,30 +458,24 @@ void setup() {
   definirCallBack();
 
   ESTADO_ATUAL = ESTADO_AGUARDANDO;
+
+  setup_processar_estados_invalidos_iniciacao();
 }
 
 void loop()
 {
-  btnDireita.process();
-  btnEsquerda.process();
-  btnFrente.process();
-  btnTras.process();
-  btnIr.process();
-
   switch (ESTADO_ATUAL)
   {
     case ESTADO_AGUARDANDO:
-      aguardar();
-      break;
-    case ESTADO_PROGRAMANDO:
+      btnFrente.process();
+      btnTras.process();
+      btnDireita.process();
+      btnEsquerda.process();
+      btnIr.process();
       break;
     case ESTADO_EXECUTANDO:
       executar();
       break;
-    case ESTADO_EM_ESPERA:
-
-      break;
-    default:
-      break;
   }
+  instrucoes_de_teste();
 }
