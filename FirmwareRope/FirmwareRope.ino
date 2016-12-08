@@ -1,6 +1,6 @@
-#include "libs/AccelStepper/AccelStepper.h"
-#include "libs/ArduinoTimerObject/TimerObject.h"
-#include "libs/Button/Button.h"
+#include "libs/AccelStepper/AccelStepper.cpp"
+#include "libs/ArduinoTimerObject/TimerObject.cpp"
+#include "libs/Button/Button.cpp"
 
 TimerObject *Timer = new TimerObject(0);
 
