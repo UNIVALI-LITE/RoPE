@@ -18,17 +18,23 @@ bool emEspera = false;
 
 //Entradas
 
-Button btnFrente = Button (A4); //Tras
-Button btnTras = Button (A3); //Frente
-Button btnDireita = Button (A1); //
+Button btnFrente = Button (A1); 
+Button btnTras = Button (A5); 
+Button btnDireita = Button (A4); //
 Button btnEsquerda = Button (A2);
-Button btnIr = Button (A5);
+Button btnIr = Button (A3);
+
+//A1 = Tras
+//A2 = Direita 
+//A3 = Confirmar
+//A4 = Esquerda
+//A5 = Frente
 
 //Saidas
-#define LED_1 10
-#define LED_2 11
-#define LED_3 12
-#define LED_4 13
+#define LED_1 10 //Esquerda OK
+#define LED_2 12 //Direita OK
+#define LED_3 11 //Frente OK
+#define LED_4 13 //Tras OK
 
 #define SAIDA_SOM A0
 
@@ -477,5 +483,5 @@ void loop()
       executar();
       break;
   }
-  instrucoes_de_teste();
+  //instrucoes_de_teste();
 }
