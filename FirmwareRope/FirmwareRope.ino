@@ -4,8 +4,10 @@
 
 TimerObject *Timer = new TimerObject(0);
 
-#define TEMPO_IR 3000
-#define TEMPO_GIRAR 1285
+#define TEMPO_IR_FRENTE 3000
+#define TEMPO_IR_TRAS 3000
+#define TEMPO_GIRAR_ESQUERDA 1393
+#define TEMPO_GIRAR_DIREITA 1365
 
 #define VEL_SENTIDO_HORARIO 1000
 #define VEL_SENTIDO_ANTIHORARIO -1000
@@ -206,22 +208,7 @@ void feedbackEspera()
 
 void irFrente()
 {
-  Timer->setInterval(TEMPO_GIRAR);
-  Timer->setOnTimer(&pararMotor);
-
-  Timer->Start();
-
-  while (motorLigado)
-  {
-    acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
-    Timer->Update();
-  }
-  Timer->Stop();
-}
-
-void irTras()
-{
-  Timer->setInterval(TEMPO_GIRAR);
+  Timer->setInterval(TEMPO_GIRAR_ESQUERDA); //Esquerda falta mais que direita
   Timer->setOnTimer(&pararMotor);
 
   Timer->Start();
@@ -234,16 +221,31 @@ void irTras()
   Timer->Stop();
 }
 
-void girarEsquerda()
+void irTras()
 {
-  Timer->setInterval(TEMPO_IR);
+  Timer->setInterval(TEMPO_GIRAR_DIREITA); //Direita 80 antes
   Timer->setOnTimer(&pararMotor);
 
   Timer->Start();
 
   while (motorLigado)
   {
-    acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
+    acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
+    Timer->Update();
+  }
+  Timer->Stop();
+}
+
+void girarEsquerda() //Aqui vai pra frente (nossa placa)
+{
+  Timer->setInterval(TEMPO_IR_FRENTE);
+  Timer->setOnTimer(&pararMotor);
+
+  Timer->Start();
+
+  while (motorLigado)
+  {
+    acionarMotores(VEL_SENTIDO_ANTIHORARIO,  VEL_SENTIDO_HORARIO);
     Timer->Update();
   }
   Timer->Stop();
@@ -251,14 +253,14 @@ void girarEsquerda()
 
 void girarDireita()
 {
-  Timer->setInterval(TEMPO_IR);
+  Timer->setInterval(TEMPO_IR_TRAS);
   Timer->setOnTimer(&pararMotor);
 
   Timer->Start();
 
   while (motorLigado)
   {
-    acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_HORARIO);
+    acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
     Timer->Update();
   }
   Timer->Stop();
