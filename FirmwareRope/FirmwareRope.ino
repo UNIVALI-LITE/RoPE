@@ -192,9 +192,21 @@ void feedbackAguardando()
 
 }
 
-void feedbackEspera()
+void feedbackFim()
 {
-
+      feedback(600, 45, LED_FRENTE);
+      esperar(75);
+      feedback(900, 45, LED_DIREITA);
+      esperar(75);
+      feedback(1200, 135, LED_TRAS);
+      esperar(75);
+      feedback(1400, 135, LED_ESQUERDA);
+      esperar(75);
+      feedback(900, 45, LED_TRAS);
+      esperar(75);
+      feedback(700, 45, LED_DIREITA);
+      esperar(75);
+      feedback(600, 135, LED_FRENTE);
 }
 
 void feedbackParar()
@@ -339,7 +351,12 @@ void executar() {
   }
 
   acoesContExec++;
-
+  
+  if (acoesContExec >= acoesContProg)
+  {
+    feedbackFim();
+  }
+  
   if (acoesContExec >= acoesContProg || ESTADO_ATUAL == ESTADO_AGUARDANDO)
   {
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
