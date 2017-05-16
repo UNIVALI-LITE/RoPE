@@ -61,7 +61,6 @@ int acoesContProg = 0;
 
 int acoes[QUANTIDADE_MAXIMA_ACOES] = {0};
 
-
 // !--- Acoes de Execucao ----
 void resetarMotores()
 {
@@ -198,6 +197,17 @@ void feedbackEspera()
 
 }
 
+void feedbackParar()
+{
+   feedback(500, 45, LED_FRENTE);
+   esperar(50);
+   feedback(400, 45, LED_DIREITA);
+   esperar(50);
+   feedback(600, 135, LED_TRAS);
+   esperar(50);
+   feedback(1000, 135, LED_ESQUERDA);
+}
+
 void girarEsquerda()
 {
   Timer->setInterval(TEMPO_GIRAR);
@@ -205,10 +215,11 @@ void girarEsquerda()
 
   Timer->Start();
 
-  while (motorLigado)
+  while (motorLigado && ESTADO_EXECUTANDO)
   {
     acionarMotores(VEL_SENTIDO_HORARIO,VEL_SENTIDO_HORARIO);
     Timer->Update();
+    btnIr.process();
   }
   Timer->Stop();
 }
@@ -220,10 +231,11 @@ void girarDireita()
 
   Timer->Start();
 
-  while (motorLigado)
+  while (motorLigado && ESTADO_EXECUTANDO)
   {
     acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_ANTIHORARIO);
     Timer->Update();
+    btnIr.process();
   }
   Timer->Stop();
 }
@@ -235,10 +247,11 @@ void irFrente()
 
   Timer->Start();
 
-  while (motorLigado)
+  while (motorLigado && ESTADO_EXECUTANDO)
   {
     acionarMotores(VEL_SENTIDO_HORARIO,VEL_SENTIDO_ANTIHORARIO);
     Timer->Update();
+    btnIr.process();
   }
   Timer->Stop();
 }
@@ -250,10 +263,11 @@ void irTras()
 
   Timer->Start();
 
-  while (motorLigado)
+  while (motorLigado && ESTADO_EXECUTANDO)
   {
     acionarMotores(VEL_SENTIDO_ANTIHORARIO,VEL_SENTIDO_HORARIO);
     Timer->Update();
+    btnIr.process();
   }
   Timer->Stop();
 }
@@ -326,7 +340,7 @@ void executar() {
 
   acoesContExec++;
 
-  if (acoesContExec >= acoesContProg)
+  if (acoesContExec >= acoesContProg || ESTADO_ATUAL == ESTADO_AGUARDANDO)
   {
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
     reiniciarProgramacao();
@@ -377,45 +391,52 @@ void definirMotor()
 
 void onPress(Button &b)
 {
-  if(ESTADO_ATUAL != ESTADO_AGUARDANDO){
-    return;
+  if(ESTADO_ATUAL == ESTADO_EXECUTANDO){
+    if(b.pin == btnIr.pin){
+      pararMotor();
+      ESTADO_ATUAL = ESTADO_AGUARDANDO;
+      feedbackParar();
+    }
+  }else if(ESTADO_ATUAL == ESTADO_AGUARDANDO){
+    if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
+    {
+      if (b.pin == btnEsquerda.pin)
+      {
+        acoes[acoesContProg] = acaoEsquerda;
+        acoesContProg++;
+        feedbackEsquerda(true);
+      }
+    
+      else if (b.pin == btnDireita.pin)
+      {
+        acoes[acoesContProg] = acaoDireita;
+        acoesContProg++;
+        feedbackDireita(true);
+      }
+    
+      else if (b.pin == btnFrente.pin)
+      {
+        acoes[acoesContProg] = acaoFrente;
+        acoesContProg++;
+        feedbackFrente(true);
+      }
+    
+      else if (b.pin == btnTras.pin)
+      {
+        acoes[acoesContProg] = acaoTras;
+        acoesContProg++;
+        feedbackTras(true);
+      }
+    }
+  
+    if (b.pin == btnIr.pin && acoesContProg > 0)
+    {
+      ESTADO_ATUAL = ESTADO_EXECUTANDO;
+    }
   }
   
-  if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
-  {
-    if (b.pin == btnEsquerda.pin)
-    {
-      acoes[acoesContProg] = acaoEsquerda;
-      acoesContProg++;
-      feedbackEsquerda(true);
-    }
   
-    else if (b.pin == btnDireita.pin)
-    {
-      acoes[acoesContProg] = acaoDireita;
-      acoesContProg++;
-      feedbackDireita(true);
-    }
-  
-    else if (b.pin == btnFrente.pin)
-    {
-      acoes[acoesContProg] = acaoFrente;
-      acoesContProg++;
-      feedbackFrente(true);
-    }
-  
-    else if (b.pin == btnTras.pin)
-    {
-      acoes[acoesContProg] = acaoTras;
-      acoesContProg++;
-      feedbackTras(true);
-    }
-  }
-
-  if (b.pin == btnIr.pin && acoesContProg > 0)
-  {
-    ESTADO_ATUAL = ESTADO_EXECUTANDO;
-  }
+  esperar(200);
 }
 
 void definirCallBack()
@@ -434,14 +455,6 @@ void setup_processar_estados_invalidos_iniciacao(){
   btnDireita.process();
   reiniciarProgramacao();
   btnIr.process();
-}
-
-void instrucoes_de_teste(){
-  onPress(btnFrente);
-  onPress(btnTras);
-  onPress(btnEsquerda);
-  onPress(btnDireita);
-  onPress(btnIr);
 }
 
 void setup() {
@@ -477,5 +490,4 @@ void loop()
       executar();
       break;
   }
-  //instrucoes_de_teste();
 }
