@@ -7,8 +7,8 @@ TimerObject *Timer = new TimerObject(0);
 #define TEMPO_IR 3000
 #define TEMPO_GIRAR 1285
 
-#define VEL_SENTIDO_HORARIO 1000
-#define VEL_SENTIDO_ANTIHORARIO -1000
+#define VEL_SENTIDO_ANTIHORARIO 1000
+#define VEL_SENTIDO_HORARIO -1000
 
 #define QUANTIDADE_MAXIMA_ACOES 45
 
@@ -32,18 +32,18 @@ Button btnFrente = Button (A5);
 
 #define SAIDA_SOM A0
 
-#define MOTOR1_F1  2
-#define MOTOR1_F2  3
-#define MOTOR1_F3  4
-#define MOTOR1_F4  5
+#define motor_direita_F1  2
+#define motor_direita_F2  3
+#define motor_direita_F3  4
+#define motor_direita_F4  5
 
-#define MOTOR2_F1  6
-#define MOTOR2_F2  7
-#define MOTOR2_F3  8
-#define MOTOR2_F4  9
+#define motor_esquerda_F1  6
+#define motor_esquerda_F2  7
+#define motor_esquerda_F3  8
+#define motor_esquerda_F4  9
 
-AccelStepper motor1(8, MOTOR1_F1, MOTOR1_F3, MOTOR1_F2, MOTOR1_F4);
-AccelStepper motor2(8, MOTOR2_F1, MOTOR2_F3, MOTOR2_F2, MOTOR2_F4);
+AccelStepper motor_direita(8, motor_direita_F1, motor_direita_F3, motor_direita_F2, motor_direita_F4);
+AccelStepper motor_esquerda(8, motor_esquerda_F1, motor_esquerda_F3, motor_esquerda_F2, motor_esquerda_F4);
 
 //Estados possíveis
 #define ESTADO_AGUARDANDO 1
@@ -65,17 +65,17 @@ int acoes[QUANTIDADE_MAXIMA_ACOES] = {0};
 // !--- Acoes de Execucao ----
 void resetarMotores()
 {
-  motor1.setCurrentPosition(0);
-  motor2.setCurrentPosition(0);
+  motor_direita.setCurrentPosition(0);
+  motor_esquerda.setCurrentPosition(0);
 }
 
-void acionarMotores(int motor1Vel, int motor2Vel)
+void acionarMotores(int motor_direitaVel, int motor_esquerdaVel)
 {
-  motor1.setSpeed(motor1Vel);
-  motor2.setSpeed(motor2Vel);
+  motor_direita.setSpeed(motor_direitaVel);
+  motor_esquerda.setSpeed(motor_esquerdaVel);
 
-  motor1.runSpeed();
-  motor2.runSpeed();
+  motor_direita.runSpeed();
+  motor_esquerda.runSpeed();
 }
 
 void esperar(int duracao)
@@ -207,7 +207,7 @@ void girarEsquerda()
 
   while (motorLigado)
   {
-    acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
+    acionarMotores(VEL_SENTIDO_HORARIO,VEL_SENTIDO_HORARIO);
     Timer->Update();
   }
   Timer->Stop();
@@ -237,7 +237,7 @@ void irFrente()
 
   while (motorLigado)
   {
-    acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
+    acionarMotores(VEL_SENTIDO_HORARIO,VEL_SENTIDO_ANTIHORARIO);
     Timer->Update();
   }
   Timer->Stop();
@@ -252,7 +252,7 @@ void irTras()
 
   while (motorLigado)
   {
-    acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_HORARIO);
+    acionarMotores(VEL_SENTIDO_ANTIHORARIO,VEL_SENTIDO_HORARIO);
     Timer->Update();
   }
   Timer->Stop();
@@ -336,15 +336,15 @@ void executar() {
 
 void desligarMotor()
 {
-  digitalWrite(MOTOR1_F1, LOW);
-  digitalWrite(MOTOR1_F2, LOW);
-  digitalWrite(MOTOR1_F3, LOW);
-  digitalWrite(MOTOR1_F4, LOW);
+  digitalWrite(motor_direita_F1, LOW);
+  digitalWrite(motor_direita_F2, LOW);
+  digitalWrite(motor_direita_F3, LOW);
+  digitalWrite(motor_direita_F4, LOW);
 
-  digitalWrite(MOTOR2_F1, LOW);
-  digitalWrite(MOTOR2_F2, LOW);
-  digitalWrite(MOTOR2_F3, LOW);
-  digitalWrite(MOTOR2_F4, LOW);
+  digitalWrite(motor_esquerda_F1, LOW);
+  digitalWrite(motor_esquerda_F2, LOW);
+  digitalWrite(motor_esquerda_F3, LOW);
+  digitalWrite(motor_esquerda_F4, LOW);
 }
 
 void reiniciarProgramacao()
@@ -368,11 +368,11 @@ void zerarArrayInstrucoes()
 
 void definirMotor()
 {
-  motor1.setMaxSpeed(2000);
-  motor1.setSpeed(VEL_SENTIDO_HORARIO);
+  motor_direita.setMaxSpeed(2000);
+  motor_direita.setSpeed(VEL_SENTIDO_ANTIHORARIO);
 
-  motor2.setMaxSpeed(2000);
-  motor2.setSpeed(VEL_SENTIDO_HORARIO);
+  motor_esquerda.setMaxSpeed(2000);
+  motor_esquerda.setSpeed(VEL_SENTIDO_ANTIHORARIO);
 }
 
 void onPress(Button &b)
