@@ -18,23 +18,17 @@ bool emEspera = false;
 
 //Entradas
 
-Button btnFrente = Button (A1); 
-Button btnTras = Button (A5); 
-Button btnDireita = Button (A4); //
-Button btnEsquerda = Button (A2);
+Button btnTras = Button (A1); 
+Button btnDireita = Button (A2);
 Button btnIr = Button (A3);
-
-//A1 = Tras
-//A2 = Direita 
-//A3 = Confirmar
-//A4 = Esquerda
-//A5 = Frente
+Button btnEsquerda = Button (A4);
+Button btnFrente = Button (A5); 
 
 //Saidas
-#define LED_1 10 //Esquerda OK
-#define LED_2 12 //Direita OK
-#define LED_3 11 //Frente OK
-#define LED_4 13 //Tras OK
+#define LED_ESQUERDA 10
+#define LED_FRENTE 11
+#define LED_DIREITA 12
+#define LED_TRAS 13
 
 #define SAIDA_SOM A0
 
@@ -56,10 +50,10 @@ AccelStepper motor2(8, MOTOR2_F1, MOTOR2_F3, MOTOR2_F2, MOTOR2_F4);
 #define ESTADO_EXECUTANDO 2
 
 //Variaveis
-const int acaoDireita = 1;
-const int acaoEsquerda = -1;
-const int acaoFrente = 2;
-const int acaoTras = -2;
+const int acaoTras = 1;
+const int acaoFrente = -1;
+const int acaoEsquerda = 2;
+const int acaoDireita = -2;
 
 int ESTADO_ATUAL;
 int acoesContExec = 0;
@@ -114,62 +108,22 @@ void feedback(int nota, int duracao, int led)
   digitalWrite(led, LOW);
 }
 
-void feedbackFrente(bool programando)
-{
-  switch (programando)
-  {
-    case true:
-      feedback(440, 30, LED_1);
-      break;
-    case false:
-      feedback(440, 30, LED_1);
-      esperar(50);
-      feedback(660, 30, LED_1);
-      esperar(50);
-      feedback(880, 90, LED_1);
-      break;
-    default:
-      feedback(250, 250, LED_1);
-      break;
-  }
-}
-
-void feedbackTras(bool programando)
-{
-  switch (programando)
-  {
-    case true:
-      feedback(880, 30, LED_2);
-      break;
-    case false:
-      feedback(880, 30, LED_2);
-      esperar(50);
-      feedback(660, 30, LED_2);
-      esperar(50);
-      feedback(440, 90, LED_2);
-      break;
-    default:
-      feedback(250, 250, LED_2);
-      break;
-  }
-}
-
 void feedbackEsquerda(bool programando)
 {
   switch (programando)
   {
     case true:
-      feedback(880, 45, LED_3);
+      feedback(440, 30, LED_ESQUERDA);
       break;
     case false:
-      feedback(880, 45, LED_3);
-      esperar(75);
-      feedback(1320, 45, LED_3);
-      esperar(75);
-      feedback(704, 135, LED_3);
+      feedback(440, 30, LED_ESQUERDA);
+      esperar(50);
+      feedback(660, 30, LED_ESQUERDA);
+      esperar(50);
+      feedback(880, 90, LED_ESQUERDA);
       break;
-    default:                                                                                                                                                
-      feedback(250, 250, LED_3);
+    default:
+      feedback(250, 250, LED_ESQUERDA);
       break;
   }
 }
@@ -179,17 +133,57 @@ void feedbackDireita(bool programando)
   switch (programando)
   {
     case true:
-      feedback(880, 45, LED_4);
+      feedback(880, 30, LED_DIREITA);
       break;
     case false:
-      feedback(880, 45, LED_4);
-      esperar(75);
-      feedback(729, 45, LED_4);
-      esperar(75);
-      feedback(1056, 135, LED_4);
+      feedback(880, 30, LED_DIREITA);
+      esperar(50);
+      feedback(660, 30, LED_DIREITA);
+      esperar(50);
+      feedback(440, 90, LED_DIREITA);
       break;
     default:
-      feedback(250, 250, LED_4);
+      feedback(250, 250, LED_DIREITA);
+      break;
+  }
+}
+
+void feedbackFrente(bool programando)
+{
+  switch (programando)
+  {
+    case true:
+      feedback(880, 45, LED_FRENTE);
+      break;
+    case false:
+      feedback(880, 45, LED_FRENTE);
+      esperar(75);
+      feedback(1320, 45, LED_FRENTE);
+      esperar(75);
+      feedback(704, 135, LED_FRENTE);
+      break;
+    default:                                                                                                                                                
+      feedback(250, 250, LED_FRENTE);
+      break;
+  }
+}
+
+void feedbackTras(bool programando)
+{
+  switch (programando)
+  {
+    case true:
+      feedback(880, 45, LED_TRAS);
+      break;
+    case false:
+      feedback(880, 45, LED_TRAS);
+      esperar(75);
+      feedback(729, 45, LED_TRAS);
+      esperar(75);
+      feedback(1056, 135, LED_TRAS);
+      break;
+    default:
+      feedback(250, 250, LED_TRAS);
       break;
   }
 }
@@ -204,7 +198,7 @@ void feedbackEspera()
 
 }
 
-void irFrente()
+void girarEsquerda()
 {
   Timer->setInterval(TEMPO_GIRAR);
   Timer->setOnTimer(&pararMotor);
@@ -219,7 +213,7 @@ void irFrente()
   Timer->Stop();
 }
 
-void irTras()
+void girarDireita()
 {
   Timer->setInterval(TEMPO_GIRAR);
   Timer->setOnTimer(&pararMotor);
@@ -234,7 +228,7 @@ void irTras()
   Timer->Stop();
 }
 
-void girarEsquerda()
+void irFrente()
 {
   Timer->setInterval(TEMPO_IR);
   Timer->setOnTimer(&pararMotor);
@@ -249,7 +243,7 @@ void girarEsquerda()
   Timer->Stop();
 }
 
-void girarDireita()
+void irTras()
 {
   Timer->setInterval(TEMPO_IR);
   Timer->setOnTimer(&pararMotor);
@@ -268,20 +262,20 @@ void verificarFeedback(int acoesContExec)
 {
   switch (acoes[acoesContExec])
   {
-    case acaoFrente:
-      feedbackFrente(false);
-      break;
-
-    case acaoTras:
-      feedbackTras(false);
-      break;
-
     case acaoEsquerda:
       feedbackEsquerda(false);
       break;
 
     case acaoDireita:
       feedbackDireita(false);
+      break;
+
+    case acaoFrente:
+      feedbackFrente(false);
+      break;
+
+    case acaoTras:
+      feedbackTras(false);
       break;
   }
 }
@@ -290,20 +284,20 @@ void verificarInstrucao(int acoesContExec)
 {
   switch (acoes[acoesContExec])
   {
-    case acaoFrente:
-      irFrente();
-      break;
-
-    case acaoTras:
-      irTras();
-      break;
-
     case acaoEsquerda:
       girarEsquerda();
       break;
 
     case acaoDireita:
       girarDireita();
+      break;
+
+    case acaoFrente:
+      irFrente();
+      break;
+
+    case acaoTras:
+      irTras();
       break;
 
     default:
@@ -389,32 +383,32 @@ void onPress(Button &b)
   
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
-    if (b.pin == btnDireita.pin)
-    {
-      acoes[acoesContProg] = acaoFrente;
-      acoesContProg++;
-      feedbackFrente(true);
-    }
-  
-    else if (b.pin == btnEsquerda.pin)
-    {
-      acoes[acoesContProg] = acaoTras;
-      acoesContProg++;
-      feedbackTras(true);
-    }
-  
-    else if (b.pin == btnTras.pin)
+    if (b.pin == btnEsquerda.pin)
     {
       acoes[acoesContProg] = acaoEsquerda;
       acoesContProg++;
       feedbackEsquerda(true);
     }
   
-    else if (b.pin == btnFrente.pin)
+    else if (b.pin == btnDireita.pin)
     {
       acoes[acoesContProg] = acaoDireita;
       acoesContProg++;
       feedbackDireita(true);
+    }
+  
+    else if (b.pin == btnFrente.pin)
+    {
+      acoes[acoesContProg] = acaoFrente;
+      acoesContProg++;
+      feedbackFrente(true);
+    }
+  
+    else if (b.pin == btnTras.pin)
+    {
+      acoes[acoesContProg] = acaoTras;
+      acoesContProg++;
+      feedbackTras(true);
     }
   }
 
@@ -426,37 +420,37 @@ void onPress(Button &b)
 
 void definirCallBack()
 {
-  btnFrente.pressHandler(onPress);
   btnTras.pressHandler(onPress);
-  btnDireita.pressHandler(onPress);
+  btnFrente.pressHandler(onPress);
   btnEsquerda.pressHandler(onPress);
+  btnDireita.pressHandler(onPress);
   btnIr.pressHandler(onPress);
 }
 
 void setup_processar_estados_invalidos_iniciacao(){
-  btnFrente.process();
   btnTras.process();
-  btnDireita.process();
+  btnFrente.process();
   btnEsquerda.process();
+  btnDireita.process();
   reiniciarProgramacao();
   btnIr.process();
 }
 
 void instrucoes_de_teste(){
-  onPress(btnTras);
   onPress(btnFrente);
-  onPress(btnDireita);
+  onPress(btnTras);
   onPress(btnEsquerda);
+  onPress(btnDireita);
   onPress(btnIr);
 }
 
 void setup() {
   Serial.begin(9600);
   
-  pinMode(LED_1, OUTPUT);
-  pinMode(LED_2, OUTPUT);
-  pinMode(LED_3, OUTPUT);
-  pinMode(LED_4, OUTPUT);
+  pinMode(LED_ESQUERDA, OUTPUT);
+  pinMode(LED_DIREITA, OUTPUT);
+  pinMode(LED_FRENTE, OUTPUT);
+  pinMode(LED_TRAS, OUTPUT);
 
   pinMode(SAIDA_SOM, OUTPUT);
 
@@ -473,10 +467,10 @@ void loop()
   switch (ESTADO_ATUAL)
   {
     case ESTADO_AGUARDANDO:
-      btnFrente.process();
       btnTras.process();
-      btnDireita.process();
+      btnFrente.process();
       btnEsquerda.process();
+      btnDireita.process();
       btnIr.process();
       break;
     case ESTADO_EXECUTANDO:
