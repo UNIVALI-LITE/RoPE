@@ -342,6 +342,7 @@ void executar() {
   {
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
     reiniciarProgramacao();
+    feedbackFim();
     return;
   }
 }
@@ -427,7 +428,6 @@ void onPress(Button &b)
   if (b.pin == btnIr.pin && acoesContProg > 0)
   {
     ESTADO_ATUAL = ESTADO_EXECUTANDO;
-    feedbackFim();
   }
 }
 
