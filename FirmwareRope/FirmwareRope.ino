@@ -248,11 +248,7 @@ bool rope_foi_parado(){
   return ESTADO_ATUAL == ESTADO_AGUARDANDO ? true : false;
 }
 void onPress(Button &b)
-{
-  if(ESTADO_ATUAL != ESTADO_AGUARDANDO){
-    return;
-  }
-  
+{  
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
     if (b.pin == btnEsquerda.pin)

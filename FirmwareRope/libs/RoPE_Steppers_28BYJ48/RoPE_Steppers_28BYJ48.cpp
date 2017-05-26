@@ -1,5 +1,4 @@
 #include "Arduino.h"
-#include "RoPE_Steppers_28BYJ48.h"
 /*
 8 = 5,625 Graus
 64*8 = 360 Graus
@@ -10,6 +9,12 @@
 1 0 0 1
 */
 #define DELAY_MAX  3
+#define PASSOS_REVOLUCAO 512
+#define DISTANCIA_EIXOS 82
+
+const float DIAMETRO = 63.5;
+const float DISTANCIA_ANDAR = 150.0;
+const float DISTANCIA_GIRO = (DISTANCIA_EIXOS*PI)/4.0;
 
 #define MOTOR1_F1  3
 #define MOTOR1_F2  5
@@ -97,8 +102,8 @@ void private_RoPE_Steppers_28BYJ48_MOTOR2_step_four(){
 }
 
 
-void motores_frente(bool(*callback)(), int steps = 64*8){
-  while(steps > 0 && !(*callback)){
+void motores_frente(bool(*callback)(), int steps = (((360*DISTANCIA_ANDAR)/(DIAMETRO*PI)) * PASSOS_REVOLUCAO )/360 ){
+  while(steps > 0 && !((*callback)()) ){
     private_RoPE_Steppers_28BYJ48_MOTOR1_step_one();
     private_RoPE_Steppers_28BYJ48_MOTOR2_step_one();
     delay(DELAY_MAX);
@@ -117,8 +122,8 @@ void motores_frente(bool(*callback)(), int steps = 64*8){
 
 }
 
-void motores_tras(bool(*callback)(), int steps = 64*8){
-  while(steps > 0 && !(*callback)){
+void motores_tras(bool(*callback)(), int steps = (((360*DISTANCIA_ANDAR)/(DIAMETRO*PI)) * PASSOS_REVOLUCAO )/360 ){
+  while(steps > 0 && !((*callback)()) ){
     private_RoPE_Steppers_28BYJ48_MOTOR1_step_one();
     private_RoPE_Steppers_28BYJ48_MOTOR2_step_one();
     delay(DELAY_MAX);
@@ -136,8 +141,8 @@ void motores_tras(bool(*callback)(), int steps = 64*8){
   private_RoPE_Steppers_28BYJ48_MOTORS_LOW();
 }
 
-void motores_direita(bool(*callback)(), int steps = 64*8){
-  while(steps > 0 && !(*callback)){
+void motores_esquerda(bool(*callback)(), int steps = (((360*DISTANCIA_GIRO)/(DIAMETRO*PI)) * PASSOS_REVOLUCAO )/360 ){
+  while(steps > 0 && !((*callback)()) ){
     private_RoPE_Steppers_28BYJ48_MOTOR1_step_one();
     private_RoPE_Steppers_28BYJ48_MOTOR2_step_one();
     delay(DELAY_MAX);
@@ -155,8 +160,8 @@ void motores_direita(bool(*callback)(), int steps = 64*8){
   private_RoPE_Steppers_28BYJ48_MOTORS_LOW();
 }
 
-void motores_esquerda(bool(*callback)(), int steps = 64*8){
-  while(steps > 0 && !(*callback)){
+void motores_direita(bool(*callback)(), int steps =  (((360*DISTANCIA_GIRO)/(DIAMETRO*PI)) * PASSOS_REVOLUCAO )/360 ){
+  while(steps > 0 && !((*callback)()) ){
     private_RoPE_Steppers_28BYJ48_MOTOR1_step_one();
     private_RoPE_Steppers_28BYJ48_MOTOR2_step_one();
     delay(DELAY_MAX);
