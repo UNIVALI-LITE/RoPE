@@ -2,7 +2,8 @@
 #include "libs/RoPE_Steppers_28BYJ48/RoPE_Steppers_28BYJ48.cpp"
 
 #define QUANTIDADE_MAXIMA_ACOES 45
-
+int testing_loop = 0;
+int easter_egg;
 //Entradas
 
 Button btnTras = Button (A1); 
@@ -154,6 +155,21 @@ void feedbackParar()
    delay(50); 
    feedback(1000, 135, LED_ESQUERDA); 
 }
+void feedbackEasterEggActivated()
+{
+  digitalWrite(LED_FRENTE, HIGH);
+  digitalWrite(LED_DIREITA, HIGH);
+  digitalWrite(LED_TRAS, HIGH);
+  digitalWrite(LED_ESQUERDA, HIGH);
+  delay(1000);
+  feedback(1000, 100, LED_FRENTE); 
+   delay(50); 
+   feedback(600, 200, LED_DIREITA); 
+   delay(50); 
+   feedback(200, 300, LED_TRAS); 
+   delay(50); 
+   feedback(1500, 400, LED_ESQUERDA); 
+}
 
 void verificarFeedback(int acoesContExec)
 {
@@ -203,8 +219,25 @@ void verificarInstrucao(int acoesContExec)
   }
 }
 
-void executar() {
+bool easter_egg_infinite_loop(){
+  int acoes_infinite[8] = {acaoFrente,acaoTras,acaoEsquerda,acaoDireita,acaoFrente,acaoTras,acaoEsquerda,acaoDireita};
+  for(int i = 0; i < 8; i++){
+    if(acoes[i] != acoes_infinite[i]){
+      return false;
+    }
+  }
+  testing_loop = 1;
+  feedbackEasterEggActivated();
+  return true;
+}
 
+void executar() {
+  if(easter_egg == 42){
+    easter_egg_infinite_loop();
+    reiniciarProgramacao();
+    ESTADO_ATUAL = ESTADO_AGUARDANDO;
+  }
+  easter_egg = -1;
   if (acoesContExec < acoesContProg)
   {
     verificarFeedback(acoesContExec);
@@ -219,6 +252,10 @@ void executar() {
 
   if (acoesContExec >= acoesContProg && ESTADO_ATUAL == ESTADO_EXECUTANDO) 
   { 
+    if(testing_loop){
+      acoesContExec = 0;
+      return;
+    }
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
     feedbackFim(); 
   }
@@ -247,39 +284,46 @@ bool rope_foi_parado(){
   btnIr.process();
   return ESTADO_ATUAL == ESTADO_AGUARDANDO ? true : false;
 }
-void onPress(Button &b)
-{  
+void onEsquerdaPress(Button &b){
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
-    if (b.pin == btnEsquerda.pin)
-    {
-      acoes[acoesContProg] = acaoEsquerda;
-      acoesContProg++;
-      feedbackEsquerda(true);
-    }
-  
-    else if (b.pin == btnDireita.pin)
-    {
-      acoes[acoesContProg] = acaoDireita;
-      acoesContProg++;
-      feedbackDireita(true);
-    }
-  
-    else if (b.pin == btnFrente.pin)
-    {
-      acoes[acoesContProg] = acaoFrente;
-      acoesContProg++;
-      feedbackFrente(true);
-    }
-  
-    else if (b.pin == btnTras.pin)
-    {
-      acoes[acoesContProg] = acaoTras;
-      acoesContProg++;
-      feedbackTras(true);
-    }
+    acoes[acoesContProg] = acaoEsquerda;
+    acoesContProg++;
+    feedbackEsquerda(true);
+    delay(100);
   }
-  
+}
+void onDireitaPress(Button &b){
+  if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
+  {
+    acoes[acoesContProg] = acaoDireita;
+    acoesContProg++;
+    feedbackDireita(true);
+    delay(100);
+  }
+}
+void onFrentePress(Button &b){
+  if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
+  {
+    acoes[acoesContProg] = acaoFrente;
+    acoesContProg++;
+    feedbackFrente(true);
+    delay(100);
+  }
+}
+void onTrasPress(Button &b){
+  if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
+  {
+    acoes[acoesContProg] = acaoTras;
+    acoesContProg++;
+    feedbackTras(true);
+    delay(100);
+  }
+}
+void onIrPress(Button &b){
+  if(acoesContProg == 0 && easter_egg >= 0){
+    easter_egg++;
+  }
   if (b.pin == btnIr.pin && ESTADO_ATUAL == ESTADO_EXECUTANDO)
   {
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
@@ -288,17 +332,16 @@ void onPress(Button &b)
   {
     ESTADO_ATUAL = ESTADO_EXECUTANDO;
   }
-  
   delay(100);
 }
 
 void definirCallBack()
 {
-  btnTras.pressHandler(onPress);
-  btnFrente.pressHandler(onPress);
-  btnEsquerda.pressHandler(onPress);
-  btnDireita.pressHandler(onPress);
-  btnIr.pressHandler(onPress);
+  btnTras.pressHandler(onTrasPress);
+  btnFrente.pressHandler(onFrentePress);
+  btnEsquerda.pressHandler(onEsquerdaPress);
+  btnDireita.pressHandler(onDireitaPress);
+  btnIr.pressHandler(onIrPress);
 }
 
 void setup_processar_estados_invalidos_iniciacao(){
@@ -308,14 +351,6 @@ void setup_processar_estados_invalidos_iniciacao(){
   btnDireita.process();
   reiniciarProgramacao();
   btnIr.process();
-}
-
-void instrucoes_de_teste(){
-  onPress(btnFrente);
-  onPress(btnTras);
-  onPress(btnEsquerda);
-  onPress(btnDireita);
-  onPress(btnIr);
 }
 
 void setup() {
@@ -334,6 +369,7 @@ void setup() {
   ESTADO_ATUAL = ESTADO_AGUARDANDO;
 
   setup_processar_estados_invalidos_iniciacao();
+  easter_egg = 0;
 }
 
 void loop()

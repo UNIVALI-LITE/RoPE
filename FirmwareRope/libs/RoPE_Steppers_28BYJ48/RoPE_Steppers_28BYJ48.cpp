@@ -1,5 +1,6 @@
 #include "Arduino.h"
 /*
+Created by Paulo Eduardo Martins
 8 = 5,625 Graus
 64*8 = 360 Graus
 
