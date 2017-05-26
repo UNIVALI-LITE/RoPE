@@ -1,20 +1,7 @@
-#include "libs/AccelStepper/AccelStepper.cpp"
-#include "libs/ArduinoTimerObject/TimerObject.cpp"
 #include "libs/Button/Button.cpp"
-
-TimerObject *Timer = new TimerObject(0);
-
-#define TEMPO_IR 3000
-#define TEMPO_GIRAR 1285
-
-#define VEL_SENTIDO_HORARIO 1000
-#define VEL_SENTIDO_ANTIHORARIO -1000
+#include "libs/RoPE_Steppers_28BYJ48/RoPE_Steppers_28BYJ48.cpp"
 
 #define QUANTIDADE_MAXIMA_ACOES 45
-
-bool motorLigado = false;
-
-bool emEspera = false;
 
 //Entradas
 
@@ -31,19 +18,6 @@ Button btnFrente = Button (A5);
 #define LED_TRAS 13
 
 #define SAIDA_SOM A0
-
-#define MOTOR1_F1  2
-#define MOTOR1_F2  3
-#define MOTOR1_F3  4
-#define MOTOR1_F4  5
-
-#define MOTOR2_F1  6
-#define MOTOR2_F2  7
-#define MOTOR2_F3  8
-#define MOTOR2_F4  9
-
-AccelStepper motor1(8, MOTOR1_F1, MOTOR1_F3, MOTOR1_F2, MOTOR1_F4);
-AccelStepper motor2(8, MOTOR2_F1, MOTOR2_F3, MOTOR2_F2, MOTOR2_F4);
 
 //Estados possíveis
 #define ESTADO_AGUARDANDO 1
@@ -63,47 +37,12 @@ int acoes[QUANTIDADE_MAXIMA_ACOES] = {0};
 
 
 // !--- Acoes de Execucao ----
-void resetarMotores()
-{
-  motor1.setCurrentPosition(0);
-  motor2.setCurrentPosition(0);
-}
-
-void acionarMotores(int motor1Vel, int motor2Vel)
-{
-  motor1.setSpeed(motor1Vel);
-  motor2.setSpeed(motor2Vel);
-
-  motor1.runSpeed();
-  motor2.runSpeed();
-}
-
-void esperar(int duracao)
-{
-  Timer->setInterval(duracao);
-  Timer->setOnTimer(&pararEsperar);
-
-  emEspera = true;
-
-  Timer->Start();
-
-  while (emEspera)
-  {
-    Timer->Update();
-  }
-}
-
-void pararEsperar()
-{
-  emEspera = false;
-  Timer->Stop();
-}
 
 void feedback(int nota, int duracao, int led)
 {
   digitalWrite(led, HIGH);
   tone(SAIDA_SOM, nota);
-  esperar(duracao);
+  delay(duracao);
   noTone(SAIDA_SOM);
   digitalWrite(led, LOW);
 }
@@ -117,9 +56,9 @@ void feedbackEsquerda(bool programando)
       break;
     case false:
       feedback(440, 30, LED_ESQUERDA);
-      esperar(50);
+      delay(50);
       feedback(660, 30, LED_ESQUERDA);
-      esperar(50);
+      delay(50);
       feedback(880, 90, LED_ESQUERDA);
       break;
     default:
@@ -137,9 +76,9 @@ void feedbackDireita(bool programando)
       break;
     case false:
       feedback(880, 30, LED_DIREITA);
-      esperar(50);
+      delay(50);
       feedback(660, 30, LED_DIREITA);
-      esperar(50);
+      delay(50);
       feedback(440, 90, LED_DIREITA);
       break;
     default:
@@ -157,9 +96,9 @@ void feedbackFrente(bool programando)
       break;
     case false:
       feedback(880, 45, LED_FRENTE);
-      esperar(75);
+      delay(75);
       feedback(1320, 45, LED_FRENTE);
-      esperar(75);
+      delay(75);
       feedback(704, 135, LED_FRENTE);
       break;
     default:                                                                                                                                                
@@ -177,9 +116,9 @@ void feedbackTras(bool programando)
       break;
     case false:
       feedback(880, 45, LED_TRAS);
-      esperar(75);
+      delay(75);
       feedback(729, 45, LED_TRAS);
-      esperar(75);
+      delay(75);
       feedback(1056, 135, LED_TRAS);
       break;
     default:
@@ -205,69 +144,15 @@ void feedbackFim()
       feedback(600, 135, LED_FRENTE);
 }
 
-void feedbackEspera()
-{
-
-}
-
-void girarEsquerda()
-{
-  Timer->setInterval(TEMPO_GIRAR);
-  Timer->setOnTimer(&pararMotor);
-
-  Timer->Start();
-
-  while (motorLigado)
-  {
-    acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_HORARIO);
-    Timer->Update();
-  }
-  Timer->Stop();
-}
-
-void girarDireita()
-{
-  Timer->setInterval(TEMPO_GIRAR);
-  Timer->setOnTimer(&pararMotor);
-
-  Timer->Start();
-
-  while (motorLigado)
-  {
-    acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_ANTIHORARIO);
-    Timer->Update();
-  }
-  Timer->Stop();
-}
-
-void irFrente()
-{
-  Timer->setInterval(TEMPO_IR);
-  Timer->setOnTimer(&pararMotor);
-
-  Timer->Start();
-
-  while (motorLigado)
-  {
-    acionarMotores(VEL_SENTIDO_HORARIO, VEL_SENTIDO_ANTIHORARIO);
-    Timer->Update();
-  }
-  Timer->Stop();
-}
-
-void irTras()
-{
-  Timer->setInterval(TEMPO_IR);
-  Timer->setOnTimer(&pararMotor);
-
-  Timer->Start();
-
-  while (motorLigado)
-  {
-    acionarMotores(VEL_SENTIDO_ANTIHORARIO, VEL_SENTIDO_HORARIO);
-    Timer->Update();
-  }
-  Timer->Stop();
+void feedbackParar() 
+{ 
+   feedback(500, 45, LED_FRENTE); 
+   delay(50); 
+   feedback(400, 45, LED_DIREITA); 
+   delay(50); 
+   feedback(600, 135, LED_TRAS); 
+   delay(50); 
+   feedback(1000, 135, LED_ESQUERDA); 
 }
 
 void verificarFeedback(int acoesContExec)
@@ -297,19 +182,19 @@ void verificarInstrucao(int acoesContExec)
   switch (acoes[acoesContExec])
   {
     case acaoEsquerda:
-      girarEsquerda();
+      motores_esquerda(rope_foi_parado);
       break;
 
     case acaoDireita:
-      girarDireita();
+      motores_direita(rope_foi_parado);
       break;
 
     case acaoFrente:
-      irFrente();
+      motores_frente(rope_foi_parado);
       break;
 
     case acaoTras:
-      irTras();
+      motores_tras(rope_foi_parado);
       break;
 
     default:
@@ -318,54 +203,34 @@ void verificarInstrucao(int acoesContExec)
   }
 }
 
-void pararMotor()
-{
-  motorLigado = false;
-}
-
 void executar() {
-  motorLigado = true;
 
   if (acoesContExec < acoesContProg)
   {
-    resetarMotores();
-
     verificarFeedback(acoesContExec);
-
     verificarInstrucao(acoesContExec);
-
   }
 
+  if(ESTADO_ATUAL == ESTADO_AGUARDANDO && acoesContExec < acoesContProg){
+    feedbackParar();
+  }
+  
   acoesContExec++;
 
-  if (acoesContExec >= acoesContProg)
-  {
+  if (acoesContExec >= acoesContProg && ESTADO_ATUAL == ESTADO_EXECUTANDO) 
+  { 
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
-    reiniciarProgramacao();
-    feedbackFim();
-    return;
+    feedbackFim(); 
   }
-}
-
-void desligarMotor()
-{
-  digitalWrite(MOTOR1_F1, LOW);
-  digitalWrite(MOTOR1_F2, LOW);
-  digitalWrite(MOTOR1_F3, LOW);
-  digitalWrite(MOTOR1_F4, LOW);
-
-  digitalWrite(MOTOR2_F1, LOW);
-  digitalWrite(MOTOR2_F2, LOW);
-  digitalWrite(MOTOR2_F3, LOW);
-  digitalWrite(MOTOR2_F4, LOW);
+  
+  if(ESTADO_ATUAL == ESTADO_AGUARDANDO){
+    reiniciarProgramacao();
+  }
 }
 
 void reiniciarProgramacao()
 {
-  desligarMotor();
-  Timer->Stop();
   zerarArrayInstrucoes();
-  motorLigado = true;
   acoesContProg = 0;
   acoesContExec = 0;
 
@@ -378,16 +243,10 @@ void zerarArrayInstrucoes()
     acoes[i] = 0;
   }
 }
-
-void definirMotor()
-{
-  motor1.setMaxSpeed(2000);
-  motor1.setSpeed(VEL_SENTIDO_HORARIO);
-
-  motor2.setMaxSpeed(2000);
-  motor2.setSpeed(VEL_SENTIDO_HORARIO);
+bool rope_foi_parado(){
+  btnIr.process();
+  return ESTADO_ATUAL == ESTADO_AGUARDANDO ? true : false;
 }
-
 void onPress(Button &b)
 {
   if(ESTADO_ATUAL != ESTADO_AGUARDANDO){
@@ -424,11 +283,17 @@ void onPress(Button &b)
       feedbackTras(true);
     }
   }
-
-  if (b.pin == btnIr.pin && acoesContProg > 0)
+  
+  if (b.pin == btnIr.pin && ESTADO_ATUAL == ESTADO_EXECUTANDO)
+  {
+    ESTADO_ATUAL = ESTADO_AGUARDANDO;
+  }
+  else if (b.pin == btnIr.pin && acoesContProg > 0)
   {
     ESTADO_ATUAL = ESTADO_EXECUTANDO;
   }
+  
+  delay(100);
 }
 
 void definirCallBack()
@@ -467,7 +332,7 @@ void setup() {
 
   pinMode(SAIDA_SOM, OUTPUT);
 
-  definirMotor();
+  steppers_setup();
   definirCallBack();
 
   ESTADO_ATUAL = ESTADO_AGUARDANDO;
