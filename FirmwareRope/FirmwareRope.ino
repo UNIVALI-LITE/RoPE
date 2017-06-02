@@ -267,10 +267,12 @@ void executar() {
 
 void reiniciarProgramacao()
 {
+  
   zerarArrayInstrucoes();
   acoesContProg = 0;
   acoesContExec = 0;
-
+  desligar_motores();
+  
   //feedbackAguardando();
 }
 

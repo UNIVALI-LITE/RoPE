@@ -119,8 +119,6 @@ void motores_frente(bool(*callback)(), int steps = (((360*DISTANCIA_ANDAR)/(DIAM
     delay(DELAY_MAX-1);
     steps--;
   }
-  private_RoPE_Steppers_28BYJ48_MOTORS_LOW();
-
 }
 
 void motores_tras(bool(*callback)(), int steps = (((360*DISTANCIA_ANDAR)/(DIAMETRO*PI)) * PASSOS_REVOLUCAO )/360 ){
@@ -139,7 +137,6 @@ void motores_tras(bool(*callback)(), int steps = (((360*DISTANCIA_ANDAR)/(DIAMET
     delay(DELAY_MAX-1);
     steps--;
   }
-  private_RoPE_Steppers_28BYJ48_MOTORS_LOW();
 }
 
 void motores_esquerda(bool(*callback)(), int steps = (((360*DISTANCIA_GIRO)/(DIAMETRO*PI)) * PASSOS_REVOLUCAO )/360 ){
@@ -158,7 +155,6 @@ void motores_esquerda(bool(*callback)(), int steps = (((360*DISTANCIA_GIRO)/(DIA
     delay(DELAY_MAX-1);
     steps--;
   }
-  private_RoPE_Steppers_28BYJ48_MOTORS_LOW();
 }
 
 void motores_direita(bool(*callback)(), int steps =  (((360*DISTANCIA_GIRO)/(DIAMETRO*PI)) * PASSOS_REVOLUCAO )/360 ){
@@ -177,5 +173,8 @@ void motores_direita(bool(*callback)(), int steps =  (((360*DISTANCIA_GIRO)/(DIA
     delay(DELAY_MAX-1);
     steps--;
   }
-  private_RoPE_Steppers_28BYJ48_MOTORS_LOW();
+}
+
+void desligar_motores(){
+	private_RoPE_Steppers_28BYJ48_MOTORS_LOW();
 }
