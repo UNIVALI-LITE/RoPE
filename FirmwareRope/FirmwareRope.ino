@@ -3,7 +3,10 @@
 
 #define QUANTIDADE_MAXIMA_ACOES 45
 int testing_loop = 0;
+int sound_off = 0;
 int easter_egg;
+int TURN_STEP_OVERWRITE = 170;
+int WALK_STEP_OVERWRITE = 360;
 //Entradas
 
 Button btnTras = Button (A1); 
@@ -41,11 +44,15 @@ int acoes[QUANTIDADE_MAXIMA_ACOES] = {0};
 
 void feedback(int nota, int duracao, int led)
 {
-  digitalWrite(led, HIGH);
-  tone(SAIDA_SOM, nota);
-  delay(duracao);
-  noTone(SAIDA_SOM);
-  digitalWrite(led, LOW);
+  if(!sound_off){
+    digitalWrite(led, HIGH);
+    tone(SAIDA_SOM, nota);
+    delay(duracao);
+    noTone(SAIDA_SOM);
+    digitalWrite(led, LOW);
+  }else{
+    delay(duracao);
+  }
 }
 
 void feedbackEsquerda(bool programando)
@@ -198,11 +205,11 @@ void verificarInstrucao(int acoesContExec)
   switch (acoes[acoesContExec])
   {
     case acaoEsquerda:
-      motores_esquerda(rope_foi_parado);
+      motores_esquerda(rope_foi_parado,TURN_STEP_OVERWRITE);
       break;
 
     case acaoDireita:
-      motores_direita(rope_foi_parado);
+      motores_direita(rope_foi_parado,TURN_STEP_OVERWRITE);
       break;
 
     case acaoFrente:
