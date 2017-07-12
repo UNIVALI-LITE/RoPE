@@ -2,8 +2,8 @@
 #include "libs/RoPE_Steppers_28BYJ48/RoPE_Steppers_28BYJ48.cpp"
 
 #define QUANTIDADE_MAXIMA_ACOES 45
-int testing_loop = 0;
-int sound_off = 0;
+bool testing_loop = 0;
+bool sound_off = 0;
 int easter_egg;
 int TURN_STEP_OVERWRITE = 170;
 int WALK_STEP_OVERWRITE = 360;

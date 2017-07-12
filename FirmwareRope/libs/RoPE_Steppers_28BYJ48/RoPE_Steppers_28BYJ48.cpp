@@ -17,15 +17,15 @@ const float DIAMETRO = 63.5;
 const float DISTANCIA_ANDAR = 150.0;
 const float DISTANCIA_GIRO = (DISTANCIA_EIXOS*PI)/4.0;
 
-#define MOTOR1_F1  3
-#define MOTOR1_F2  5
-#define MOTOR1_F3  2
-#define MOTOR1_F4  4
+#define MOTOR1_F1  7
+#define MOTOR1_F2  9
+#define MOTOR1_F3  6
+#define MOTOR1_F4  8
 
-#define MOTOR2_F1  7
-#define MOTOR2_F2  9
-#define MOTOR2_F3  6
-#define MOTOR2_F4  8
+#define MOTOR2_F1  3
+#define MOTOR2_F2  5
+#define MOTOR2_F3  2
+#define MOTOR2_F4  4
 
 void private_RoPE_Steppers_28BYJ48_MOTORS_LOW(){
   digitalWrite(MOTOR1_F1, LOW);
