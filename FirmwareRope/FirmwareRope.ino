@@ -405,7 +405,7 @@ int analiseDados(int frequencia1, int frequencia2){
   int acao;
   bool acaoEhValida = false;
   //Filtros
-
+  //batata
   
 
   if(acaoEhvalida == false){
