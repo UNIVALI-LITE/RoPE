@@ -9,6 +9,9 @@ int TURN_STEP_OVERWRITE = 170;
 int WALK_STEP_OVERWRITE = 360;
 //Entradas
 
+#define INTERVALO_SOM_BOTOES_1 45
+#define INTERVALO_SOM_BOTOES_2 135
+
 Button btnTras = Button (A1); 
 Button btnDireita = Button (A2);
 Button btnIr = Button (A3);
@@ -22,6 +25,9 @@ Button btnFrente = Button (A5);
 #define LED_TRAS 13
 
 #define SAIDA_SOM A0
+
+#define FEEDBACK_PROGRAMANDO 1
+#define FEEDBACK_EXECUTANDO 2
 
 //Estados possíveis
 #define ESTADO_AGUARDANDO 1
@@ -55,19 +61,19 @@ void feedback(int nota, int duracao, int led)
   }
 }
 
-void feedbackEsquerda(bool programando)
+void feedbackEsquerda(uint8_t tipo_feedback)
 {
-  switch (programando)
+  switch (tipo_feedback)
   {
-    case true:
-      feedback(440, 30, LED_ESQUERDA);
+    case FEEDBACK_PROGRAMANDO:
+      feedback(880, INTERVALO_SOM_BOTOES_1, LED_ESQUERDA);
       break;
-    case false:
-      feedback(440, 30, LED_ESQUERDA);
+    case FEEDBACK_EXECUTANDO:
+      feedback(880, INTERVALO_SOM_BOTOES_1, LED_ESQUERDA);
       delay(50);
-      feedback(660, 30, LED_ESQUERDA);
+      feedback(660, INTERVALO_SOM_BOTOES_1, LED_ESQUERDA);
       delay(50);
-      feedback(880, 90, LED_ESQUERDA);
+      feedback(880, INTERVALO_SOM_BOTOES_2, LED_ESQUERDA);
       break;
     default:
       feedback(250, 250, LED_ESQUERDA);
@@ -75,19 +81,19 @@ void feedbackEsquerda(bool programando)
   }
 }
 
-void feedbackDireita(bool programando)
+void feedbackDireita(uint8_t tipo_feedback)
 {
-  switch (programando)
+  switch (tipo_feedback)
   {
-    case true:
-      feedback(880, 30, LED_DIREITA);
+    case FEEDBACK_PROGRAMANDO:
+      feedback(880, INTERVALO_SOM_BOTOES_1, LED_DIREITA);
       break;
-    case false:
-      feedback(880, 30, LED_DIREITA);
+    case FEEDBACK_EXECUTANDO:
+      feedback(880, INTERVALO_SOM_BOTOES_1, LED_DIREITA);
       delay(50);
-      feedback(660, 30, LED_DIREITA);
+      feedback(660, INTERVALO_SOM_BOTOES_1, LED_DIREITA);
       delay(50);
-      feedback(440, 90, LED_DIREITA);
+      feedback(440, INTERVALO_SOM_BOTOES_2, LED_DIREITA);
       break;
     default:
       feedback(250, 250, LED_DIREITA);
@@ -95,19 +101,19 @@ void feedbackDireita(bool programando)
   }
 }
 
-void feedbackFrente(bool programando)
+void feedbackFrente(uint8_t tipo_feedback)
 {
-  switch (programando)
+  switch (tipo_feedback)
   {
-    case true:
-      feedback(880, 45, LED_FRENTE);
+    case FEEDBACK_PROGRAMANDO:
+      feedback(880, INTERVALO_SOM_BOTOES_1, LED_FRENTE);
       break;
-    case false:
-      feedback(880, 45, LED_FRENTE);
+    case FEEDBACK_EXECUTANDO:
+      feedback(880, INTERVALO_SOM_BOTOES_1, LED_FRENTE);
       delay(75);
-      feedback(1320, 45, LED_FRENTE);
+      feedback(1320, INTERVALO_SOM_BOTOES_1, LED_FRENTE);
       delay(75);
-      feedback(704, 135, LED_FRENTE);
+      feedback(704, INTERVALO_SOM_BOTOES_2, LED_FRENTE);
       break;
     default:                                                                                                                                                
       feedback(250, 250, LED_FRENTE);
@@ -115,19 +121,19 @@ void feedbackFrente(bool programando)
   }
 }
 
-void feedbackTras(bool programando)
+void feedbackTras(uint8_t tipo_feedback)
 {
-  switch (programando)
+  switch (tipo_feedback)
   {
-    case true:
-      feedback(880, 45, LED_TRAS);
+    case FEEDBACK_PROGRAMANDO:
+      feedback(880, INTERVALO_SOM_BOTOES_1, LED_TRAS);
       break;
-    case false:
-      feedback(880, 45, LED_TRAS);
+    case FEEDBACK_EXECUTANDO:
+      feedback(880, INTERVALO_SOM_BOTOES_1, LED_TRAS);
       delay(75);
-      feedback(729, 45, LED_TRAS);
+      feedback(729, INTERVALO_SOM_BOTOES_1, LED_TRAS);
       delay(75);
-      feedback(1056, 135, LED_TRAS);
+      feedback(1056, INTERVALO_SOM_BOTOES_2, LED_TRAS);
       break;
     default:
       feedback(250, 250, LED_TRAS);
@@ -137,26 +143,26 @@ void feedbackTras(bool programando)
 
 void feedbackFim()
 {
-      feedback(600, 45, LED_FRENTE);
+      feedback(600, INTERVALO_SOM_BOTOES_1, LED_FRENTE);
       delay(75);
-      feedback(900, 45, LED_DIREITA);
+      feedback(900, INTERVALO_SOM_BOTOES_1, LED_DIREITA);
       delay(75);
       feedback(1200, 135, LED_TRAS);
       delay(75);
       feedback(1400, 135, LED_ESQUERDA);
       delay(75);
-      feedback(900, 45, LED_TRAS);
+      feedback(900, INTERVALO_SOM_BOTOES_1, LED_TRAS);
       delay(75);
-      feedback(700, 45, LED_DIREITA);
+      feedback(700, INTERVALO_SOM_BOTOES_1, LED_DIREITA);
       delay(75);
       feedback(600, 135, LED_FRENTE);
 }
 
 void feedbackParar() 
 { 
-   feedback(500, 45, LED_FRENTE); 
+   feedback(500, INTERVALO_SOM_BOTOES_1, LED_FRENTE); 
    delay(50); 
-   feedback(400, 45, LED_DIREITA); 
+   feedback(400, INTERVALO_SOM_BOTOES_1, LED_DIREITA); 
    delay(50); 
    feedback(600, 135, LED_TRAS); 
    delay(50); 
@@ -183,19 +189,19 @@ void verificarFeedback(int acoesContExec)
   switch (acoes[acoesContExec])
   {
     case acaoEsquerda:
-      feedbackEsquerda(false);
+      feedbackEsquerda(FEEDBACK_EXECUTANDO);
       break;
 
     case acaoDireita:
-      feedbackDireita(false);
+      feedbackDireita(FEEDBACK_EXECUTANDO);
       break;
 
     case acaoFrente:
-      feedbackFrente(false);
+      feedbackFrente(FEEDBACK_EXECUTANDO);
       break;
 
     case acaoTras:
-      feedbackTras(false);
+      feedbackTras(FEEDBACK_EXECUTANDO);
       break;
   }
 }
@@ -298,7 +304,7 @@ void onEsquerdaPress(Button &b){
   {
     acoes[acoesContProg] = acaoEsquerda;
     acoesContProg++;
-    feedbackEsquerda(true);
+    feedbackEsquerda(FEEDBACK_PROGRAMANDO);
     delay(100);
   }
 }
@@ -307,7 +313,7 @@ void onDireitaPress(Button &b){
   {
     acoes[acoesContProg] = acaoDireita;
     acoesContProg++;
-    feedbackDireita(true);
+    feedbackDireita(FEEDBACK_PROGRAMANDO);
     delay(100);
   }
 }
@@ -316,7 +322,7 @@ void onFrentePress(Button &b){
   {
     acoes[acoesContProg] = acaoFrente;
     acoesContProg++;
-    feedbackFrente(true);
+    feedbackFrente(FEEDBACK_PROGRAMANDO);
     delay(100);
   }
 }
@@ -325,7 +331,7 @@ void onTrasPress(Button &b){
   {
     acoes[acoesContProg] = acaoTras;
     acoesContProg++;
-    feedbackTras(true);
+    feedbackTras(FEEDBACK_PROGRAMANDO);
     delay(100);
   }
 }
@@ -382,7 +388,7 @@ void setup() {
 }
 
 void loop()
-{
+{  
   switch (ESTADO_ATUAL)
   {
     case ESTADO_AGUARDANDO:
