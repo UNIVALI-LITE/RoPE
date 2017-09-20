@@ -1,129 +1,45 @@
 ################################################################################################
-# ATmega328 @8MHz internal oscillator                                                          #
-################################################################################################
-
-avr_atmega328_8mhz_internal.name = ATmega328 @8MHz internal oscillator
-avr_atmega328_8mhz_internal.build.board = AVR_ATMEGA328_8MHZ_INTERNAL
-
-avr_atmega328_8mhz_internal.upload.protocol = arduino
-avr_atmega328_8mhz_internal.upload.maximum_size = 30720
-avr_atmega328_8mhz_internal.upload.speed = 57600
-
-avr_atmega328_8mhz_internal.bootloader.low_fuses = 0xE2
-avr_atmega328_8mhz_internal.bootloader.high_fuses = 0xDA
-avr_atmega328_8mhz_internal.bootloader.extended_fuses = 0x05
-
-avr_atmega328_8mhz_internal.bootloader.file = atmega328/ATmega328_8MHz.hex
-avr_atmega328_8mhz_internal.bootloader.unlock_bits = 0x3F
-avr_atmega328_8mhz_internal.bootloader.lock_bits = 0x0F
-
-avr_atmega328_8mhz_internal.build.mcu = atmega328p
-avr_atmega328_8mhz_internal.build.f_cpu = 8000000L
-avr_atmega328_8mhz_internal.build.core = arduino:arduino
-avr_atmega328_8mhz_internal.build.variant = arduino:standard
-
-
-avr_atmega328_8mhz_internal.bootloader.tool = arduino:avrdude
-avr_atmega328_8mhz_internal.upload.tool = arduino:avrdude
-
-################################################################################################
-
-
-
-
-################################################################################################
-# ATmega328 @8MHz internal oscillator (with clock output)                                      #
-################################################################################################
-
-avr_atmega328_8mhz_internal_out.name = ATmega328 @8MHz internal oscillator (with clock output)
-avr_atmega328_8mhz_internal_out.build.board = AVR_ATMEGA328_8MHZ_INTERNAL_OUT
-
-avr_atmega328_8mhz_internal_out.upload.protocol = arduino
-avr_atmega328_8mhz_internal_out.upload.maximum_size = 30720
-avr_atmega328_8mhz_internal_out.upload.speed = 57600
-
-avr_atmega328_8mhz_internal_out.bootloader.low_fuses = 0xA2
-avr_atmega328_8mhz_internal_out.bootloader.high_fuses = 0xDA
-avr_atmega328_8mhz_internal_out.bootloader.extended_fuses = 0x05
-
-avr_atmega328_8mhz_internal_out.bootloader.file = atmega328/ATmega328_8MHz.hex
-avr_atmega328_8mhz_internal_out.bootloader.unlock_bits = 0x3F
-avr_atmega328_8mhz_internal_out.bootloader.lock_bits = 0x0F
-
-avr_atmega328_8mhz_internal_out.build.mcu = atmega328p
-avr_atmega328_8mhz_internal_out.build.f_cpu = 8000000L
-avr_atmega328_8mhz_internal_out.build.core = arduino:arduino
-avr_atmega328_8mhz_internal_out.build.variant = arduino:standard
-
-avr_atmega328_8mhz_internal_out.bootloader.tool = arduino:avrdude
-avr_atmega328_8mhz_internal_out.upload.tool = arduino:avrdude
-
-################################################################################################
-
-
-
-
-################################################################################################
 # ATmega328 @1MHz internal oscillator                                                          #
-################################################################################################
+################################################################################################ 
 
-avr_atmega328_1mhz_internal.name = ATmega328 @1MHz internal oscillator
-avr_atmega328_1mhz_internal.build.board = AVR_ATMEGA328_1MHZ_INTERNAL
-
-avr_atmega328_1mhz_internal.upload.protocol = arduino
-avr_atmega328_1mhz_internal.upload.maximum_size = 32256
-avr_atmega328_1mhz_internal.upload.speed = 9600
-
-avr_atmega328_1mhz_internal.bootloader.low_fuses = 0x62
-avr_atmega328_1mhz_internal.bootloader.high_fuses = 0xde
-avr_atmega328_1mhz_internal.bootloader.extended_fuses = 0x07
-
-avr_atmega328_1mhz_internal.bootloader.file = atmega328/ATmega328_1MHz.hex
-avr_atmega328_1mhz_internal.bootloader.unlock_bits = 0x3F
-avr_atmega328_1mhz_internal.bootloader.lock_bits = 0x2F
-
-avr_atmega328_1mhz_internal.upload.tool = arduino:avrdude
-
-avr_atmega328_1mhz_internal.build.mcu = atmega328p
-avr_atmega328_1mhz_internal.build.f_cpu = 1000000L
-avr_atmega328_1mhz_internal.build.core = arduino:arduino
-avr_atmega328_1mhz_internal.build.variant = arduino:standard
-
-avr_atmega328_1mhz_internal.bootloader.tool = arduino:avrdude
-avr_atmega328_1mhz_internal.bootloader.path = optiboot_v50
-
-################################################################################################
-
-
-
+rope_atmega328p.name=RoPE (ATmega328p - 1MHz)
+rope_atmega328p.build.mcu=atmega328p
+rope_atmega328p.build.f_cpu=1000000L
+rope_atmega328p.build.core=arduino:arduino
+rope_atmega328p.build.variant=arduino:standard
+rope_atmega328p.build.board=ROPE_ATMEGA328P_1MHZ
+rope_atmega328p.upload.tool=arduino:avrdude
+rope_atmega328p.upload.protocol=arduino
+rope_atmega328p.upload.maximum_size=32256
+rope_atmega328p.upload.speed=9600
+rope_atmega328p.upload.maximum_data_size=2048
+rope_atmega328p.bootloader.tool=arduino:avrdude
+rope_atmega328p.bootloader.low_fuses=0x62
+rope_atmega328p.bootloader.high_fuses=0xDE
+rope_atmega328p.bootloader.extended_fuses=0xFD
+rope_atmega328p.bootloader.file=rope/rope_atmega328p.hex
+rope_atmega328p.bootloader.unlock_bits=0x3F
+rope_atmega328p.bootloader.lock_bits=0x0F
 
 ################################################################################################
 # ATmega328 @1MHz internal oscillator (with clock output)                                      #
 ################################################################################################
 
-avr_atmega328_1mhz_internal_out.name = ATmega328 @1MHz internal oscillator (with clock output)
-avr_atmega328_1mhz_internal_out.build.board = AVR_ATMEGA328_1MHZ_INTERNAL_OUT
-
-avr_atmega328_1mhz_internal_out.upload.protocol = arduino
-avr_atmega328_1mhz_internal_out.upload.maximum_size = 32256
-avr_atmega328_1mhz_internal_out.upload.speed = 9600
-
-avr_atmega328_1mhz_internal_out.bootloader.low_fuses = 0x22
-avr_atmega328_1mhz_internal_out.bootloader.high_fuses = 0xde
-avr_atmega328_1mhz_internal_out.bootloader.extended_fuses = 0x07
-
-avr_atmega328_1mhz_internal_out.bootloader.file = atmega328/ATmega328_1MHz.hex
-avr_atmega328_1mhz_internal_out.bootloader.unlock_bits = 0x3F
-avr_atmega328_1mhz_internal_out.bootloader.lock_bits = 0x2F
-
-avr_atmega328_1mhz_internal_out.upload.tool = arduino:avrdude
-
-avr_atmega328_1mhz_internal_out.build.mcu = atmega328p
-avr_atmega328_1mhz_internal_out.build.f_cpu = 1000000L
-avr_atmega328_1mhz_internal_out.build.core = arduino:arduino
-avr_atmega328_1mhz_internal_out.build.variant = arduino:standard
-
-avr_atmega328_1mhz_internal_out.bootloader.tool = arduino:avrdude
-avr_atmega328_1mhz_internal_out.bootloader.path = optiboot_v50
-
-################################################################################################
+rope_atmega328p_clkout.name=RoPE (ATmega328p - 1MHz) with Clock Output
+rope_atmega328p_clkout.build.mcu=atmega328p
+rope_atmega328p_clkout.build.f_cpu=1000000L
+rope_atmega328p_clkout.build.core=arduino:arduino
+rope_atmega328p_clkout.build.variant=arduino:standard
+rope_atmega328p_clkout.build.board=ROPE_ATMEGA328P_1MHZ_CLKOUT
+rope_atmega328p_clkout.upload.tool=arduino:avrdude
+rope_atmega328p_clkout.upload.protocol=arduino
+rope_atmega328p_clkout.upload.maximum_size=32256
+rope_atmega328p_clkout.upload.speed=9600
+rope_atmega328p_clkout.upload.maximum_data_size=2048
+rope_atmega328p_clkout.bootloader.tool=arduino:avrdude
+rope_atmega328p_clkout.bootloader.low_fuses=0x22
+rope_atmega328p_clkout.bootloader.high_fuses=0xDE
+rope_atmega328p_clkout.bootloader.extended_fuses=0xFD
+rope_atmega328p_clkout.bootloader.file=rope/rope_atmega328p.hex
+rope_atmega328p_clkout.bootloader.unlock_bits=0x3F
+rope_atmega328p_clkout.bootloader.lock_bits=0x0F
