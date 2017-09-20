@@ -1,21 +1,21 @@
 #include "libs/Button/Button.cpp"
-#include "libs/RoPE_Steppers_28BYJ48/RoPE_Steppers_28BYJ48.cpp"
+#include "RoPE_Steppers_28BYJ48.h"
 
 #define QUANTIDADE_MAXIMA_ACOES 45
 bool testing_loop = 0;
 bool sound_off = 0;
 int easter_egg;
-int TURN_STEP_OVERWRITE = 170;
-int WALK_STEP_OVERWRITE = 360;
+//int TURN_STEP_OVERWRITE = 170;
+//int WALK_STEP_OVERWRITE = 360;
 //Entradas
 
 #define INTERVALO_SOM_BOTOES_1 45
 #define INTERVALO_SOM_BOTOES_2 135
 
 Button btnTras = Button (A1); 
-Button btnDireita = Button (A2);
+Button btnDireita = Button (A4);
 Button btnIr = Button (A3);
-Button btnEsquerda = Button (A4);
+Button btnEsquerda = Button (A2);
 Button btnFrente = Button (A5); 
 
 //Saidas
@@ -211,11 +211,11 @@ void verificarInstrucao(int acoesContExec)
   switch (acoes[acoesContExec])
   {
     case acaoEsquerda:
-      motores_esquerda(rope_foi_parado,TURN_STEP_OVERWRITE);
+      motores_esquerda(rope_foi_parado);
       break;
 
     case acaoDireita:
-      motores_direita(rope_foi_parado,TURN_STEP_OVERWRITE);
+      motores_direita(rope_foi_parado);
       break;
 
     case acaoFrente:
