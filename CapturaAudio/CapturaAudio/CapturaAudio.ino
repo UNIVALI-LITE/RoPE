@@ -5,23 +5,18 @@ Adafruit Microphone Amplifier
  
 #include <Wire.h>
  
-const int maxScale = 8;
-const int redZone = 5;
- 
+
 const int sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
 unsigned int sample;
  
 void setup() 
 {
    Serial.begin(9600);
- 
-   //matrix.begin(0x70);  // pass in the address
 }
  
  
 void loop() 
 {
-  //Serial.println(Serial.list());
    unsigned long startMillis= millis();  // Start of sample window
    unsigned int peakToPeak = 0;   // peak-to-peak level
  
