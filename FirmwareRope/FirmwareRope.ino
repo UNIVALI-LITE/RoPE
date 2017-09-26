@@ -13,9 +13,9 @@ int easter_egg;
 #define INTERVALO_SOM_BOTOES_2 135
 
 Button btnTras = Button (A1); 
-Button btnDireita = Button (A4);
+Button btnDireita = Button (A2);
 Button btnIr = Button (A3);
-Button btnEsquerda = Button (A2);
+Button btnEsquerda = Button (A4);
 Button btnFrente = Button (A5); 
 
 //Saidas
