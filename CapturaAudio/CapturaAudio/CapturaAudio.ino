@@ -4,14 +4,17 @@ Adafruit Microphone Amplifier
 ****************************************/
  
 #include <Wire.h>
- 
+#include <sound_meter.h> 
 
 const int sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
 unsigned int sample;
+
+int fatorTempo;
  
 void setup() 
 {
    Serial.begin(9600);
+   fatorTempo = millis();
 }
  
  
@@ -41,15 +44,19 @@ void loop()
    peakToPeak = signalMax - signalMin;  // max - min = peak-peak amplitude
    double volts = (peakToPeak * 5.0) / 1024;  // convert to volts
  
-   if(volts < 0.1){
-      Serial.println("Silence");
+   if(volts > 0.1){
+      double *pVolts = &volts;
+       Serial.println(volts);
+       Serial.println(get_abs_db(pVolts));
+       Serial.println("Tempo: " + millis() - fatorTempo);
    }
    
    else if(volts >= 0.1 && volts <= 1){
-       Serial.println(volts);
+       //Serial.println(volts);
+       //Serial.println(get_abs_db(volts));
    }
    else if(volts >= 2){
-       Serial.println(volts);
+       
    }
 
    
