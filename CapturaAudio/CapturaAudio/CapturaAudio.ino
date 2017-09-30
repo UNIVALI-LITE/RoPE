@@ -9,14 +9,15 @@ Adafruit Microphone Amplifier
 const int sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
 unsigned int sample;
 
-int fatorTempo;
+
  
 void setup() 
 {
    Serial.begin(9600);
-   fatorTempo = millis();
+
 }
- 
+
+int tempo = 0;
  
 void loop() 
 {
@@ -28,6 +29,8 @@ void loop()
  
    while (millis() - startMillis < sampleWindow)
    {
+      
+      
       sample = analogRead(0); 
       if (sample < 1024)  // toss out spurious readings
       {
@@ -41,6 +44,8 @@ void loop()
          }
       }
    }
+
+   tempo+= 50;
    peakToPeak = signalMax - signalMin;  // max - min = peak-peak amplitude
    double volts = (peakToPeak * 5.0) / 1024;  // convert to volts
  
@@ -48,7 +53,7 @@ void loop()
       double *pVolts = &volts;
        Serial.println(volts);
        Serial.println(get_abs_db(pVolts));
-       Serial.println("Tempo: " + millis() - fatorTempo);
+       Serial.println("Tempo (ms): " + tempo);
    }
    
    else if(volts >= 0.1 && volts <= 1){
