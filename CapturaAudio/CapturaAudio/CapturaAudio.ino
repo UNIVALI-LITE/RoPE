@@ -48,21 +48,12 @@ void loop()
    tempo+= 50;
    peakToPeak = signalMax - signalMin;  // max - min = peak-peak amplitude
    double volts = (peakToPeak * 5.0) / 1024;  // convert to volts
- 
-   if(volts > 0.1){
-      double *pVolts = &volts;
-       Serial.println(volts);
-       Serial.println(get_abs_db(pVolts));
-       Serial.println("Tempo (ms): " + tempo);
-   }
+
+   Serial.print(tempo/(float)1000);
+   Serial.print(" s - ");
+   Serial.println(volts);
    
-   else if(volts >= 0.1 && volts <= 1){
-       //Serial.println(volts);
-       //Serial.println(get_abs_db(volts));
-   }
-   else if(volts >= 2){
-       
-   }
+  
 
    
   
