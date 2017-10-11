@@ -1,11 +1,8 @@
-// This sketch uses Button presses to control a stepper motor.
-//Combined projects from the SIK GUIDE and LEARN ARDUINO BASICS books
 
 
-#include <Stepper.h> //including stepper motor library
+#include <Stepper.h> 
 #include <Wire.h>
 
-//defining pins section
 
 int pino1Motor1 = 5;         
 int pino2Motor1 = 6;
@@ -21,11 +18,11 @@ int vetorInstrucoesMotor1[45] = {0};
 int vetorInstrucoesMotor2[45] = {0};
 
 const float palma = 2.5;
-const float batida = 0.75;
+const float batida = 0.25;
 
 int tempo = 0;
 
-const int tamanhoAmostra = 50; // amostra window width in mS (50 mS = 20Hz)
+const int tamanhoAmostra = 50; 
 unsigned int amostra;   
 
 int contador1 = 0;
@@ -49,7 +46,7 @@ Stepper motor1(passosPorRevolucao, pino1Motor1, pino3Motor1, pino2Motor1, pino4M
 
 void setup() {
    Serial.begin(9600);
-  // Set up the pushbutton pins to be an input:
+
   pinMode(botaoExecucao, INPUT);
   motor1.setSpeed(15);
   indice1 = 0;
@@ -58,8 +55,8 @@ void setup() {
 }
 
 float capaturarModulo(int porta){
-   unsigned long tempoInicial= millis();  // Start of amostra window
-   unsigned int pontoAPonto = 0;   // peak-to-peak level
+   unsigned long tempoInicial= millis(); 
+   unsigned int pontoAPonto = 0;   
  
    unsigned int sinalMaximo = 0;
    unsigned int sinalMinimo = 1024;
@@ -71,29 +68,28 @@ float capaturarModulo(int porta){
       {
          if (amostra > sinalMaximo)
          {
-            sinalMaximo = amostra;  // save just the max levels
+            sinalMaximo = amostra; 
          }
          else if (amostra < sinalMinimo)
          {
-            sinalMinimo = amostra;  // save just the min levels
+            sinalMinimo = amostra;  
          }
       }
    }
 
    tempo+= 50;
-   pontoAPonto = sinalMaximo - sinalMinimo;  // max - min = peak-peak amplitude
-   double volts = (pontoAPonto * 5.0) / 1024;  // convert to volts
+   pontoAPonto = sinalMaximo - sinalMinimo; 
+   double volts = (pontoAPonto * 5.0) / 1024;  
    return volts;
 }
 
 void capturarSom(){
    float resultadoAFalante1 = capaturarModulo(AFalante1);
-   //float resultadoAFalante2 = capturaModulo(AFalante2);
    
-   if(resultadoAFalante1 >= palma){
+   if(resultadoAFalante1 >= palma && resultadoAFalante1 < 10){
       vetorInstrucoesMotor1[contador1] = HORARIO; 
       contador1++;
-   }else if(resultadoAFalante1 < palma && resultadoAFalante1 >= batida){
+   }else if(resultadoAFalante1 >= batida && resultadoAFalante1 >= batida){
       vetorInstrucoesMotor1[contador1] = ANTI_HORARIO;
       contador1++;
    }else if(contador1 > 45){
@@ -124,8 +120,7 @@ void executarMotor(){
   delay(1000);
   if(indice1 > contador1)
     finalizarProcesso();
- 
-  //motor1.step(passosPorRevolucao/8 * vetorInstrucoesMotor1[indice1]);
+
 }
 
 void loop() {
@@ -142,9 +137,7 @@ void loop() {
  }else if(estadoAtual == ESTADO_EXECUTANDO){
     executarMotor();
  }
- //Serial.println(estadoAtual);
- //delay(50);
+
 }  
-  //motor1.step(stepsPerRevolution/8);
- 
+
 
