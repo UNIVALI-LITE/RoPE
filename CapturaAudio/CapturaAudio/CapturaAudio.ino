@@ -84,21 +84,26 @@ float capaturarModulo(int porta){
    tempo+= 50;
    pontoAPonto = sinalMaximo - sinalMinimo; 
    double volts = (pontoAPonto * 5.0) / 1024;  
-   //Serial.println(volts);
+   
    return volts;
 }
 
 void capturarSom(){
    float resultadoAFalante1 = capaturarModulo(AFalante1);
+
    
    if(resultadoAFalante1 >= (palma - desvPadraoPalma) && resultadoAFalante1  <= (palma + desvPadraoPalma)){
       vetorInstrucoesMotor1[contador1] = HORARIO; 
       contador1++;
-      Serial.println("Gravei Palma");
-   }else if(resultadoAFalante1 >= batida && resultadoAFalante1 < palma){
+      Serial.print("Gravei Palma com sinal: ");
+      Serial.print(resultadoAFalante1);
+      Serial.println("");
+   }else if(resultadoAFalante1 >= batida && resultadoAFalante1 < palma - desvPadraoPalma){
       vetorInstrucoesMotor1[contador1] = ANTI_HORARIO;
       contador1++;
-      Serial.println("Gravei Batida");
+      Serial.print("Gravei Batida com sinal: ");
+      Serial.print(resultadoAFalante1);
+      Serial.println("");
    }else if(contador1 > 45){
       estadoAtual = ESTADO_EXECUTANDO;
    }
@@ -117,9 +122,11 @@ void executarMotor(){
      motor1.step(passosPorRevolucao/8 * vetorInstrucoesMotor1[indice1]);
      tempoAtual = millis();
      if(vetorInstrucoesMotor1[indice1] == ANTI_HORARIO){
-        Serial.println("batida"); 
+        Serial.println("Executei Batida"); 
+     }else if(vetorInstrucoesMotor1[indice1] == HORARIO){
+        Serial.println("Executei Palma");
      }else{
-        Serial.println("Palma");
+        Serial.println("Executei um Erro!");
      }
   }
 
