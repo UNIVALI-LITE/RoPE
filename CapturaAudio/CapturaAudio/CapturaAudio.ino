@@ -17,8 +17,10 @@ const int botaoExecucao = 4;
 int vetorInstrucoesMotor1[45] = {0};
 int vetorInstrucoesMotor2[45] = {0};
 
-const float palma = 2.5;
-const float batida = 0.25;
+const float palma = 2.34;
+const float desvPadraoPalma = 0.69;
+const float batida = 0.20;
+const float desvPadraoBatida = 0;
 
 int tempo = 0;
 
@@ -52,6 +54,8 @@ void setup() {
   indice1 = 0;
   contador1 = 0;
   estadoAtual = ESTADO_ESPERANDO;
+  pinMode(13, OUTPUT);
+  digitalWrite(13, LOW);
 }
 
 float capaturarModulo(int porta){
@@ -80,18 +84,21 @@ float capaturarModulo(int porta){
    tempo+= 50;
    pontoAPonto = sinalMaximo - sinalMinimo; 
    double volts = (pontoAPonto * 5.0) / 1024;  
+   //Serial.println(volts);
    return volts;
 }
 
 void capturarSom(){
    float resultadoAFalante1 = capaturarModulo(AFalante1);
    
-   if(resultadoAFalante1 >= palma && resultadoAFalante1 < 10){
+   if(resultadoAFalante1 >= (palma - desvPadraoPalma) && resultadoAFalante1  <= (palma + desvPadraoPalma)){
       vetorInstrucoesMotor1[contador1] = HORARIO; 
       contador1++;
-   }else if(resultadoAFalante1 >= batida && resultadoAFalante1 >= batida){
+      Serial.println("Gravei Palma");
+   }else if(resultadoAFalante1 >= batida && resultadoAFalante1 < palma){
       vetorInstrucoesMotor1[contador1] = ANTI_HORARIO;
       contador1++;
+      Serial.println("Gravei Batida");
    }else if(contador1 > 45){
       estadoAtual = ESTADO_EXECUTANDO;
    }
@@ -109,7 +116,7 @@ void executarMotor(){
      tempoAnteriorExecucao = tempoAtual;  
      motor1.step(passosPorRevolucao/8 * vetorInstrucoesMotor1[indice1]);
      tempoAtual = millis();
-     if(indice1 == ANTI_HORARIO){
+     if(vetorInstrucoesMotor1[indice1] == ANTI_HORARIO){
         Serial.println("batida"); 
      }else{
         Serial.println("Palma");
@@ -125,17 +132,21 @@ void executarMotor(){
 
 void loop() {
  int sinalBotao = digitalRead(botaoExecucao);
- digitalWrite(13, LOW);
+ 
  if(sinalBotao && estadoAtual == ESTADO_ESPERANDO){
     estadoAtual = ESTADO_PROGRAMANDO;
-    digitalWrite(13, HIGH);
+    digitalWrite(13, LOW);
+    
  }else if(estadoAtual == ESTADO_PROGRAMANDO && !sinalBotao){ 
     capturarSom();
+    digitalWrite(13, HIGH);
  }else if(estadoAtual == ESTADO_PROGRAMANDO && sinalBotao && contador1 > 0){
     estadoAtual = ESTADO_EXECUTANDO;
     executarMotor();
+    digitalWrite(13, LOW);
  }else if(estadoAtual == ESTADO_EXECUTANDO){
     executarMotor();
+    digitalWrite(13, LOW);
  }
 
 }  
