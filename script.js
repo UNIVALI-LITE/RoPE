@@ -101,27 +101,28 @@ $(function () {
         removeIfOutside($piece)
         freesPlaceHolder($piece)
         snapToPlaceholder($piece)
-    }
+    };
 
     var clone = ($piece) => {
         var position = $piece.position()
         var $cloned = $piece.clone()
-        $cloned.css({
+        $cloned
+        .removeClass('available')
+        .css({
             position: 'absolute',
             top: position.top,
             left: position.left
         })
         .appendTo($totalArea)
-        .removeClass('available')
-        
-        $cloned.draggable({
+        .draggable({
             start: handleDragStart,
             stop: handleDragStop
         });
         
-        $cloned[0].cloned = true
-        $cloned[0].dragged = false
-        $cloned[0].id = ++idCounter
+        var elm = $cloned[0]
+        elm.cloned = true
+        elm.dragged = false
+        elm.id = ++idCounter
         
         return $cloned
     };
@@ -129,6 +130,5 @@ $(function () {
     $('.available.block.piece').on('mousedown', (e) => {
         var $piece = $(e.target)
         var $clonedPiece = clone($piece)
-    })
-    $('.available.block.piece').trigger('mousedown')
+    }).trigger('mousedown')
 })
