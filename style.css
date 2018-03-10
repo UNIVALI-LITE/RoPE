@@ -1,0 +1,37 @@
+body {
+  background-color: #a3d5d3;
+}
+.block {
+  width: 100px;
+  height: 100px;
+  display: inline-block;
+}
+.piece {
+  background: gray;
+}
+.placeholder {
+  border: 1px solid gray
+}
+.piece.dragged {
+  border: 1px solid gray
+}
+.area {
+  width: 900px;
+  min-height: 140px;
+  border: 1px solid 
+}
+#total-area {
+  border: 1px solid red
+}
+.advance {
+  background: #66c9fc
+}
+.back {
+  background: #cd95dc
+}
+.left {
+  background: #ff685e
+}
+.right {
+  background: #ffe46b
+}
