@@ -1,6 +1,8 @@
 /*global $ global jQuery*/
-$(function () {
 
+// Hey, the main() is bottom
+$(function () {
+    
     function Point(x, y) {
         this.x = x
         this.y = y
@@ -103,6 +105,10 @@ $(function () {
         snapToPlaceholder($piece)
     };
 
+    var handleDrag = (e) => {
+        
+    };
+
     var clone = ($piece) => {
         var position = $piece.position()
         var $cloned = $piece.clone()
@@ -116,7 +122,8 @@ $(function () {
         .appendTo($totalArea)
         .draggable({
             start: handleDragStart,
-            stop: handleDragStop
+            stop: handleDragStop,
+            drag: handleDrag
         });
         
         var elm = $cloned[0]
@@ -127,6 +134,7 @@ $(function () {
         return $cloned
     };
 
+    // main :)
     $('.available.block.piece').on('mousedown', (e) => {
         var $piece = $(e.target)
         var $clonedPiece = clone($piece)
