@@ -17,10 +17,11 @@ $(function () {
     };
     Rectangle.prototype.contains = function (obj) {
         if (obj instanceof Point) {
-            return this.y <= obj.y &&
-                this.y + this.height >= obj.y &&
-                this.x <= obj.x &&
-                this.x + this.width >= obj.x
+            var point = obj
+            return this.y <= point.y &&
+                this.y + this.height >= point.y &&
+                this.x <= point.x &&
+                this.x + this.width >= point.x
         }
     };
     Rectangle.prototype.center = function () {
@@ -37,11 +38,18 @@ $(function () {
             })
         }
     };
-
+    Rectangle.prototype.LEFT = -1
+    Rectangle.prototype.RIGHT = 1
+    Rectangle.prototype.side = function(obj) {
+        if(obj instanceof Point){
+            return this.center().x > obj.x ? this.LEFT : this.RIGHT
+        }
+    };
     var idCounter = 0
     var placeholders = {}
     var clickedIds = []
     var $totalArea = $('#total-area')
+    var $placeholdersArea = $('.placeholders.area')
 
     var organizePostionZ = ($piece) => {
         var id = $piece[0].id
@@ -50,7 +58,7 @@ $(function () {
             clickedIds.splice(i, 1)
         }
         clickedIds.push(id)
-        $('.piece.cloned').each((i, elm) => {
+        $('.piece.dragged').each((i, elm) => {
             var zIndex = clickedIds.indexOf(elm.id) + 10
             $(elm).css('z-index', zIndex)
         })
@@ -59,6 +67,7 @@ $(function () {
     var handleDragStart = (e) => {
         var piece = e.target
         var $piece = $(piece)
+        freesPlaceHolder($piece)
         organizePostionZ($piece)
         if (!piece.dragged) {
             piece.dragged = true
@@ -81,6 +90,8 @@ $(function () {
             var $snapedPiece = placeholders[idx]
             if ($snapedPiece[0].id === $piece[0].id) {
                 delete placeholders[idx]
+                console.log(' frees ' + idx)
+                console.log(placeholders)
                 break
             }
         }
@@ -94,19 +105,62 @@ $(function () {
             if (!placeholders[idx] && placeholderRect.contains(pieceRect.center())) {
                 pieceRect.moveTo($placeholder)
                 placeholders[idx] = $piece
+                console.log(' snap ' + idx)
+                console.log(placeholders)
+            }
+        })
+    };
+    
+    var handleDragStop = (e) => {
+        var $piece = $(e.target)
+        removeIfOutside($piece)
+        snapToPlaceholder($piece)
+    };
+
+    var createPlaceholder = (side) => {
+        var $placeholderBase = $($('.placeholder')[0])
+        var $placeholderClone = $placeholderBase.clone()
+        if(side === Rectangle.LEFT){
+            $placeholdersArea.prepend($placeholderClone)
+        } else {
+            $placeholdersArea.append($placeholderClone)
+        }
+        return $placeholderClone
+    }
+
+    var getOrCreatePlaceholder = ($placeholders, placeholderIndex, side) => {
+        var elm = $placeholders[placeholderIndex + side]
+        if(!elm){
+            return createPlaceholder(side)
+        }
+        return $(elm)
+    }
+    
+    var moveSnapedPiece = ($movingPiece) => {
+        var pieceCenter = new Rectangle($movingPiece).center()
+        var $placeholders = $('.placeholder')
+        $placeholders.each((idx, elm) => {
+            var $placeholder = $(elm)
+            var placeholderRect = new Rectangle($placeholder)
+            if (placeholders[idx] && placeholderRect.contains(pieceCenter)) {
+                
+                if( placeholders[idx].id === $movingPiece[0].id )
+                    return
+                
+                var moveSide = placeholderRect.side( pieceCenter )
+                var $placeholderToGo = getOrCreatePlaceholder($placeholders, idx, moveSide)
+                var $snapedPiece = placeholders[idx]
+                freesPlaceHolder($snapedPiece)
+                snapToPlaceholder($snapedPiece)
+                var snapedPieceRect = new Rectangle($snapedPiece)
+                snapedPieceRect.moveTo($placeholderToGo)
             }
         })
     };
 
-    var handleDragStop = (e) => {
-        var $piece = $(e.target)
-        removeIfOutside($piece)
-        freesPlaceHolder($piece)
-        snapToPlaceholder($piece)
-    };
-
     var handleDrag = (e) => {
-        
+        var $piece = $(e.target)
+        moveSnapedPiece($piece)
     };
 
     var clone = ($piece) => {
