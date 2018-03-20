@@ -16,12 +16,12 @@ body {
   border: 1px solid gray
 }
 .area {
-  width: 900px;
-  min-height: 140px;
-  border: 1px solid 
+  width: 1000%;
+  height: 140px;
 }
 #total-area {
-  border: 1px solid red
+  height: 100%;
+  box-shadow: 0 0 5px gray;
 }
 .advance {
   background: #66c9fc
