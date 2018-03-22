@@ -8,6 +8,9 @@ $(function () {
     }
 
     function Rectangle($elm) {
+        this.setElm($elm)
+    }
+    Rectangle.prototype.setElm = function($elm) {
         this.$elm = $elm
         this.height = $elm.height()
         this.width = $elm.width()
@@ -24,20 +27,23 @@ $(function () {
         }
     }
     Rectangle.prototype.center = function () {
-        var x = this.x + (this.width / 2)
-        var y = this.y + (this.height / 2)
-        return new Point(x, y)
+        var centerX = this.x + (this.width / 2)
+        var centerY = this.y + (this.height / 2)
+        return new Point(centerX, centerY)
     }
     Rectangle.prototype.moveTo = function (obj) {
+        if (obj instanceof Rectangle) {
+            obj = obj.$elm
+        }
         if (obj instanceof jQuery) {
             var $elm = this.$elm
-            $elm[0].moving = true
+            this.moving = true
             this.$elm.animate({
                 top: obj.position().top,
                 left: obj.position().left,
                 position: 'absolute'
             }, 100, function(){ 
-                $elm[0].moving = false
+                this.moving = false
             })
         }
     }
@@ -48,15 +54,40 @@ $(function () {
             return this.center().x > obj.x ? this.LEFT : this.RIGHT
         }
     }
-    
+    Rectangle.prototype.id = function(){
+        return this.$elm[0].id
+    }
+    Rectangle.prototype.setDragged = function(){
+        this.dragged = true
+        this.$elm.addClass('dragged').css('z-index',1000)
+    }
+    Rectangle.prototype.disappear = function() {
+        this.$elm.remove()
+    }
+    Rectangle.prototype.empty = function(){
+        return !this.internalRectangle
+    }
+    Rectangle.prototype.add = function(obj){
+        return this.internalRectangle = obj
+    }
+    Rectangle.prototype.has = function(obj){
+        return obj === this.internalRectangle
+    }
+    Rectangle.prototype.frees = function() {
+        this.internalRectangle = undefined
+    }
+    const EMPTY = -1
     var idCounter = 0
-    var placeholders = {}
+    var placeholderIdCounter = 5
+    var pieces = []
+    var placeholders = []
     var clickedIds = []
     var $totalArea = $('#total-area')
+    var rectArea = new Rectangle($totalArea)
     var $placeholdersArea = $('.placeholders.area')
-
-    var organizePostionZ = ($piece) => {
-        var id = $piece[0].id
+    
+    const organizePostionZ = (piece) => {
+        var id = piece.id()
         var i = clickedIds.indexOf(id)
         if (i != -1) {
             clickedIds.splice(i, 1)
@@ -68,134 +99,133 @@ $(function () {
         })
     }
 
-    var showPlaceholders = ()=>{
-        let ids = []
-        $('.placeholder').each((idx, elm)=>{
-            if(placeholders[idx]){
-                ids.push( placeholders[idx][0].id )
-            } else {
-                ids.push(-1)
-            }
-        })
-        // for(let idx in placeholders){
-        //     ids.push(placeholders[idx][0].id)
-        // }
-        console.log(ids)
-    };
+    const showPlaceholders = () => {
+        console.log( placeholders.map(p=> p.empty() ? 'vazio' : p.internalRectangle.id()))
+    }
 
-    var freesPlaceHolder = ($piece) => {
-        for (let idx in placeholders) {
-            var $snapedPiece = placeholders[idx]
-            if ($snapedPiece[0].id === $piece[0].id) {
-                delete placeholders[idx]
-                break
-            }
+    const findPieceById = (id) => {
+        var foundPiece = pieces
+        .filter((piece)=>piece instanceof Rectangle && piece.id() == id)
+        if(foundPiece.length){
+            return foundPiece[0]
         }
+    }
+    
+    const createPiece = ($elm) => {
+        var piece = new Rectangle( $elm )
+        pieces.push( piece )
+        return piece
+    }
+    
+    const getOrCreatePiece = (e) => {
+        var elm = e.target
+        var id = elm.id
+        var foundPiece = findPieceById(id)
+        return foundPiece || createPiece( $(elm) )
+    }
+
+    const freesPlaceHolder = (movingPiece) => {
+        placeholders
+        .filter(placeholder=>placeholder.has(movingPiece))
+        .forEach(placeholder=>placeholder.frees())
         showPlaceholders()
     }
 
-    var handleDragStart = (e) => {
-        var piece = e.target
-        var $piece = $(piece)
-        freesPlaceHolder($piece)
-        organizePostionZ($piece)
-        if (!piece.dragged) {
-            piece.dragged = true
-            clone($piece)
-            $piece.addClass('dragged')
-            $piece.css('z-index',1000)
+    const handleDragStart = (e) => {
+        var movingPiece = getOrCreatePiece(e)
+        freesPlaceHolder(movingPiece)
+        organizePostionZ(movingPiece)
+        if (!movingPiece.dragged) {
+            clone( movingPiece.$elm )
+            movingPiece.setDragged()
         }
     }
 
-    var removeIfOutside = ($piece) => {
-        var rectArea = new Rectangle($totalArea)
-        var pieceRect = new Rectangle($piece)
-        if (!rectArea.contains(pieceRect.center())) {
-            $piece.remove()
+    const removeIfOutside = (piece) => {
+        if (!rectArea.contains(piece.center())) {
+            piece.disappear()
         }
     }
 
-    var snap = ($piece, $placeholder) => {
-        var pieceRect = new Rectangle($piece)
-        pieceRect.moveTo($placeholder)
+    const snap = (placeholder, piece) => {
+        if(!placeholder.empty()){
+            return console.log('Não to vazio!!!')
+        }
+        placeholder.add( piece )
+        piece.moveTo(placeholder)
     }
 
-    var snapToPlaceholder = ($piece) => {
-        var pieceRect = new Rectangle($piece)
-        $('.placeholder').each((idx, elm) => {
-            var $placeholder = $(elm)
-            var placeholderRect = new Rectangle($placeholder)
-            if (!placeholders[idx] && placeholderRect.contains(pieceRect.center())) {
-                snap($piece, $placeholder)
-                placeholders[idx] = $piece
-                return
+    const snapToPlaceholder = (piece) => {
+        placeholders.forEach((placeholder)=>{
+            if(placeholder.empty() && placeholder.contains(piece.center())){
+                snap(placeholder, piece)
+                return 
             }
         })
     }
     
-    var handleDragStop = (e) => {
-        var $piece = $(e.target)
-        removeIfOutside($piece)
-        snapToPlaceholder($piece)
+    const handleDragStop = (e) => {
+        var piece = getOrCreatePiece(e)
+        removeIfOutside(piece)
+        snapToPlaceholder(piece)
         showPlaceholders()
     }
 
-    var createPlaceholder = (side) => {
-        var $placeholderBase = $($('.placeholder')[0])
-        var $placeholderClone = $placeholderBase.clone()
-        if(side === Rectangle.LEFT){
+    const createPlaceholder = (side) => {
+        let $placeholderBase = $($('.placeholder')[0])
+        let $placeholderClone = $placeholderBase.clone()
+        $placeholderClone.text( ++placeholderIdCounter )
+        let placeholder = new Rectangle( $placeholderClone )
+        if(side === Rectangle.prototype.LEFT){
             $placeholdersArea.prepend($placeholderClone)
+            placeholders.unshift( placeholder )
         } else {
             $placeholdersArea.append($placeholderClone)
+            placeholders.push( placeholder )
         }
-        return $placeholderClone
+        return placeholder
     }
 
-    var getOrCreatePlaceholder = ($placeholders, placeholderIndex, side) => {
-        var placeholderContainsPiece = placeholders[ placeholderIndex + side]
-        if( placeholderContainsPiece ){
-            var sideOfSide = side + side
-            return getOrCreatePlaceholder($placeholders, placeholderIndex, sideOfSide )       
-        }
-        var elm = $placeholders[placeholderIndex + side]
-        if(!elm){
+    const getOrCreatePlaceholder = (side, placeholderIndex) => {
+        if( !placeholders[ placeholderIndex + side ])
             return createPlaceholder(side)
-        }
-        return $(elm)
+        return placeholders[ placeholderIndex + side]
     }
     
-    var moveSnapedPiece = ($movingPiece) => {
-        var pieceCenter = new Rectangle($movingPiece).center()
-        var $placeholders = $('.placeholder')
-        $placeholders.each((idx, elm) => {
-            var $placeholder = $(elm)
-            var placeholderRect = new Rectangle($placeholder)
-            if (placeholders[idx] && placeholderRect.contains(pieceCenter)) {
-                var elm = placeholders[idx][0]
-                if( elm.moving )
-                    return
-                var moveSide = placeholderRect.sideOf( pieceCenter )
-                
-                var $placeholderToGo = getOrCreatePlaceholder($placeholders, idx, moveSide)
-                
-                var $snapedPiece = placeholders[idx]
-                freesPlaceHolder($snapedPiece)
-                var $freedPiece = $snapedPiece
-                var freedPieceRect = new Rectangle($freedPiece)
-                freedPieceRect.moveTo($placeholderToGo)
-                placeholders[idx+moveSide] = $freedPiece
-            }
+    const movePlaceholderPiece = ( placeholder, moveThisPieceToSide ) => {
+        let placeholderIndex = placeholders.indexOf( placeholder )
+        let placeholdeToGo = getOrCreatePlaceholder(moveThisPieceToSide, placeholderIndex)
+        if(!placeholdeToGo.empty()) {
+            placeholdeToGo.internalRectangle.moving = true
+            movePlaceholderPiece( placeholdeToGo, moveThisPieceToSide )
+        }
+        snap( placeholdeToGo, placeholder.internalRectangle )
+        placeholder.frees()
+    }
+    
+    const ifHasPieceThenMove = (placeholder, movingPiece)=>{
+        if(!placeholder.empty() && 
+            placeholder.contains( movingPiece.center() )){
+            let moveSide = placeholder.sideOf( movingPiece.center() )
+            movePlaceholderPiece( placeholder, moveSide )
+        }
+    }
+    
+    const moveSnapedPiece = (movingPiece) => {
+        placeholders.forEach((placeholder) => {
+            ifHasPieceThenMove(placeholder, movingPiece)
         })
     }
     
-    var handleDrag = (e) => {
-        var $piece = $(e.target)
-        moveSnapedPiece($piece)
+    const handleDrag = (e) => {
+        var movingPiece = getOrCreatePiece(e)
+        movingPiece.setElm($(e.target))
+        moveSnapedPiece(movingPiece)
     }
 
-    var clone = ($piece) => {
-        var position = $piece.position()
-        var $cloned = $piece.clone()
+    const clone = ($elm) => {
+        var position = $elm.position()
+        var $cloned = $elm.clone()
         $cloned
         .removeClass('available')
         .css({
@@ -210,19 +240,21 @@ $(function () {
             drag: handleDrag
         })
         
-        var elm = $cloned[0]
-        elm.cloned = true
-        elm.dragged = false
-        elm.id = ++idCounter
-        
-        $cloned.text( elm.id )
+        var id = ++idCounter
+        $cloned.id = id
+        $cloned.text( id )
+        $cloned[0].id = id
         
         return $cloned
     }
 
     // main :)
     $('.available.block.piece').on('mousedown', (e) => {
-        var $piece = $(e.target)
-        var $clonedPiece = clone($piece)
+        var $cloned = clone( $(e.target) )
+        createPiece( $cloned )
     }).trigger('mousedown')
+    
+    $('.block.placeholder').each((idx, elm)=>{
+        placeholders.push( new Rectangle( $(elm) ))
+    })
 })

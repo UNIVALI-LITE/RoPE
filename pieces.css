@@ -16,7 +16,8 @@ body {
   border: 1px solid gray
 }
 .area {
-  width: 1000%;
+  text-align: center;
+  width: 100%;
   height: 140px;
 }
 #total-area {
