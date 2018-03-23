@@ -42,7 +42,7 @@ $(function () {
                 top: obj.position().top,
                 left: obj.position().left,
                 position: 'absolute'
-            }, 100, function(){ 
+            }, 500, function(){ 
                 this.moving = false
             })
         }
@@ -77,14 +77,15 @@ $(function () {
         this.internalRectangle = undefined
     }
     const EMPTY = -1
-    var idCounter = 0
-    var placeholderIdCounter = 5
-    var pieces = []
-    var placeholders = []
-    var clickedIds = []
-    var $totalArea = $('#total-area')
-    var rectArea = new Rectangle($totalArea)
-    var $placeholdersArea = $('.placeholders.area')
+    let idCounter = 0
+    let placeholderIdCounter = 5
+    let pieces = []
+    let placeholders = []
+    let clickedIds = []
+    let $totalArea = $('#total-area')
+    let rectArea = new Rectangle($totalArea)
+    let $placeholdersArea = $('.placeholders.area')
+    let canSnap = true
     
     const organizePostionZ = (piece) => {
         var id = piece.id()
@@ -132,7 +133,13 @@ $(function () {
     }
 
     const handleDragStart = (e) => {
-        var movingPiece = getOrCreatePiece(e)
+        let movingPiece = getOrCreatePiece(e)
+        canSnap = false
+        //$('body').css('background', canSnap ? 'green' : 'red')
+        setTimeout(()=>{
+            canSnap = true
+            //$('body').css('background', canSnap ? 'green' : 'red')
+        }, 2000)
         freesPlaceHolder(movingPiece)
         organizePostionZ(movingPiece)
         if (!movingPiece.dragged) {
@@ -187,8 +194,18 @@ $(function () {
     }
 
     const getOrCreatePlaceholder = (side, placeholderIndex) => {
-        if( !placeholders[ placeholderIndex + side ])
-            return createPlaceholder(side)
+        if( !placeholders[ placeholderIndex + side ]){
+            let newPlacehoder = createPlaceholder(side)
+            $('.block.placeholder').each((idx, elm)=>{
+                placeholders[ idx ].setElm( $(elm) )
+            })
+            placeholders.forEach((placeholder)=>{
+                if(!placeholder.empty()){
+                    placeholder.internalRectangle.moveTo( placeholder )
+                }
+            })
+            return newPlacehoder
+        }
         return placeholders[ placeholderIndex + side]
     }
     
@@ -196,31 +213,59 @@ $(function () {
         let placeholderIndex = placeholders.indexOf( placeholder )
         let placeholdeToGo = getOrCreatePlaceholder(moveThisPieceToSide, placeholderIndex)
         if(!placeholdeToGo.empty()) {
-            placeholdeToGo.internalRectangle.moving = true
             movePlaceholderPiece( placeholdeToGo, moveThisPieceToSide )
         }
         snap( placeholdeToGo, placeholder.internalRectangle )
         placeholder.frees()
     }
     
-    const ifHasPieceThenMove = (placeholder, movingPiece)=>{
+    const calcMoveSide = ( placeholder, placeholderIndex, movingPiece ) => {
+        if( placeholderIndex == 0 ){
+            return Rectangle.prototype.RIGHT
+        }
+        if( placeholderIndex == placeholders.length - 1 ){
+            return Rectangle.prototype.LEFT
+        }
+        
+        let commingSide = placeholder.sideOf( movingPiece.center() )
+        if( commingSide === Rectangle.prototype.LEFT ){
+            if( placeholders[placeholderIndex - 1].empty() ){
+                return Rectangle.prototype.LEFT
+            }
+            if( placeholders[ placeholderIndex + 1].empty() ){
+                return Rectangle.prototype.RIGHT
+            }
+        } 
+        if( commingSide === Rectangle.prototype.RIGHT ){
+            if( placeholders[placeholderIndex + 1].empty() ){
+                return Rectangle.prototype.RIGHT
+            } 
+            if( placeholders[ placeholderIndex - 1].empty() ){
+                return Rectangle.prototype.LEFT
+            }
+        }
+        return Rectangle.prototype.RIGHT
+    }
+    
+    const ifHasPieceThenMove = (placeholder, placeholderIndex, movingPiece)=>{
         if(!placeholder.empty() && 
             placeholder.contains( movingPiece.center() )){
-            let moveSide = placeholder.sideOf( movingPiece.center() )
+            let moveSide = calcMoveSide( placeholder, placeholderIndex, movingPiece )
             movePlaceholderPiece( placeholder, moveSide )
         }
     }
     
     const moveSnapedPiece = (movingPiece) => {
-        placeholders.forEach((placeholder) => {
-            ifHasPieceThenMove(placeholder, movingPiece)
+        placeholders.forEach((placeholder, placeholderIndex) => {
+            ifHasPieceThenMove(placeholder, placeholderIndex, movingPiece)
         })
     }
     
     const handleDrag = (e) => {
         var movingPiece = getOrCreatePiece(e)
         movingPiece.setElm($(e.target))
-        moveSnapedPiece(movingPiece)
+        if(canSnap)
+            moveSnapedPiece(movingPiece)
     }
 
     const clone = ($elm) => {
