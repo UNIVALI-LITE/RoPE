@@ -139,7 +139,7 @@ $(function () {
         setTimeout(()=>{
             canSnap = true
             //$('body').css('background', canSnap ? 'green' : 'red')
-        }, 2000)
+        }, 300)
         freesPlaceHolder(movingPiece)
         organizePostionZ(movingPiece)
         if (!movingPiece.dragged) {
@@ -261,11 +261,15 @@ $(function () {
         })
     }
     
+    const moveSnapedPieceIfCanSnap = (movingPiece) => {
+        if(canSnap)
+            moveSnapedPiece(movingPiece)   
+    }
+    
     const handleDrag = (e) => {
         var movingPiece = getOrCreatePiece(e)
         movingPiece.setElm($(e.target))
-        if(canSnap)
-            moveSnapedPiece(movingPiece)
+        moveSnapedPieceIfCanSnap( movingPiece )
     }
 
     const clone = ($elm) => {
