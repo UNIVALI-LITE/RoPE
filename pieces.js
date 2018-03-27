@@ -125,10 +125,24 @@ $(function () {
         return foundPiece || createPiece( $(elm) )
     }
 
+    const movePiecesToLeft = ( freedPlaceholder ) => {
+        freedPlaceholder.frees()
+        let freedPlaceholderIndex = placeholders.indexOf(freedPlaceholder)
+        let i = freedPlaceholderIndex + 1
+        while(i < placeholders.length && !placeholders[i].empty()){
+            let rightPlaceholder = placeholders[i]
+            snap( freedPlaceholder, rightPlaceholder.internalRectangle )
+            rightPlaceholder.frees()
+            freedPlaceholder = rightPlaceholder
+            i++
+        }
+    }
+
     const freesPlaceHolder = (movingPiece) => {
-        placeholders
-        .filter(placeholder=>placeholder.has(movingPiece))
-        .forEach(placeholder=>placeholder.frees())
+        let freedPlaceholder = placeholders.filter(placeholder=>placeholder.has(movingPiece))[0]
+        if(freedPlaceholder){
+            movePiecesToLeft( freedPlaceholder )   
+        }
         showPlaceholders()
     }
 
