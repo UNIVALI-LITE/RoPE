@@ -85,7 +85,7 @@ $(function () {
     let $totalArea = $('#total-area')
     let rectArea = new Rectangle($totalArea)
     let $placeholdersArea = $('.placeholders.area')
-    let canSnap = true
+    let isTimeToSnap = true
     
     const organizePostionZ = (piece) => {
         var id = piece.id()
@@ -125,15 +125,24 @@ $(function () {
         return foundPiece || createPiece( $(elm) )
     }
 
-    const movePiecesToLeft = ( freedPlaceholder ) => {
-        freedPlaceholder.frees()
-        let freedPlaceholderIndex = placeholders.indexOf(freedPlaceholder)
-        let i = freedPlaceholderIndex + 1
-        while(i < placeholders.length && !placeholders[i].empty()){
-            let rightPlaceholder = placeholders[i]
-            snap( freedPlaceholder, rightPlaceholder.internalRectangle )
-            rightPlaceholder.frees()
-            freedPlaceholder = rightPlaceholder
+    const movePiecesToLeft = () => {
+        let i = 0
+        while(i < placeholders.length){
+            let placeholder = placeholders[i]
+            if( placeholder.empty() ){
+                let j = i
+                let rightOccuped 
+                while ( j < placeholders.length && !rightOccuped ){
+                    if( !placeholders[j].empty() ){
+                        rightOccuped = placeholders[j]
+                    }
+                    j++
+                }
+                if(rightOccuped){
+                    snap( placeholder, rightOccuped.internalRectangle )
+                    rightOccuped.frees()
+                }
+            }
             i++
         }
     }
@@ -141,18 +150,16 @@ $(function () {
     const freesPlaceHolder = (movingPiece) => {
         let freedPlaceholder = placeholders.filter(placeholder=>placeholder.has(movingPiece))[0]
         if(freedPlaceholder){
-            movePiecesToLeft( freedPlaceholder )   
+            freedPlaceholder.frees()
         }
         showPlaceholders()
     }
 
     const handleDragStart = (e) => {
         let movingPiece = getOrCreatePiece(e)
-        canSnap = false
-        //$('body').css('background', canSnap ? 'green' : 'red')
+        isTimeToSnap = false
         setTimeout(()=>{
-            canSnap = true
-            //$('body').css('background', canSnap ? 'green' : 'red')
+            isTimeToSnap = true
         }, 300)
         freesPlaceHolder(movingPiece)
         organizePostionZ(movingPiece)
@@ -189,6 +196,7 @@ $(function () {
         var piece = getOrCreatePiece(e)
         removeIfOutside(piece)
         snapToPlaceholder(piece)
+        movePiecesToLeft()
         showPlaceholders()
     }
 
@@ -275,15 +283,15 @@ $(function () {
         })
     }
     
-    const moveSnapedPieceIfCanSnap = (movingPiece) => {
-        if(canSnap)
+    const moveSnapedPieceIfIsTimeToSnap = (movingPiece) => {
+        if(isTimeToSnap)
             moveSnapedPiece(movingPiece)   
     }
     
     const handleDrag = (e) => {
         var movingPiece = getOrCreatePiece(e)
         movingPiece.setElm($(e.target))
-        moveSnapedPieceIfCanSnap( movingPiece )
+        moveSnapedPieceIfIsTimeToSnap( movingPiece )
     }
 
     const clone = ($elm) => {
