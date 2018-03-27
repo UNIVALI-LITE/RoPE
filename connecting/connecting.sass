@@ -1,0 +1,53 @@
+#connecting-view 
+  background: #f2f2f2ff
+
+#bigger-rect-top
+  height: 60vh
+  display: table-cell
+  vertical-align: middle
+  width: 100vw
+#smaller-rect-bottom
+  height: 30vh  
+.square
+  height: 50vh
+  width: 50vh
+  border: .1vh solid lightgray
+  img
+    width: 100%
+
+#searching
+  margin: 0 auto
+  div
+    position: relative
+    height: inherit
+    width: inherit
+    text-align: center
+    display: table-cell
+    vertical-align: middle
+  
+#magnifying
+  position: absolute
+  animation-name: fake-circle
+  animation-duration: 2s
+  animation-iteration-count: infinite
+  width: 70%
+@keyframes fake-circle
+  0%
+    left: 0px
+    top: 50px
+  25%
+    left: 50px
+    top: 0px
+  50%
+    left: 100px
+    top: 50px
+  75%
+    left: 50px
+    top: 100px
+  100%
+    left: 0px
+    top: 50px
+.slide-fade-enter-active
+  transition: all .3s ease
+.slide-fade-leave-active
+  transition: all .3s ease

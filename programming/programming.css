@@ -1,0 +1,35 @@
+.block {
+  width: 100px;
+  height: 100px;
+  display: inline-block;
+}
+.piece {
+  background: gray;
+}
+.placeholder {
+  border: 1px solid gray
+}
+.piece.dragged {
+  border: 1px solid gray
+}
+.area {
+  text-align: center;
+  width: 100%;
+  height: 140px;
+}
+#total-area {
+  height: 100%;
+  box-shadow: 0 0 5px gray;
+}
+.advance {
+  background: #66c9fc
+}
+.back {
+  background: #cd95dc
+}
+.left {
+  background: #ff685e
+}
+.right {
+  background: #ffe46b
+}
