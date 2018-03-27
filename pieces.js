@@ -42,7 +42,7 @@ $(function () {
                 top: obj.position().top,
                 left: obj.position().left,
                 position: 'absolute'
-            }, 500, function(){ 
+            }, 200, function(){ 
                 this.moving = false
             })
         }
@@ -147,6 +147,23 @@ $(function () {
         }
     }
 
+    const adjustPiecesToPlaceholders = () => {
+        placeholders.forEach((placeholder)=>{
+            if(!placeholder.empty()){
+                placeholder.internalRectangle.moveTo( placeholder )
+            }
+        })
+    }
+
+    const removePlaceholders = () => {
+        let ocupped = placeholders.filter(p=>!p.empty()).length
+        if(placeholders.length > ocupped + 2){
+            placeholders.pop()
+            $('.placeholder').last().remove()
+            adjustPiecesToPlaceholders()
+        }
+    }
+
     const freesPlaceHolder = (movingPiece) => {
         let freedPlaceholder = placeholders.filter(placeholder=>placeholder.has(movingPiece))[0]
         if(freedPlaceholder){
@@ -197,6 +214,7 @@ $(function () {
         removeIfOutside(piece)
         snapToPlaceholder(piece)
         movePiecesToLeft()
+        removePlaceholders()
         showPlaceholders()
     }
 
@@ -221,11 +239,7 @@ $(function () {
             $('.block.placeholder').each((idx, elm)=>{
                 placeholders[ idx ].setElm( $(elm) )
             })
-            placeholders.forEach((placeholder)=>{
-                if(!placeholder.empty()){
-                    placeholder.internalRectangle.moveTo( placeholder )
-                }
-            })
+            adjustPiecesToPlaceholders()
             return newPlacehoder
         }
         return placeholders[ placeholderIndex + side]
