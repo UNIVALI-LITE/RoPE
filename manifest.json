@@ -1,0 +1,21 @@
+{
+    "name": "RoPE Blocks",
+    "short_name": "RoPE Blocks",
+    "start_url": "index.html",
+    "background_color": "#f2f2f2",
+    "description": "Aplicativo de programação do RoPE por meio de blocos",
+    "display": "standalone",
+    "icons": [{
+            "src": "android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "android-chrome-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png"
+        }
+    ],
+    "orientation": "landscape",
+    "theme_color": "#e6c099"
+}

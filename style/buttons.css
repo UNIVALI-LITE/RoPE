@@ -1,9 +1,9 @@
 button {
   border-radius: 70%;
   background: #fff6d5ff;
-  border: 5px solid #d38d5fff;
-  width: 20vh;
-  height: 20vh;
+  border: 1.5vh solid #d38d5fff;
+  width: 30vh;
+  height: 30vh;
   outline: 0; }
   button img {
     width: 100%; }
