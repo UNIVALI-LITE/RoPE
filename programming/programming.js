@@ -231,7 +231,13 @@ $(function () {
         movePiecesToLeft()
         removePlaceholders()
         showPlaceholders()
-        //addRightPiece()
+        addRightPiece()
+    }
+
+    const updatePlaceholdersElement = () => {
+        $('.block.placeholder').each((idx, elm)=>{
+            placeholders[ idx ].setElm( $(elm) )
+        })
     }
 
     const createPlaceholder = (side) => {
@@ -246,15 +252,13 @@ $(function () {
             $placeholdersArea.append($placeholderClone)
             placeholders.push( placeholder )
         }
+        updatePlaceholdersElement()
         return placeholder
     }
 
     const getOrCreatePlaceholder = (side, placeholderIndex) => {
         if( !placeholders[ placeholderIndex + side ]){
             let newPlacehoder = createPlaceholder(side)
-            $('.block.placeholder').each((idx, elm)=>{
-                placeholders[ idx ].setElm( $(elm) )
-            })
             adjustPiecesToPlaceholders()
             return newPlacehoder
         }
