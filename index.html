@@ -1,60 +1,71 @@
 <!DOCTYPE html>
 <html lang="en-us">
+
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1,maximum-scale=1">
-<meta property="og:title" content="Interface Híbrida para o Brinquedo de Programar RoPE.">
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1,maximum-scale=1">
+	<meta property="og:title" content="Interface Híbrida para o Brinquedo de Programar RoPE.">
 
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="mask-icon" href="safari-pinned-tab.svg" color="#5bbad5">
-<meta name="msapplication-TileColor" content="#da532c">
-<meta name="theme-color" content="#ffffff">
-<link rel="manifest" href="manifest.json">
+	<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+	<link rel="mask-icon" href="safari-pinned-tab.svg" color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="theme-color" content="#ffffff">
+	<link rel="manifest" href="manifest.json">
 
-<meta charset="utf-8">
-<meta property="og:site_name" content="RoPE">
-<meta property="og:image" content="RoPE">
-<title>RoPE</title>
-<link rel="stylesheet" href="connecting/connecting.css"/>
-<link rel="stylesheet" href="style/buttons.css"/>
-<link rel="stylesheet" href="style/reset.css"/>
-<link rel="stylesheet" href="programming/programming.css"/>
-<link rel="manifest" href="manifest.json">
+	<meta charset="utf-8">
+	<meta property="og:site_name" content="RoPE">
+	<meta property="og:image" content="RoPE">
+	<title>RoPE</title>
+	<link rel="stylesheet" href="connecting/connecting.css" />
+	<link rel="stylesheet" href="style/buttons.css" />
+	<link rel="stylesheet" href="style/reset.css" />
+	<link rel="stylesheet" href="programming/programming.css" />
+	<link rel="manifest" href="manifest.json">
 </head>
+
 <body>
+	<div id="programming-view">
+		<div id="total-area" class="area">
+			<div id="top-area" class="area">
+				<div class="available block piece back">
+					<img src="assets/go_back.svg"></img>
+				</div>
+				<div class="available block piece left">
+					<img src="assets/turn_left.svg"></img>
+				</div>
+				<div class="available block piece right">
+					<img src="assets/turn_right.svg"></img>
+				</div>
+				<div class="available block piece advance">
+					<img src="assets/advance.svg"></img>
+				</div>
+			</div>
+			<div class="placeholders area" style="margin:0 auto">
+				<div class="block placeholder"></div>
+				<div class="block placeholder"></div>
+				<div class="block placeholder"></div>
+			</div>
+			<div id="log"></div>
+		</div>
+	</div>
 	<div name="connection screen" id="connecting-view">
 		<div id="bigger-rect-top">
 			<div id="searching" class="square center">
-	          <div>
-	          	<div style="position:absolute; width: 100%">
-	            <img name="magnifying" id="magnifying" src="assets/magnifying.svg" alt="lupa procurando o rope" style="margin-top: 40%; display: none">
-	            </div>
-	            <img id="rope" src="assets/rope.svg" alt="robozinho rope">
-	          </div>
-	        </div>  
+				<div>
+					<div style="position:absolute; width: 100%">
+						<img name="magnifying" id="magnifying" src="assets/magnifying.svg" alt="lupa procurando o rope" style="margin-top: 40%; display: none">
+					</div>
+					<img id="rope" src="assets/rope.svg" alt="robozinho rope">
+				</div>
+			</div>
 		</div>
 		<div id="smaller-rect-bottom" class="area">
-	      <hr>
-	      <button id="magnifying-button">
+			<hr>
+			<button id="magnifying-button">
 	        <img src="assets/rope_magnifying.svg" alt="botão para procurar o rope">
 	      </button>
-	    </div>
-	</div>
-	<div id="programming-view" style="display:none">
-		<div id="total-area" class="area">
-		  <div id="top-area" class="area">
-		    <div class="available block piece advance"></div>
-		    <div class="available block piece back"></div>
-		    <div class="available block piece left"></div>
-		    <div class="available block piece right"></div>
-		  </div>
-		  <div class="placeholders area" style="margin:0 auto">
-		    <div class="block placeholder">0</div>
-		    <div class="block placeholder">1</div>
-		    <div class="block placeholder">3</div>
 		</div>
-		<div id="log"></div>
 	</div>
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -63,4 +74,5 @@
 <script src="programming/programming.js"></script>
 <script src="app/bluetooth.js"></script>
 <script src="app/app.js"></script>
+
 </html>

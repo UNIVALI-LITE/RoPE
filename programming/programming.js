@@ -1,6 +1,7 @@
 /*global $ global jQuery*/
 
 // Hey, the main() is bottom
+
 $(function () {
     function Point(x, y) {
         this.x = x
@@ -221,7 +222,7 @@ $(function () {
     const createPlaceholder = (side) => {
         let $placeholderBase = $($('.placeholder')[0])
         let $placeholderClone = $placeholderBase.clone()
-        $placeholderClone.text( ++placeholderIdCounter )
+        // $placeholderClone.text( ++placeholderIdCounter )
         let placeholder = new Rectangle( $placeholderClone )
         if(side === Rectangle.prototype.LEFT){
             $placeholdersArea.prepend($placeholderClone)
@@ -312,7 +313,7 @@ $(function () {
         var position = $elm.position()
         var $cloned = $elm.clone()
         $cloned
-        .removeClass('available')
+        //.removeClass('available')
         .css({
             position: 'absolute',
             top: position.top,
@@ -327,19 +328,22 @@ $(function () {
         
         var id = ++idCounter
         $cloned.id = id
-        $cloned.text( id )
+        // $cloned.text( id )
         $cloned[0].id = id
         
         return $cloned
     }
 
     // main :)
+    
     $('.available.block.piece').on('mousedown', (e) => {
-        var $cloned = clone( $(e.target) )
+        let $cloned = clone( $(e.target) )
         createPiece( $cloned )
     }).trigger('mousedown')
     
     $('.block.placeholder').each((idx, elm)=>{
         placeholders.push( new Rectangle( $(elm) ))
     })
+    
 })
+

@@ -1,5 +1,5 @@
 /* global caches self */
-var cacheName = 'rope-cache-2'
+var cacheName = 'rope-cache-3'
 var filesToCache = [
     'index.html',
     'favicon-16x16.png',

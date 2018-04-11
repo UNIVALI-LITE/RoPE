@@ -1,7 +1,10 @@
 /* global navigator TextEncoder $ */
 
-let bluetooth = {
+const bluetooth = {
+    eventHandlers: {}
 }
+
+// Main method
 
 bluetooth.search = ()=>{
     let serviceUuid = '0000ffe0-0000-1000-8000-00805f9b34fb'
@@ -33,10 +36,26 @@ bluetooth.search = ()=>{
                 characteristic.properties.authenticatedSignedWrites)
             log('> Queued Write:         ' + characteristic.properties.reliableWrite)
             log('> Writable Auxiliaries: ' + characteristic.properties.writableAuxiliaries)
+            bluetooth.notify('connected', bluetooth.characteristic)
         })
         .catch(error => {
+            bluetooth.notify('canceled', {})
             log('Argh! ' + error)
         })    
+}
+
+bluetooth.on = (event, handler) => {
+    bluetooth.getEventHandlers(event).push( handler )
+}
+
+bluetooth.getEventHandlers = (event) => {
+    if( !bluetooth.eventHandlers[event] )
+        bluetooth.eventHandlers[event] = []
+    return bluetooth.eventHandlers[event]
+}
+
+bluetooth.notify = (event, result) => {
+    bluetooth.getEventHandlers(event).forEach(handler=> handler.call( result ) )
 }
 
 const log = function(text) {

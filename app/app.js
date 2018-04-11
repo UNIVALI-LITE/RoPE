@@ -1,14 +1,23 @@
 /*global $ global bluetooth navigator*/
 $(function() {
 
-    let app = {
+    const app = {
         bluetooth: bluetooth
     }
 
     // Event listeners
     
     $('#magnifying-button').on('click', () => {
-        app.startSearch()
+        // app.startSearch()
+        app.showProgrammingView()
+    })
+    
+    app.bluetooth.on('connected', () => {
+        app.showProgrammingView()
+    })
+    
+    app.bluetooth.on('canceled', () => {
+        app.showMagnifying(false)
     })
 
 
@@ -16,13 +25,17 @@ $(function() {
 
     app.showMagnifying = (show) => {
         if (show) {
-            $('#magnifying').show()
+            $('#magnifying').show('fast')
         }
         else {
-            $('#magnifying').hide()
+            $('#magnifying').hide('slow')
         }
     }
-
+    
+    app.showProgrammingView = () => {
+        $('#connecting-view').hide(400, () => $('#programming-view').show() )
+    }
+    
     // Methods to dealing with the model
 
     app.startSearch = () => {
@@ -34,7 +47,6 @@ $(function() {
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker
                 .register('service-worker.js').then( (reg) => {
-                    console.log( reg )
                     console.log('Service Worker Registered')
                 })
         }
@@ -42,6 +54,6 @@ $(function() {
 
     // Start
 
-    app.registerServiceWorker()
-
+    // app.registerServiceWorker()
+    
 })
