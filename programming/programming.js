@@ -156,9 +156,13 @@ $(function () {
         })
     }
 
+    const getOccupedPlaceholders = () => {
+        return placeholders.filter(p=>!p.empty())
+    }
+
     const removePlaceholders = () => {
-        let ocupped = placeholders.filter(p=>!p.empty()).length
-        if(placeholders.length > ocupped + 2){
+        let ocupped = getOccupedPlaceholders().length
+        if(placeholders.length > ocupped + 3){
             placeholders.pop()
             $('.placeholder').last().remove()
             adjustPiecesToPlaceholders()
@@ -199,6 +203,8 @@ $(function () {
         }
         placeholder.add( piece )
         piece.moveTo(placeholder)
+        const audio = new Audio('assets/snapsound.mp3')
+        audio.play()
     }
 
     const snapToPlaceholder = (piece) => {
@@ -210,6 +216,14 @@ $(function () {
         })
     }
     
+    const addRightPiece = () => {
+        const ocuppedPlaceholders = getOccupedPlaceholders()
+        if( placeholders.length === ocuppedPlaceholders.length ){
+            createPlaceholder( Rectangle.prototype.RIGHT )
+            adjustPiecesToPlaceholders()
+        }
+    }
+
     const handleDragStop = (e) => {
         var piece = getOrCreatePiece(e)
         removeIfOutside(piece)
@@ -217,6 +231,7 @@ $(function () {
         movePiecesToLeft()
         removePlaceholders()
         showPlaceholders()
+        //addRightPiece()
     }
 
     const createPlaceholder = (side) => {
@@ -313,7 +328,7 @@ $(function () {
         var position = $elm.position()
         var $cloned = $elm.clone()
         $cloned
-        //.removeClass('available')
+        .removeClass('available')
         .css({
             position: 'absolute',
             top: position.top,
