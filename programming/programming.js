@@ -83,9 +83,9 @@ $(function () {
     let pieces = []
     let placeholders = []
     let clickedIds = []
-    let $totalArea = $('#total-area')
-    let rectArea = new Rectangle($totalArea)
-    let $placeholdersArea = $('.placeholders.area')
+    let $programmingArea = $('#programming-area')
+    let rectArea = new Rectangle($programmingArea)
+    let $placeholdersArea = $('#placeholders-area')
     let isTimeToSnap = true
     
     const organizePostionZ = (piece) => {
@@ -338,7 +338,7 @@ $(function () {
             top: position.top,
             left: position.left
         })
-        .appendTo($totalArea)
+        .appendTo($programmingArea)
         .draggable({
             start: handleDragStart,
             stop: handleDragStop,
@@ -355,10 +355,10 @@ $(function () {
 
     // main :)
     
-    $('.available.block.piece').on('mousedown', (e) => {
-        let $cloned = clone( $(e.target) )
-        createPiece( $cloned )
-    }).trigger('mousedown')
+    // $('.available.block.piece').on('mousedown', (e) => {
+    //     let $cloned = clone( $(e.target) )
+    //     createPiece( $cloned )
+    // }).trigger('mousedown')
     
     $('.block.placeholder').each((idx, elm)=>{
         placeholders.push( new Rectangle( $(elm) ))

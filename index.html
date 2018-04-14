@@ -20,14 +20,15 @@
 	<link rel="stylesheet" href="connecting/connecting.css" />
 	<link rel="stylesheet" href="style/buttons.css" />
 	<link rel="stylesheet" href="style/reset.css" />
+	<link rel="stylesheet" href="style/general.css" />
 	<link rel="stylesheet" href="programming/programming.css" />
 	<link rel="manifest" href="manifest.json">
 </head>
 
 <body>
-	<div id="programming-view">
-		<div id="total-area" class="area">
-			<div id="top-area" class="area">
+	<div id="programming-view" class="box">
+		<div id="programming-area" class="box">
+			<div id="top-area" class="area header">
 				<div class="available block piece advance">
 					<img src="assets/advance.svg"></img>
 				</div>
@@ -41,7 +42,7 @@
 					<img src="assets/turn_right.svg"></img>
 				</div>
 			</div>
-			<div class="placeholders area" style="margin:0 auto">
+			<div id="placeholders-area" style="margin:0 auto" class="row content">
 				<div class="block placeholder">
 					<img src="assets/placeholder.svg"></img>
 				</div>
@@ -52,10 +53,9 @@
 					<img src="assets/placeholder.svg"></img>
 				</div>
 			</div>
-			<div id="log"></div>
 		</div>
 	</div>
-	<div name="connection screen" id="connecting-view">
+	<div name="connection screen" id="connecting-view" style="display:none">
 		<div id="bigger-rect-top">
 			<div id="searching" class="square center">
 				<div>
