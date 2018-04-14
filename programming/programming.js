@@ -355,10 +355,10 @@ $(function () {
 
     // main :)
     
-    // $('.available.block.piece').on('mousedown', (e) => {
-    //     let $cloned = clone( $(e.target) )
-    //     createPiece( $cloned )
-    // }).trigger('mousedown')
+    $('.available.block.piece').on('mousedown', (e) => {
+        let $cloned = clone( $(e.target) )
+        createPiece( $cloned )
+    }).trigger('mousedown')
     
     $('.block.placeholder').each((idx, elm)=>{
         placeholders.push( new Rectangle( $(elm) ))
