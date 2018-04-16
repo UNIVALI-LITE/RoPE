@@ -1,4 +1,5 @@
 $block-size: 50px
+$backcolor: #f2f2f2
 .block
   width: $block-size
   height: $block-size
@@ -10,7 +11,6 @@ $block-size: 50px
   margin-right: 25px
 
 .area
-  text-align: center
   width: 100%
   
 .available
@@ -29,15 +29,37 @@ $block-size: 50px
     flex: 0 1 auto
 
 #top-area
+  position: fixed
+  background: $backcolor
   padding: 10px 0
+  #rope-connection
+    display: inline-block
+    width: 20%
+    text-align: center
+    img 
+      width: 35px
+      padding-right: 10px
+    #connection-status
+      background: #0aff0a
+      border-radius: 100%
+      text-indent: 9999px
+      padding: 0 9px
+      box-sizing: border-box
+      border: 1px solid #241c1c
+  #available-pieces
+    display: inline-block
+    text-align: center
+    width: 60%
 
 #placeholders-area
+  margin-top: 75px
+  overflow-x: auto
   box-sizing: border-box
   border: 3px solid #bcb8ae
   background: #fcf9ee
   width: 100%
   #go-block
-    position: absolute
+    position: fixed
     right: 20px
     bottom: 12px
 

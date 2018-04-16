@@ -27,8 +27,13 @@
 
 <body>
 	<div id="programming-view" class="box">
-		<div id="programming-area" class="box">
-			<div id="top-area" class="area header">
+		<div id="top-area" class="area header">
+			<div id="rope-connection">
+				<img src="assets/rope_2.svg"></img>
+				<span id="connection-status">
+				</span>
+			</div>
+			<div id="available-pieces">
 				<div class="available block piece advance">
 					<img src="assets/advance.svg"></img>
 				</div>
@@ -42,20 +47,23 @@
 					<img src="assets/turn_right.svg"></img>
 				</div>
 			</div>
-			<div id="placeholders-area" style="margin:0 auto" class="content centered-content">
-				<div class="block placeholder">
-					<img src="assets/placeholder.svg"></img>
-				</div>
-				<div class="block placeholder">
-					<img src="assets/placeholder.svg"></img>
-				</div>
-				<div class="block placeholder">
-					<img src="assets/placeholder.svg"></img>
-				</div>
-				<div id="go-block" class="block">
-					<img src="assets/go.svg"></img>
-				</div>
+		</div>
+		<div id="placeholders-area" style="padding: 5%" class="content centered-content">
+			<div class="block placeholder">
+				<img src="assets/placeholder.svg"></img>
 			</div>
+			<div class="block placeholder">
+				<img src="assets/placeholder.svg"></img>
+			</div>
+			<div class="block placeholder">
+				<img src="assets/placeholder.svg"></img>
+			</div>
+			<div id="go-block" class="block">
+				<img src="assets/go.svg"></img>
+			</div>
+			<div id="go-block" class="block">
+				<img src="assets/go.svg"></img>
+			</div>			
 		</div>
 	</div>
 	<div name="connection screen" id="connecting-view" style="display:none">

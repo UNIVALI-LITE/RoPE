@@ -83,7 +83,7 @@ $(function () {
     let pieces = []
     let placeholders = []
     let clickedIds = []
-    let $programmingArea = $('#programming-area')
+    let $programmingArea = $('#programming-view')
     let rectArea = new Rectangle($programmingArea)
     let $placeholdersArea = $('#placeholders-area')
     let isTimeToSnap = true
@@ -224,6 +224,15 @@ $(function () {
         }
     }
 
+    const adjustAreaWidth = () => {
+        const snapedPiecesNumber = getOccupedPlaceholders().length
+        const SNAPED_PIECES_WITHOUT_OVERFLOW = 11
+        if(snapedPiecesNumber > SNAPED_PIECES_WITHOUT_OVERFLOW){
+            const width =  snapedPiecesNumber * 50 + 50
+            $placeholdersArea.css('width', width)
+        }
+    }
+
     const handleDragStop = (e) => {
         var piece = getOrCreatePiece(e)
         removeIfOutside(piece)
@@ -232,6 +241,7 @@ $(function () {
         removePlaceholders()
         showPlaceholders()
         addRightPiece()
+        adjustAreaWidth()
     }
 
     const updatePlaceholdersElement = () => {
@@ -243,7 +253,6 @@ $(function () {
     const createPlaceholder = (side) => {
         let $placeholderBase = $($('.placeholder')[0])
         let $placeholderClone = $placeholderBase.clone()
-        // $placeholderClone.text( ++placeholderIdCounter )
         let placeholder = new Rectangle( $placeholderClone )
         if(side === Rectangle.prototype.LEFT){
             $placeholdersArea.prepend($placeholderClone)
@@ -334,7 +343,7 @@ $(function () {
         $cloned
         .removeClass('available')
         .css({
-            position: 'absolute',
+            position: 'fixed',
             top: position.top,
             left: position.left
         })
