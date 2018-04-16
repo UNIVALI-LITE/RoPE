@@ -60,7 +60,7 @@ $(function () {
     }
     Rectangle.prototype.setDragged = function(){
         this.dragged = true
-        this.$elm.addClass('dragged').css('z-index',1000)
+        this.$elm.addClass('dragged').css({ 'z-index':1000, position:'absolute' })
     }
     Rectangle.prototype.disappear = function() {
         this.$elm.remove()
@@ -186,8 +186,9 @@ $(function () {
         freesPlaceHolder(movingPiece)
         organizePostionZ(movingPiece)
         if (!movingPiece.dragged) {
-            clone( movingPiece.$elm )
+            clone( movingPiece.$elm ) 
             movingPiece.setDragged()
+
         }
     }
 
@@ -338,14 +339,13 @@ $(function () {
     }
 
     const clone = ($elm) => {
-        var position = $elm.position()
         var $cloned = $elm.clone()
         $cloned
         .removeClass('available')
         .css({
-            position: 'fixed',
-            top: position.top,
-            left: position.left
+            position: 'fixed', // fixed why programming area scroll, the pieces must be fixed on top. Changes to absolute when dragging starts
+            top: $elm.position().top,
+            left: $elm.position().left
         })
         .appendTo($programmingArea)
         .draggable({
