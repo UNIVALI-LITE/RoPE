@@ -13,7 +13,6 @@ $(function () {
     class Rectangle {
         constructor($elm) {
             this.setElm($elm)
-            this.originalX = $elm.position().left
         }
         setElm($elm) {
             this.$elm = $elm
@@ -45,8 +44,7 @@ $(function () {
                 this.moving = true
                 this.$elm.animate({
                     top: obj.position().top,
-                    left: obj.position().left,
-                    position: 'absolute'
+                    left: obj.position().left
                 }, 200, function () {
                     this.moving = false
                 })
@@ -64,7 +62,7 @@ $(function () {
             this.dragged = true
             this.$elm
                 .addClass('dragged')
-                .css('position', 'absolute')
+                .removeClass('ready')
                 .css({ 'z-index': 1000 })
         }
         disappear() {
@@ -167,6 +165,16 @@ $(function () {
         })
     }
 
+    const adjustAvailableReadyPieces = () => {
+        // Ready pieces are available and not dragged.
+        // This function adjusts this left position, relative to the document
+        $('.ready.piece').each((idx, elm) => {
+            const command = $(elm).attr('data-command')
+            const originalElement = $( '.available.' + command )
+            $(elm).css('left', originalElement.offset().left)
+        })
+    }
+
     const getOccupedPlaceholders = () => {
         return placeholders.filter(p => !p.empty())
     }
@@ -189,6 +197,7 @@ $(function () {
     }
 
     const handleDragStart = (e) => {
+        adjustAvailableReadyPieces()
         let movingPiece = getOrCreatePiece(e)
         isTimeToSnap = false
         setTimeout(() => {
@@ -197,7 +206,7 @@ $(function () {
         freesPlaceHolder(movingPiece)
         organizePostionZ(movingPiece)
         if (!movingPiece.dragged) { // first move, create new piece below, to be used after
-            $cloned = clone(movingPiece.$elm)
+            clone(movingPiece.$elm)
             movingPiece.setDragged()
         }
     }
@@ -355,10 +364,11 @@ $(function () {
         let $cloned = $elm.clone()
         $cloned
             .removeClass('available')
+            .addClass('ready')
             .css({
-                position: 'fixed', // fixed why programming area scroll, the pieces must be fixed on top. Changes to absolute when dragging starts
-                top: $elm.position().top,
-                left: $elm.position().left
+                position: 'absolute',
+                top: $elm.offset().top,
+                left: $elm.offset().left
             })
             .appendTo($programmingArea)
             .draggable({
@@ -387,19 +397,7 @@ $(function () {
         placeholders.push(new Rectangle($(elm)))
     })
 
-    // $(window).on('scroll', (e) => {
-    //     const scrollLeft = $(e.target).scrollLeft()
-    //     const scrollDiff = scrollLeft - previousScroll  
-    //     let i = 0
-    //     $('.block.piece.ready').each((idx, elm) => {
-    //         console.log(i)
-    //         console.log(elm)
-    //         const $elm = $(elm)
-    //         const left = $elm.position().left + scrollDiff 
-    //         $elm.css('left', left)
-    //     })
-    //     previousScroll = screenLeft
-    // })
+    $(window).on('scroll', () => adjustAvailableReadyPieces() )
 
 })
 
