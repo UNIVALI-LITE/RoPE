@@ -93,7 +93,7 @@ $(function () {
     let $placeholdersArea = $('#placeholders-area')
     let rectArea = new Rectangle($placeholdersArea)
     let isTimeToSnap = true
-    const PIECE_SIZE = 100
+    const PIECE_SIZE = 50
     const SCREEN_WIDTH = $(window).width()
     const snapedPiecesWithoutOverflow = Math.ceil(SCREEN_WIDTH / PIECE_SIZE) - 3
 
@@ -212,7 +212,8 @@ $(function () {
     }
 
     const removeIfOutside = (piece) => {
-        if (!rectArea.contains(piece.center())) {
+        const rect = new Rectangle( $( 'body' ) )
+        if (!rect.contains(piece.center())) {
             piece.disappear()
             pieces.splice(pieces.indexOf(piece), 1)
             return true
@@ -380,9 +381,7 @@ $(function () {
 
         let id = ++idCounter
         $cloned.id = id
-        // $cloned.text( id )
         $cloned[0].id = id
-
         return $cloned
     }
 
@@ -397,7 +396,15 @@ $(function () {
         placeholders.push(new Rectangle($(elm)))
     })
 
-    $(window).on('scroll', () => adjustAvailableReadyPieces() )
+    $(window).on('scroll', () => {
+        $('.ready.piece').hide() // because trembles on mobile when scroll
+        clearTimeout($.data(this, 'scrollTimer'));
+        $.data(this, 'scrollTimer', setTimeout(() => {
+            $('.ready.piece').show()
+            adjustAvailableReadyPieces()
+        }, 250))
+    })
+    
 
 })
 
