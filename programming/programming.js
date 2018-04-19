@@ -127,6 +127,103 @@ class BlocksView {
         })
     }
 
+    clone($elm) {
+        let $cloned = $elm.clone()
+        $cloned
+            .removeClass('available')
+            .addClass('ready')
+            .css({
+                position: 'absolute',
+                top: $elm.offset().top,
+                left: $elm.offset().left
+            })
+            .appendTo($programmingArea)
+            .draggable({
+                start: (e) => this.handleDragStart(e),
+                stop: (e) => this.handleDragStop(e),
+                drag: (e) => this.handleDrag(e),
+                scroll: false
+            })
+
+        let id = ++idCounter
+        $cloned.id = id
+        $cloned[0].id = id
+        return $cloned
+    }
+
+    getOrCreatePiece(e) {
+        let elm = e.target
+        let id = elm.id
+        let foundPiece = this.findPieceById(id)
+        return foundPiece || this.createPiece($(elm))
+    }
+
+    createPiece($elm) {
+        let piece = new Rectangle($elm)
+        pieces.push(piece)
+        return piece
+    }
+
+    findPieceById(id) {
+        let foundPiece = pieces
+            .filter((piece) => piece instanceof Rectangle && piece.id() == id)
+        if (foundPiece.length) {
+            return foundPiece[0]
+        }
+    }
+
+    handleDragStart(e) {
+        this.adjustAvailableReadyPieces()
+        let movingPiece = this.getOrCreatePiece(e)
+        isTimeToSnap = false
+        setTimeout(() => {
+            isTimeToSnap = true
+        }, 300)
+        this.freesPlaceholder(movingPiece)
+        this.organizePostionZ(movingPiece)
+        if (!movingPiece.dragged) { // first move, create new piece below, to be used after
+            this.clone(movingPiece.$elm)
+            movingPiece.setDragged()
+        }
+    }
+
+    handleDrag(e) {
+        let movingPiece = this.getOrCreatePiece(e)
+        movingPiece.setElm($(e.target))
+        this.moveSnapedPieceIfIsTimeToSnap(movingPiece)
+    }
+
+    handleDragStop(e) {
+        let piece = this.getOrCreatePiece(e)
+        if (!this.removeIfOutside(piece)) {
+            this.snapToPlaceholder(piece)
+        }
+        this.movePiecesToLeft()
+        this.removePlaceholders()
+        this.adjustAreaWidth()
+        this.adjustPiecesToPlaceholders()
+        this.addRightPlaceholder()
+    }
+
+    adjustAvailableReadyPieces() {
+        /** Ready pieces are available and not dragged.
+            This function adjusts this left position, relative to the document
+            because when scroll right they stay left **/
+        $('.ready.piece').each((idx, elm) => {
+            const command = $(elm).attr('data-command')
+            const originalElement = $('.available.' + command)
+            $(elm).css('left', originalElement.offset().left)
+        })
+    }
+
+    adjustPiecesToPlaceholders() {
+        placeholders.forEach((placeholder) => {
+            if (!placeholder.empty()) {
+                placeholder.internalRectangle.moveTo(placeholder)
+            }
+        })
+    }
+
     organizePostionZ(piece) {
         let id = piece.id()
         let i = clickedIds.indexOf(id)
@@ -138,31 +235,6 @@ class BlocksView {
             let zIndex = clickedIds.indexOf(elm.id) + 10
             $(elm).css('z-index', zIndex)
         })
-    }
-
-    showPlaceholders() {
-        console.log(placeholders.map(p => p.empty() ? 'vazio' : p.internalRectangle.id()))
-    }
-
-    findPieceById(id) {
-        let foundPiece = pieces
-            .filter((piece) => piece instanceof Rectangle && piece.id() == id)
-        if (foundPiece.length) {
-            return foundPiece[0]
-        }
-    }
-
-    createPiece($elm) {
-        let piece = new Rectangle($elm)
-        pieces.push(piece)
-        return piece
-    }
-
-    getOrCreatePiece(e) {
-        let elm = e.target
-        let id = elm.id
-        let foundPiece = this.findPieceById(id)
-        return foundPiece || this.createPiece($(elm))
     }
 
     movePiecesToLeft() {
@@ -187,59 +259,21 @@ class BlocksView {
         }
     }
 
-    adjustPiecesToPlaceholders() {
-        placeholders.forEach((placeholder) => {
-            if (!placeholder.empty()) {
-                placeholder.internalRectangle.moveTo(placeholder)
-            }
-        })
-    }
-
-    adjustAvailableReadyPieces() {
-        // Ready pieces are available and not dragged.
-        // This function adjusts this left position, relative to the document
-        $('.ready.piece').each((idx, elm) => {
-            const command = $(elm).attr('data-command')
-            const originalElement = $('.available.' + command)
-            $(elm).css('left', originalElement.offset().left)
-        })
+    adjustAreaWidth() {
+        const snapedPiecesNumber = this.getOccupedPlaceholders().length
+        const newWidth = snapedPiecesNumber * PIECE_SIZE + PIECE_SIZE + PIECE_SIZE + PIECE_SIZE
+        $placeholdersArea.css('width', newWidth < SCREEN_WIDTH ? SCREEN_WIDTH : newWidth)
+        rectArea = new Rectangle($('#placeholders-area'))
     }
 
     getOccupedPlaceholders() {
         return placeholders.filter(p => !p.empty())
     }
 
-    removePlaceholders() {
-        let ocupped = this.getOccupedPlaceholders().length
-        if (placeholders.length > ocupped + 3) {
-            placeholders.pop()
-            $('.placeholder').last().remove()
-            this.adjustPiecesToPlaceholders()
-        }
-        this.updatePlaceholdersElement()
-    }
-
-    freesPlaceHolder(movingPiece) {
+    freesPlaceholder(movingPiece) {
         let freedPlaceholder = placeholders.filter(placeholder => placeholder.has(movingPiece))[0]
         if (freedPlaceholder) {
             freedPlaceholder.frees()
-        }
-        this.showPlaceholders()
-    }
-
-    handleDragStart(e) {
-        console.log(this)
-        this.adjustAvailableReadyPieces()
-        let movingPiece = this.getOrCreatePiece(e)
-        isTimeToSnap = false
-        setTimeout(() => {
-            isTimeToSnap = true
-        }, 300)
-        this.freesPlaceHolder(movingPiece)
-        this.organizePostionZ(movingPiece)
-        if (!movingPiece.dragged) { // first move, create new piece below, to be used after
-            this.clone(movingPiece.$elm)
-            movingPiece.setDragged()
         }
     }
 
@@ -252,13 +286,6 @@ class BlocksView {
         }
     }
 
-    snap(placeholder, piece) {
-        placeholder.add(piece)
-        piece.moveTo(placeholder)
-        const audio = new Audio('assets/snapsound.mp3')
-        audio.play()
-    }
-
     snapToPlaceholder(piece) {
         placeholders.forEach((placeholder) => {
             if (placeholder.empty() && placeholder.contains(piece.center())) {
@@ -266,6 +293,13 @@ class BlocksView {
                 return
             }
         })
+    }
+
+    snap(placeholder, piece) {
+        placeholder.add(piece)
+        piece.moveTo(placeholder)
+        const audio = new Audio('assets/snapsound.mp3')
+        audio.play()
     }
 
     addRightPlaceholder() {
@@ -276,31 +310,14 @@ class BlocksView {
         }
     }
 
-    adjustAreaWidth() {
-        const snapedPiecesNumber = this.getOccupedPlaceholders().length
-        const newWidth = snapedPiecesNumber * PIECE_SIZE + PIECE_SIZE + PIECE_SIZE + PIECE_SIZE
-        $placeholdersArea.css('width', newWidth < SCREEN_WIDTH ? SCREEN_WIDTH : newWidth)
-        rectArea = new Rectangle($('#placeholders-area'))
-
-    }
-
-    handleDragStop(e) {
-        let piece = this.getOrCreatePiece(e)
-        if (!this.removeIfOutside(piece)) {
-            this.snapToPlaceholder(piece)
+    removePlaceholders() {
+        let ocupped = this.getOccupedPlaceholders().length
+        if (placeholders.length > ocupped + 3) {
+            placeholders.pop()
+            $('.placeholder').last().remove()
+            this.adjustPiecesToPlaceholders()
         }
-        this.movePiecesToLeft()
-        this.removePlaceholders()
-        this.showPlaceholders()
-        this.adjustAreaWidth()
-        this.adjustPiecesToPlaceholders()
-        this.addRightPlaceholder()
-    }
-
-    updatePlaceholdersElement() {
-        $('.block.placeholder').each((idx, elm) => {
-            placeholders[idx].setElm($(elm))
-        })
+        this.updatePlaceholderElements()
     }
 
     createPlaceholder(side) {
@@ -314,8 +331,14 @@ class BlocksView {
             $placeholdersArea.append($placeholderClone)
             placeholders.push(placeholder)
         }
-        this.updatePlaceholdersElement()
+        this.updatePlaceholderElements()
         return placeholder
+    }
+
+    updatePlaceholderElements() {
+        $('.block.placeholder').each((idx, elm) => {
+            placeholders[idx].setElm($(elm))
+        })
     }
 
     getOrCreatePlaceholder(side, placeholderIndex) {
@@ -327,14 +350,23 @@ class BlocksView {
         return placeholders[placeholderIndex + side]
     }
 
-    movePlaceholderPiece(placeholder, moveThisPieceToSide) {
-        let placeholderIndex = placeholders.indexOf(placeholder)
-        let placeholdeToGo = this.getOrCreatePlaceholder(moveThisPieceToSide, placeholderIndex)
-        if (!placeholdeToGo.empty()) {
-            this.movePlaceholderPiece(placeholdeToGo, moveThisPieceToSide)
+    moveSnapedPieceIfIsTimeToSnap(movingPiece) {
+        if (isTimeToSnap)
+            this.moveSnapedPiece(movingPiece)
+    }
+
+    moveSnapedPiece(movingPiece) {
+        placeholders.forEach((placeholder, placeholderIndex) => {
+            this.ifHasPieceThenMove(placeholder, placeholderIndex, movingPiece)
+        })
+    }
+
+    ifHasPieceThenMove(placeholder, placeholderIndex, movingPiece) {
+        if (!placeholder.empty() &&
+            placeholder.contains(movingPiece.center())) {
+            let moveSide = this.calcMoveSide(placeholder, placeholderIndex, movingPiece)
+            this.movePlaceholderPiece(placeholder, moveSide)
         }
-        this.snap(placeholdeToGo, placeholder.internalRectangle)
-        placeholder.frees()
     }
 
     calcMoveSide(placeholder, placeholderIndex, movingPiece) {
@@ -365,53 +397,14 @@ class BlocksView {
         return Rectangle.prototype.RIGHT
     }
 
-    ifHasPieceThenMove(placeholder, placeholderIndex, movingPiece) {
-        if (!placeholder.empty() &&
-            placeholder.contains(movingPiece.center())) {
-            let moveSide = this.calcMoveSide(placeholder, placeholderIndex, movingPiece)
-            this.movePlaceholderPiece(placeholder, moveSide)
+    movePlaceholderPiece(placeholder, moveThisPieceToSide) {
+        let placeholderIndex = placeholders.indexOf(placeholder)
+        let placeholdeToGo = this.getOrCreatePlaceholder(moveThisPieceToSide, placeholderIndex)
+        if (!placeholdeToGo.empty()) {
+            this.movePlaceholderPiece(placeholdeToGo, moveThisPieceToSide)
         }
-    }
-
-    moveSnapedPiece(movingPiece) {
-        placeholders.forEach((placeholder, placeholderIndex) => {
-            this.ifHasPieceThenMove(placeholder, placeholderIndex, movingPiece)
-        })
-    }
-
-    moveSnapedPieceIfIsTimeToSnap(movingPiece) {
-        if (isTimeToSnap)
-            this.moveSnapedPiece(movingPiece)
-    }
-
-    handleDrag(e) {
-        let movingPiece = this.getOrCreatePiece(e)
-        movingPiece.setElm($(e.target))
-        this.moveSnapedPieceIfIsTimeToSnap(movingPiece)
-    }
-
-    clone($elm) {
-        let $cloned = $elm.clone()
-        $cloned
-            .removeClass('available')
-            .addClass('ready')
-            .css({
-                position: 'absolute',
-                top: $elm.offset().top,
-                left: $elm.offset().left
-            })
-            .appendTo($programmingArea)
-            .draggable({
-                start: (e) => this.handleDragStart(e),
-                stop: (e) => this.handleDragStop(e),
-                drag: (e) => this.handleDrag(e),
-                scroll: false
-            })
-
-        let id = ++idCounter
-        $cloned.id = id
-        $cloned[0].id = id
-        return $cloned
+        this.snap(placeholdeToGo, placeholder.internalRectangle)
+        placeholder.frees()
     }
 
 }
