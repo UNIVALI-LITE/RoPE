@@ -1,24 +1,30 @@
 /*global $ global bluetooth navigator*/
-$(function() {
+$(function () {
 
     const app = {
-        bluetooth: bluetooth
+        bluetooth: bluetooth,
+        blocks: new BlocksView()
     }
 
     // Event listeners
-    
+
     $('#magnifying-button, #rope-connection.disconnected').on('click', () => {
-        app.startSearch()
+        //app.startSearch()
+        app.showProgrammingView()
     })
 
     app.bluetooth.on('connected', () => {
         app.showProgrammingView()
-        app.setConnected( true )
+        app.setConnected(true)
     })
-    
+
     app.bluetooth.on('connection-failed', () => {
         app.showMagnifying(false)
-        app.setConnected( false )
+        app.setConnected(false)
+    })
+
+    app.bluetooth.on('characteristic-changed', (characteristic) => {
+        app.updateBlocks(characteristic)
     })
 
     // Methods to update ui
@@ -31,11 +37,11 @@ $(function() {
             $('#magnifying').hide('slow')
         }
     }
-    
+
     app.showProgrammingView = () => {
-        $('#connecting-view').hide(400, () => $('#programming-view').show() )
+        $('#connecting-view').hide(400, () => $('#programming-view').show())
     }
-    
+
     // Methods to dealing with the model
 
     app.startSearch = () => {
@@ -46,21 +52,25 @@ $(function() {
     app.registerServiceWorker = () => {
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker
-                .register('service-worker.js').then( (reg) => {
+                .register('service-worker.js').then((reg) => {
                     console.log('Service Worker Registered')
                 })
         }
     }
 
-    app.setConnected = ( connected ) => {
-        if( connected )
+    app.setConnected = (connected) => {
+        if (connected)
             $('#rope-connection').addClass('connected').removeClass('disconnected')
         else
             $('#rope-connection').addClass('disconnected').removeClass('connected')
     }
 
+    app.updateBlocks = (characteristic) => {
+
+    }
+
     // Start
 
     // app.registerServiceWorker()
-    
+
 })
