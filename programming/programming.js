@@ -1,5 +1,3 @@
-/*global $ global jQuery*/
-
 class Point {
     constructor(x, y) {
         this.x = x
@@ -81,11 +79,6 @@ class Rectangle {
 Rectangle.prototype.LEFT = -1
 Rectangle.prototype.RIGHT = 1
 
-const EMPTY = -1
-const PIECE_SIZE = 50
-const SCREEN_WIDTH = $(window).width()
-const snapedPiecesWithoutOverflow = Math.ceil(SCREEN_WIDTH / PIECE_SIZE) - 3
-
 class BlocksView {
 
     constructor() {
@@ -96,6 +89,7 @@ class BlocksView {
         this.$programmingView = $('#programming-view')
         this.$placeholdersArea = $('#placeholders-area')
         this.isTimeToSnap = true
+        
         this.createInitialPieces()
         this.createInitialPlaceholders()
         this.configureScrollListener()
@@ -258,6 +252,8 @@ class BlocksView {
     }
 
     adjustAreaWidth() {
+        const PIECE_SIZE = 50
+        const SCREEN_WIDTH = $(window).width()
         const snapedPiecesNumber = this.getOccupedPlaceholders().length
         const newWidth = snapedPiecesNumber * PIECE_SIZE + PIECE_SIZE + PIECE_SIZE + PIECE_SIZE
         this.$placeholdersArea.css('width', newWidth < SCREEN_WIDTH ? SCREEN_WIDTH : newWidth)
@@ -405,5 +401,3 @@ class BlocksView {
     }
 
 }
-
-
