@@ -39,7 +39,7 @@ bluetooth.search = ()=>{
             bluetooth.notify('connected', bluetooth.characteristic)
         })
         .catch(error => {
-            bluetooth.notify('canceled', {})
+            bluetooth.notify('connection-failed', {})
             log('Argh! ' + error)
         })    
 }

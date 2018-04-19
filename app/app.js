@@ -7,19 +7,17 @@ $(function() {
 
     // Event listeners
     
-    $('#magnifying-button').on('click', () => {
-        // app.startSearch()
-        app.showProgrammingView()
+    $('#magnifying-button, #rope-connection.disconnected').on('click', () => {
+        app.startSearch()
     })
-    
+
     app.bluetooth.on('connected', () => {
         app.showProgrammingView()
     })
     
-    app.bluetooth.on('canceled', () => {
+    app.bluetooth.on('connection-failed', () => {
         app.showMagnifying(false)
     })
-
 
     // Methods to update ui
 
