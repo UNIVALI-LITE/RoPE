@@ -18,8 +18,8 @@ $(function () {
             this.$elm = $elm
             this.height = $elm.height()
             this.width = $elm.width()
-            this.y = $elm.position().top
-            this.x = $elm.position().left
+            this.y = $elm.offset().top
+            this.x = $elm.offset().left
         }
         contains(obj) {
             if (obj instanceof Point) {
@@ -43,8 +43,8 @@ $(function () {
                 let $elm = this.$elm
                 this.moving = true
                 this.$elm.animate({
-                    top: obj.position().top,
-                    left: obj.position().left
+                    top: obj.offset().top,
+                    left: obj.offset().left
                 }, 200, function () {
                     this.moving = false
                 })
@@ -186,6 +186,7 @@ $(function () {
             $('.placeholder').last().remove()
             adjustPiecesToPlaceholders()
         }
+        updatePlaceholdersElement()
     }
 
     const freesPlaceHolder = (movingPiece) => {
@@ -249,11 +250,10 @@ $(function () {
 
     const adjustAreaWidth = () => {
         const snapedPiecesNumber = getOccupedPlaceholders().length
-        if (snapedPiecesNumber > snapedPiecesWithoutOverflow) {
-            const newWidth = snapedPiecesNumber * PIECE_SIZE + PIECE_SIZE + PIECE_SIZE + PIECE_SIZE
-            $placeholdersArea.css('width', newWidth < SCREEN_WIDTH ? SCREEN_WIDTH : newWidth)
-            rectArea = new Rectangle($('#placeholders-area'))
-        }
+        const newWidth = snapedPiecesNumber * PIECE_SIZE + PIECE_SIZE + PIECE_SIZE + PIECE_SIZE
+        $placeholdersArea.css('width', newWidth < SCREEN_WIDTH ? SCREEN_WIDTH : newWidth)
+        rectArea = new Rectangle($('#placeholders-area'))
+    
     }
 
     const handleDragStop = (e) => {
@@ -265,6 +265,7 @@ $(function () {
         removePlaceholders()
         showPlaceholders()
         adjustAreaWidth()
+        adjustPiecesToPlaceholders()
         addRightPlaceholder()
     }
 
