@@ -25,6 +25,24 @@
 </head>
 
 <body>
+	<div name="connection screen" id="connecting-view" style="position: absolute">
+		<div id="bigger-rect-top">
+			<div id="searching" class="square center">
+				<div>
+					<div style="position:absolute; width: 100%">
+						<img name="magnifying" id="magnifying" src="assets/magnifying.svg" alt="lupa procurando o rope" style="margin-top: 40%; display: none">
+					</div>
+					<img id="rope" src="assets/rope.svg" alt="robozinho rope">
+				</div>
+			</div>
+		</div>
+		<div id="smaller-rect-bottom" class="area">
+			<hr>
+			<button id="magnifying-button">
+				<img src="assets/rope_magnifying.svg" alt="botão para procurar o rope">
+			</button>
+		</div>
+	</div>
 	<div id="programming-view" class="box">
 		<div id="top-area" class="area header">
 			<div id="rope-connection">
@@ -62,25 +80,7 @@
 			</div>
 			<div id="go-block" class="block">
 				<img src="assets/go.svg"></img>
-			</div>			
-		</div>
-	</div>
-	<div name="connection screen" id="connecting-view" style="display:none">
-		<div id="bigger-rect-top">
-			<div id="searching" class="square center">
-				<div>
-					<div style="position:absolute; width: 100%">
-						<img name="magnifying" id="magnifying" src="assets/magnifying.svg" alt="lupa procurando o rope" style="margin-top: 40%; display: none">
-					</div>
-					<img id="rope" src="assets/rope.svg" alt="robozinho rope">
-				</div>
 			</div>
-		</div>
-		<div id="smaller-rect-bottom" class="area">
-			<hr>
-			<button id="magnifying-button">
-	        <img src="assets/rope_magnifying.svg" alt="botão para procurar o rope">
-	      </button>
 		</div>
 	</div>
 </body>
@@ -88,7 +88,7 @@
 <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 <script src="programming/programming.js"></script>
-<script src="app/bluetooth.js"></script>
+<script src="app/bluetooth-fake.js"></script>
 <script src="app/app.js"></script>
 
 </html>
