@@ -61,7 +61,7 @@ class Rectangle {
             .css({ 'z-index': 1000 })
     }
     disappear() {
-        this.$elm.remove()
+        this.$elm.fadeOut(500, () => this.$elm.remove())
     }
     empty() {
         return !this.internalRectangle
@@ -89,7 +89,7 @@ class BlocksView {
         this.$programmingView = $('#programming-view')
         this.$placeholdersArea = $('#placeholders-area')
         this.isTimeToSnap = true
-        
+
         this.createInitialPieces()
         this.createInitialPlaceholders()
         this.configureScrollListener()
@@ -177,12 +177,21 @@ class BlocksView {
             this.clone(movingPiece.$elm)
             movingPiece.setDragged()
         }
+        const placeholdersArea = new Rectangle($('#placeholders-area'))
+        // if( !placeholdersArea.contains(movingPiece) ){
+        //     const img = $( movingPiece.$elm.find('img')[0] )
+        //     const src = img.attr('src')
+        //     if( src.indexOf('_exit') === -1 ){
+        //         img.attr('src', 'assets/turn_right_exit.svg')
+        //     }
+        // }
     }
 
     handleDrag(e) {
         let movingPiece = this.getOrCreatePiece(e)
         movingPiece.setElm($(e.target))
         this.moveSnapedPieceIfIsTimeToSnap(movingPiece)
+        this.markThatThePieceEnteredPlaceholdersArea(movingPiece)
     }
 
     handleDragStop(e) {
@@ -195,6 +204,17 @@ class BlocksView {
         this.adjustAreaWidth()
         this.adjustPiecesToPlaceholders()
         this.addRightPlaceholder()
+    }
+
+    markThatThePieceEnteredPlaceholdersArea(movingPiece) {
+        const rect = this.getPlaceholdersRectangle()
+        if (rect.contains(movingPiece.center())) {
+            movingPiece.enteredPlaceholdersArea = true
+        }
+    }
+
+    getPlaceholdersRectangle() {
+        return new Rectangle($('#placeholders-area'))
     }
 
     adjustAvailableReadyPieces() {
@@ -271,8 +291,8 @@ class BlocksView {
     }
 
     removeIfOutside(piece) {
-        const rect = new Rectangle($('body'))
-        if (!rect.contains(piece.center())) {
+        const outside = !this.getPlaceholdersRectangle().contains(piece.center())
+        if (outside && piece.enteredPlaceholdersArea) {
             piece.disappear()
             this.pieces.splice(this.pieces.indexOf(piece), 1)
             return true
