@@ -98,15 +98,25 @@ const snapedPiecesWithoutOverflow = Math.ceil(SCREEN_WIDTH / PIECE_SIZE) - 3
 class BlocksView {
 
     constructor() {
+        this.createInitialPieces()
+        this.createInitialPlaceholders()
+        this.configureScrollListener()
+    }
+
+    createInitialPieces() {
         $('.available.block.piece').on('mousedown', (e) => {
             let $cloned = this.clone($(e.target))
             this.createPiece($cloned)
         }).trigger('mousedown')
+    }
 
+    createInitialPlaceholders() {
         $('.block.placeholder').each((idx, elm) => {
             placeholders.push(new Rectangle($(elm)))
         })
+    }
 
+    configureScrollListener() {
         $(window).on('scroll', () => {
             $('.ready.piece').hide() // because trembles on mobile when scroll
             clearTimeout($.data(this, 'scrollTimer'));
@@ -115,7 +125,6 @@ class BlocksView {
                 this.adjustAvailableReadyPieces()
             }, 250))
         })
-
     }
 
     organizePostionZ(piece) {
@@ -219,7 +228,7 @@ class BlocksView {
     }
 
     handleDragStart(e) {
-        console.log( this )
+        console.log(this)
         this.adjustAvailableReadyPieces()
         let movingPiece = this.getOrCreatePiece(e)
         isTimeToSnap = false
@@ -372,7 +381,7 @@ class BlocksView {
 
     moveSnapedPieceIfIsTimeToSnap(movingPiece) {
         if (isTimeToSnap)
-        this.moveSnapedPiece(movingPiece)
+            this.moveSnapedPiece(movingPiece)
     }
 
     handleDrag(e) {
