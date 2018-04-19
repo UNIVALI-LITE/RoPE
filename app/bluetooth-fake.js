@@ -5,10 +5,16 @@ const bluetooth = {
 // Main method
 
 bluetooth.search = () => {
-    const time = Math.ceil(Math.random() * 5000 + 5000)
+    const time = Math.ceil(Math.random() * 2000 + 2000)
     setTimeout(() => {
         const message = time % 2 === 0 ? 'connected' : 'connection-failed'
         bluetooth.notify(message)
+        let i = 0
+        if( message === 'connected' ){
+            setInterval(()=>{
+                bluetooth.notify( i++ % 2 == 0 ? 'connection-failed' : 'connected' )
+            }, time)
+        }
     }, time)
 }
 

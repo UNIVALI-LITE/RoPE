@@ -13,10 +13,12 @@ $(function() {
 
     app.bluetooth.on('connected', () => {
         app.showProgrammingView()
+        app.setConnected( true )
     })
     
     app.bluetooth.on('connection-failed', () => {
         app.showMagnifying(false)
+        app.setConnected( false )
     })
 
     // Methods to update ui
@@ -48,6 +50,13 @@ $(function() {
                     console.log('Service Worker Registered')
                 })
         }
+    }
+
+    app.setConnected = ( connected ) => {
+        if( connected )
+            $('#rope-connection').addClass('connected').removeClass('disconnected')
+        else
+            $('#rope-connection').addClass('disconnected').removeClass('connected')
     }
 
     // Start
