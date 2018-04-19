@@ -177,14 +177,6 @@ class BlocksView {
             this.clone(movingPiece.$elm)
             movingPiece.setDragged()
         }
-        const placeholdersArea = new Rectangle($('#placeholders-area'))
-        // if( !placeholdersArea.contains(movingPiece) ){
-        //     const img = $( movingPiece.$elm.find('img')[0] )
-        //     const src = img.attr('src')
-        //     if( src.indexOf('_exit') === -1 ){
-        //         img.attr('src', 'assets/turn_right_exit.svg')
-        //     }
-        // }
     }
 
     handleDrag(e) {
@@ -192,6 +184,7 @@ class BlocksView {
         movingPiece.setElm($(e.target))
         this.moveSnapedPieceIfIsTimeToSnap(movingPiece)
         this.markThatThePieceEnteredPlaceholdersArea(movingPiece)
+        this.changePieceColorIfOutside(movingPiece)
     }
 
     handleDragStop(e) {
@@ -207,9 +200,31 @@ class BlocksView {
     }
 
     markThatThePieceEnteredPlaceholdersArea(movingPiece) {
-        const rect = this.getPlaceholdersRectangle()
-        if (rect.contains(movingPiece.center())) {
+        const placeholdersRectangle = this.getPlaceholdersRectangle()
+        if (placeholdersRectangle.contains(movingPiece.center())) {
             movingPiece.enteredPlaceholdersArea = true
+        }
+    }
+
+    changePieceColorIfOutside(movingPiece) {
+        if (movingPiece.enteredPlaceholdersArea) {
+            this.addOrRemoveOutsideBorder(movingPiece)
+        }
+    }
+
+    addOrRemoveOutsideBorder(movingPiece) {
+        const nowIsOutside = !this.getPlaceholdersRectangle().contains(movingPiece.center())
+        const elm = movingPiece.$elm.find('img')[0]
+        const $img = $(elm)
+        let src = $img.attr('src')
+        const hasOutsideBorder = src.indexOf('_exit') !== -1
+        if (nowIsOutside && !hasOutsideBorder) {
+            const split = src.split('.')
+            src = split[0] + '_exit.svg'
+            $img.attr('src', src)
+        } else if (!nowIsOutside && hasOutsideBorder) {
+            src = src.replace('_exit', '')
+            $img.attr('src', src)
         }
     }
 

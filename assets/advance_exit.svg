@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="25.403173mm"
+   height="19.763687mm"
+   viewBox="0 0 90.011244 70.028812"
+   id="svg11486"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="advance_exit.svg">
+  <defs
+     id="defs11488" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="11.2"
+     inkscape:cx="41.393234"
+     inkscape:cy="19.196728"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1027"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata11491">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-1466.4229,239.79506)">
+    <g
+       transform="matrix(0.99407903,0,0,1.0025732,1829.5243,-37.264008)"
+       id="layer1-6"
+       inkscape:label="Layer 1">
+      <g
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/home/cesar/hd/Dropbox/TTC/TTC/3 - Implementação/web/rope2/src/assets/advance.svg"
+         transform="matrix(0.70382433,0,0,0.70382433,-893.34823,567.2097)"
+         id="g6260"
+         style="stroke:#241c1c;stroke-width:0.56832361;stroke-miterlimit:4;stroke-dasharray:none">
+        <g
+           id="g6262"
+           transform="matrix(0.72531376,0,0,0.72531376,547.4065,-1514.3974)"
+           style="stroke:#241c1c;stroke-width:0.78355557;stroke-miterlimit:4;stroke-dasharray:none">
+          <g
+             id="g6264"
+             transform="matrix(0.79957527,0,0,0.79957527,365.77908,-526.36765)"
+             style="fill:#6c5353;stroke:#241c1c;stroke-width:0.97996473;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.60824741">
+            <path
+               inkscape:connector-curvature="0"
+               id="path6266"
+               d="m -107.17484,1521.0291 0,-35.4058 3.87363,-0.3598 c 4.673045,-0.4339 7.157607,0.099 11.225381,2.4066 10.194497,5.7839 21.952373,2.0135 26.637264,-8.542 1.388675,-3.1288 1.224555,-9.4836 -0.335252,-12.9806 -2.749277,-6.1637 -8.452627,-10.0938 -15.289862,-10.536 -4.055946,-0.2623 -5.973455,0.2294 -16.068411,4.12 -2.465839,0.9503 -5.37374,1.1529 -8.2494,0.5747 l -1.79335,-0.3605 0,-35.9851 0,-35.9851 88.376257,0 88.376273,0 0,36.6341 0,36.6341 4.65865,0 c 4.214497,0 5.152084,-0.2233 9.834299,-2.3428 2.846602,-1.2885 6.518208,-2.6139 8.159104,-2.9452 8.235627,-1.6627 17.667927,4.2263 19.869857,12.4057 1.58683,5.8945 -0.69922,13.3771 -5.29523,17.3319 -5.51149,4.7427 -13.959638,5.7584 -19.792014,2.3797 -6.207903,-3.5963 -6.659846,-3.7529 -10.813007,-3.7448 -2.221577,0 -4.620274,0.1645 -5.330448,0.3558 l -1.291211,0.3479 0,35.7014 0,35.7015 -88.376273,0 -88.376257,0 0,-35.4057 z"
+               style="fill:#6c5353;fill-opacity:1;fill-rule:nonzero;stroke:#241c1c;stroke-width:0.97996473;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.60824741" />
+          </g>
+          <g
+             inkscape:export-filename="/home/cesar/hd/Dropbox/TTC/TTC/2 - Modelagem/telas/frente.png"
+             inkscape:export-ydpi="90"
+             inkscape:export-xdpi="90"
+             transform="matrix(0.79957527,0,0,0.79957527,367.06146,-528.12521)"
+             id="g6268"
+             style="stroke:#241c1c;stroke-width:0.97996473;stroke-miterlimit:4;stroke-dasharray:none">
+            <path
+               style="fill:#66c9fc;fill-opacity:1;fill-rule:nonzero;stroke:#ff2a2a;stroke-width:4.90808356;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+               d="m -107.17484,1521.0291 0,-35.4058 3.87363,-0.3598 c 4.673045,-0.4339 7.157607,0.099 11.225381,2.4066 10.194497,5.7839 21.952373,2.0135 26.637264,-8.542 1.388675,-3.1288 1.224555,-9.4836 -0.335252,-12.9806 -2.749277,-6.1637 -8.452627,-10.0938 -15.289862,-10.536 -4.055946,-0.2623 -5.973455,0.2294 -16.068411,4.12 -2.465839,0.9503 -5.37374,1.1529 -8.2494,0.5747 l -1.79335,-0.3605 0,-35.9851 0,-35.9851 88.376257,0 88.376273,0 0,36.6341 0,36.6341 4.65865,0 c 4.214497,0 5.152084,-0.2233 9.834299,-2.3428 2.846602,-1.2885 6.518208,-2.6139 8.159104,-2.9452 8.235627,-1.6627 17.667927,4.2263 19.869857,12.4057 1.58683,5.8945 -0.69922,13.3771 -5.29523,17.3319 -5.51149,4.7427 -13.959638,5.7584 -19.792014,2.3797 -6.207903,-3.5963 -6.659846,-3.7529 -10.813007,-3.7448 -2.221577,0 -4.620274,0.1645 -5.330448,0.3558 l -1.291211,0.3479 0,35.7014 0,35.7015 -88.376273,0 -88.376257,0 0,-35.4057 z"
+               id="path6270"
+               inkscape:connector-curvature="0" />
+            <path
+               style="fill:#1a1f36;fill-opacity:1;stroke:#241c1c;stroke-width:0.97996473;stroke-miterlimit:4;stroke-dasharray:none"
+               inkscape:connector-curvature="0"
+               d="m -24.013403,1520.6725 c 11.598807,0.1622 11.436121,0.1864 25.3593252,0.018 -0.038202,-5.1597 0.1705275,-25.0031 0.5745042,-50.1545 l 26.2096996,0.075 -39.510074,-40.9715 -39.132143,40.7591 25.821132,-0.3132 c 0.467744,21.4162 0.580136,21.3803 0.677556,50.5868 z"
+               id="path6272"
+               sodipodi:nodetypes="cccccccc" />
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
