@@ -82,15 +82,6 @@ Rectangle.prototype.LEFT = -1
 Rectangle.prototype.RIGHT = 1
 
 const EMPTY = -1
-let idCounter = 0
-let placeholderIdCounter = 5
-let pieces = []
-let placeholders = []
-let clickedIds = []
-let $programmingArea = $('#programming-view')
-let $placeholdersArea = $('#placeholders-area')
-let rectArea = new Rectangle($placeholdersArea)
-let isTimeToSnap = true
 const PIECE_SIZE = 50
 const SCREEN_WIDTH = $(window).width()
 const snapedPiecesWithoutOverflow = Math.ceil(SCREEN_WIDTH / PIECE_SIZE) - 3
@@ -98,6 +89,13 @@ const snapedPiecesWithoutOverflow = Math.ceil(SCREEN_WIDTH / PIECE_SIZE) - 3
 class BlocksView {
 
     constructor() {
+        this.idCounter = 0
+        this.pieces = []
+        this.placeholders = []
+        this.clickedIds = []
+        this.$programmingView = $('#programming-view')
+        this.$placeholdersArea = $('#placeholders-area')
+        this.isTimeToSnap = true
         this.createInitialPieces()
         this.createInitialPlaceholders()
         this.configureScrollListener()
@@ -112,7 +110,7 @@ class BlocksView {
 
     createInitialPlaceholders() {
         $('.block.placeholder').each((idx, elm) => {
-            placeholders.push(new Rectangle($(elm)))
+            this.placeholders.push(new Rectangle($(elm)))
         })
     }
 
@@ -137,7 +135,7 @@ class BlocksView {
                 top: $elm.offset().top,
                 left: $elm.offset().left
             })
-            .appendTo($programmingArea)
+            .appendTo(this.$programmingView)
             .draggable({
                 start: (e) => this.handleDragStart(e),
                 stop: (e) => this.handleDragStop(e),
@@ -145,7 +143,7 @@ class BlocksView {
                 scroll: false
             })
 
-        let id = ++idCounter
+        let id = ++this.idCounter
         $cloned.id = id
         $cloned[0].id = id
         return $cloned
@@ -160,12 +158,12 @@ class BlocksView {
 
     createPiece($elm) {
         let piece = new Rectangle($elm)
-        pieces.push(piece)
+        this.pieces.push(piece)
         return piece
     }
 
     findPieceById(id) {
-        let foundPiece = pieces
+        let foundPiece = this.pieces
             .filter((piece) => piece instanceof Rectangle && piece.id() == id)
         if (foundPiece.length) {
             return foundPiece[0]
@@ -175,9 +173,9 @@ class BlocksView {
     handleDragStart(e) {
         this.adjustAvailableReadyPieces()
         let movingPiece = this.getOrCreatePiece(e)
-        isTimeToSnap = false
+        this.isTimeToSnap = false
         setTimeout(() => {
-            isTimeToSnap = true
+            this.isTimeToSnap = true
         }, 300)
         this.freesPlaceholder(movingPiece)
         this.organizePostionZ(movingPiece)
@@ -217,7 +215,7 @@ class BlocksView {
     }
 
     adjustPiecesToPlaceholders() {
-        placeholders.forEach((placeholder) => {
+        this.placeholders.forEach((placeholder) => {
             if (!placeholder.empty()) {
                 placeholder.internalRectangle.moveTo(placeholder)
             }
@@ -226,27 +224,27 @@ class BlocksView {
 
     organizePostionZ(piece) {
         let id = piece.id()
-        let i = clickedIds.indexOf(id)
+        let i = this.clickedIds.indexOf(id)
         if (i != -1) {
-            clickedIds.splice(i, 1)
+            this.clickedIds.splice(i, 1)
         }
-        clickedIds.push(id)
+        this.clickedIds.push(id)
         $('.piece.dragged').each((i, elm) => {
-            let zIndex = clickedIds.indexOf(elm.id) + 10
+            let zIndex = this.clickedIds.indexOf(elm.id) + 10
             $(elm).css('z-index', zIndex)
         })
     }
 
     movePiecesToLeft() {
         let i = 0
-        while (i < placeholders.length) {
-            let placeholder = placeholders[i]
+        while (i < this.placeholders.length) {
+            let placeholder = this.placeholders[i]
             if (placeholder.empty()) {
                 let j = i
                 let rightOccuped
-                while (j < placeholders.length && !rightOccuped) {
-                    if (!placeholders[j].empty()) {
-                        rightOccuped = placeholders[j]
+                while (j < this.placeholders.length && !rightOccuped) {
+                    if (!this.placeholders[j].empty()) {
+                        rightOccuped = this.placeholders[j]
                     }
                     j++
                 }
@@ -262,16 +260,15 @@ class BlocksView {
     adjustAreaWidth() {
         const snapedPiecesNumber = this.getOccupedPlaceholders().length
         const newWidth = snapedPiecesNumber * PIECE_SIZE + PIECE_SIZE + PIECE_SIZE + PIECE_SIZE
-        $placeholdersArea.css('width', newWidth < SCREEN_WIDTH ? SCREEN_WIDTH : newWidth)
-        rectArea = new Rectangle($('#placeholders-area'))
+        this.$placeholdersArea.css('width', newWidth < SCREEN_WIDTH ? SCREEN_WIDTH : newWidth)
     }
 
     getOccupedPlaceholders() {
-        return placeholders.filter(p => !p.empty())
+        return this.placeholders.filter(p => !p.empty())
     }
 
     freesPlaceholder(movingPiece) {
-        let freedPlaceholder = placeholders.filter(placeholder => placeholder.has(movingPiece))[0]
+        let freedPlaceholder = this.placeholders.filter(placeholder => placeholder.has(movingPiece))[0]
         if (freedPlaceholder) {
             freedPlaceholder.frees()
         }
@@ -281,13 +278,13 @@ class BlocksView {
         const rect = new Rectangle($('body'))
         if (!rect.contains(piece.center())) {
             piece.disappear()
-            pieces.splice(pieces.indexOf(piece), 1)
+            this.pieces.splice(this.pieces.indexOf(piece), 1)
             return true
         }
     }
 
     snapToPlaceholder(piece) {
-        placeholders.forEach((placeholder) => {
+        this.placeholders.forEach((placeholder) => {
             if (placeholder.empty() && placeholder.contains(piece.center())) {
                 this.snap(placeholder, piece)
                 return
@@ -304,7 +301,7 @@ class BlocksView {
 
     addRightPlaceholder() {
         const ocuppedPlaceholders = this.getOccupedPlaceholders()
-        if (placeholders.length === ocuppedPlaceholders.length) {
+        if (this.placeholders.length === ocuppedPlaceholders.length) {
             this.createPlaceholder(Rectangle.prototype.RIGHT)
             this.adjustPiecesToPlaceholders()
         }
@@ -312,8 +309,8 @@ class BlocksView {
 
     removePlaceholders() {
         let ocupped = this.getOccupedPlaceholders().length
-        if (placeholders.length > ocupped + 3) {
-            placeholders.pop()
+        if (this.placeholders.length > ocupped + 3) {
+            this.placeholders.pop()
             $('.placeholder').last().remove()
             this.adjustPiecesToPlaceholders()
         }
@@ -325,11 +322,11 @@ class BlocksView {
         let $placeholderClone = $placeholderBase.clone()
         let placeholder = new Rectangle($placeholderClone)
         if (side === Rectangle.prototype.LEFT) {
-            $placeholdersArea.prepend($placeholderClone)
-            placeholders.unshift(placeholder)
+            this.$placeholdersArea.prepend($placeholderClone)
+            this.placeholders.unshift(placeholder)
         } else {
-            $placeholdersArea.append($placeholderClone)
-            placeholders.push(placeholder)
+            this.$placeholdersArea.append($placeholderClone)
+            this.placeholders.push(placeholder)
         }
         this.updatePlaceholderElements()
         return placeholder
@@ -337,26 +334,26 @@ class BlocksView {
 
     updatePlaceholderElements() {
         $('.block.placeholder').each((idx, elm) => {
-            placeholders[idx].setElm($(elm))
+            this.placeholders[idx].setElm($(elm))
         })
     }
 
     getOrCreatePlaceholder(side, placeholderIndex) {
-        if (!placeholders[placeholderIndex + side]) {
+        if (!this.placeholders[placeholderIndex + side]) {
             let newPlacehoder = this.createPlaceholder(side)
             this.adjustPiecesToPlaceholders()
             return newPlacehoder
         }
-        return placeholders[placeholderIndex + side]
+        return this.placeholders[placeholderIndex + side]
     }
 
     moveSnapedPieceIfIsTimeToSnap(movingPiece) {
-        if (isTimeToSnap)
+        if (this.isTimeToSnap)
             this.moveSnapedPiece(movingPiece)
     }
 
     moveSnapedPiece(movingPiece) {
-        placeholders.forEach((placeholder, placeholderIndex) => {
+        this.placeholders.forEach((placeholder, placeholderIndex) => {
             this.ifHasPieceThenMove(placeholder, placeholderIndex, movingPiece)
         })
     }
@@ -373,24 +370,24 @@ class BlocksView {
         if (placeholderIndex == 0) {
             return Rectangle.prototype.RIGHT
         }
-        if (placeholderIndex == placeholders.length - 1) {
+        if (placeholderIndex == this.placeholders.length - 1) {
             return Rectangle.prototype.LEFT
         }
 
         let commingSide = placeholder.sideOf(movingPiece.center())
         if (commingSide === Rectangle.prototype.LEFT) {
-            if (placeholders[placeholderIndex - 1].empty()) {
+            if (this.placeholders[placeholderIndex - 1].empty()) {
                 return Rectangle.prototype.LEFT
             }
-            if (placeholders[placeholderIndex + 1].empty()) {
+            if (this.placeholders[placeholderIndex + 1].empty()) {
                 return Rectangle.prototype.RIGHT
             }
         }
         if (commingSide === Rectangle.prototype.RIGHT) {
-            if (placeholders[placeholderIndex + 1].empty()) {
+            if (this.placeholders[placeholderIndex + 1].empty()) {
                 return Rectangle.prototype.RIGHT
             }
-            if (placeholders[placeholderIndex - 1].empty()) {
+            if (this.placeholders[placeholderIndex - 1].empty()) {
                 return Rectangle.prototype.LEFT
             }
         }
@@ -398,7 +395,7 @@ class BlocksView {
     }
 
     movePlaceholderPiece(placeholder, moveThisPieceToSide) {
-        let placeholderIndex = placeholders.indexOf(placeholder)
+        let placeholderIndex = this.placeholders.indexOf(placeholder)
         let placeholdeToGo = this.getOrCreatePlaceholder(moveThisPieceToSide, placeholderIndex)
         if (!placeholdeToGo.empty()) {
             this.movePlaceholderPiece(placeholdeToGo, moveThisPieceToSide)
