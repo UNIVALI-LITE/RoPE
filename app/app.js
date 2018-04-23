@@ -13,6 +13,10 @@ $(function () {
         app.showProgrammingView()
     })
 
+    $('#debug-button').on('click', () => {
+        app.toggleDebug()
+    })
+
     app.bluetooth.on('connected', () => {
         app.showProgrammingView()
         app.setConnected(true)
@@ -42,6 +46,10 @@ $(function () {
         $('#connecting-view').hide(400, () => $('#programming-view').show())
     }
 
+    app.showDebugging = () => {
+        $('#debug-button').toggleClass('active')
+    }
+
     // Methods to dealing with the model
 
     app.startSearch = () => {
@@ -67,6 +75,11 @@ $(function () {
 
     app.updateBlocks = (characteristic) => {
 
+    }
+
+    app.toggleDebug = () => {
+        app.debug = !app.debugging
+        app.showDebugging()
     }
 
     // Start

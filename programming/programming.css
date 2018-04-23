@@ -25,14 +25,12 @@
 
 #top-area {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   position: fixed;
   background: #f2f2f2;
   padding: 10px 20px; }
   #top-area #rope-connection {
-    width: 20%;
-    display: inline-block;
-    text-align: left; }
+    width: 20%; }
     #top-area #rope-connection img {
       width: 35px;
       padding-right: 10px; }
@@ -47,13 +45,14 @@
   #top-area #rope-connection.disconnected #connection-status {
     background: red; }
   #top-area #available-pieces {
-    width: 50%;
-    display: inline-block;
+    width: 56%;
     text-align: center; }
   #top-area #debug-button-area {
     width: 20%;
-    display: inline-block;
     text-align: right; }
+    #top-area #debug-button-area #debug-button.active {
+      border-color: #ffeeaa;
+      background: #ffdd55; }
 
 #placeholders-area {
   margin-top: 75px;

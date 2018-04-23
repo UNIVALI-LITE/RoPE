@@ -13,10 +13,6 @@ button.large {
   height: 30vh;
   border-width: 1.5vh; }
 
-button:hover {
-  border-color: #fff6d5ff;
-  background: #d6cc91; }
-
 button:active {
   background: #e0a868; }
 
