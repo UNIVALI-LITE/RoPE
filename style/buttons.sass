@@ -1,12 +1,17 @@
 button
   border-radius: 70%
   background: #fff6d5ff
-  border: 1.5vh solid #d38d5fff
-  width: 30vh
-  height: 30vh
+  border: 0.8vh solid #d38d5fff
+  width: 55px
+  height: 55px
   outline: 0
   img
     width: 100%
+button.large
+  @extend button
+  width: 30vh
+  height: 30vh
+  border-width: 1.5vh
 button:hover
   border-color: #fff6d5ff
   background: rgb(214, 204, 145)
@@ -16,3 +21,4 @@ button:active
 button[disabled]
   background: lightgray
   border-color: lightgray
+  

@@ -1,2 +1,75 @@
-.block{width:50px;height:50px;display:inline-block}.block img{width:132%}.available{margin-right:25px}.area{width:100%}.box{display:flex;flex-flow:column;height:100%;width:100%}.box .header{flex:0 1 auto}.box .content{flex:1 1 auto}.box .footer{flex:0 1 auto}#top-area{position:fixed;background:#f2f2f2;padding:10px 0}#top-area #rope-connection{display:inline-block;width:20%;text-align:center}#top-area #rope-connection img{width:35px;padding-right:10px}#top-area #rope-connection #connection-status{border-radius:100%;text-indent:9999px;padding:0 9px;box-sizing:border-box;border:1px solid #241c1c}#top-area #rope-connection.connected #connection-status{background:#0aff0a}#top-area #rope-connection.disconnected #connection-status{background:red}#top-area #available-pieces{display:inline-block;text-align:center;width:60%}#placeholders-area{margin-top:75px;overflow-x:scroll;box-sizing:border-box;border:3px solid #bcb8ae;background:#fcf9ee;width:100%}#placeholders-area #go-block{position:fixed;right:20px;bottom:12px}.centered-content{display:flex;align-items:center;justify-content:center}
+.block {
+  width: 50px;
+  height: 50px;
+  display: inline-block; }
+  .block img {
+    width: 132%; }
+
+.available {
+  margin-right: 25px; }
+
+.area {
+  width: 100%; }
+
+.box {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  width: 100%; }
+  .box .header {
+    flex: 0 1 auto; }
+  .box .content {
+    flex: 1 1 auto; }
+  .box .footer {
+    flex: 0 1 auto; }
+
+#top-area {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  background: #f2f2f2;
+  padding: 10px 20px; }
+  #top-area #rope-connection {
+    width: 20%;
+    display: inline-block;
+    text-align: left; }
+    #top-area #rope-connection img {
+      width: 35px;
+      padding-right: 10px; }
+    #top-area #rope-connection #connection-status {
+      border-radius: 100%;
+      text-indent: 9999px;
+      padding: 0 9px;
+      box-sizing: border-box;
+      border: 1px solid #241c1c; }
+  #top-area #rope-connection.connected #connection-status {
+    background: #0aff0a; }
+  #top-area #rope-connection.disconnected #connection-status {
+    background: red; }
+  #top-area #available-pieces {
+    width: 50%;
+    display: inline-block;
+    text-align: center; }
+  #top-area #debug-button-area {
+    width: 20%;
+    display: inline-block;
+    text-align: right; }
+
+#placeholders-area {
+  margin-top: 75px;
+  overflow-x: scroll;
+  box-sizing: border-box;
+  border: 3px solid #bcb8ae;
+  background: #fcf9ee;
+  width: 100%; }
+  #placeholders-area #go-block {
+    position: fixed;
+    right: 20px;
+    bottom: 12px; }
+
+.centered-content {
+  display: flex;
+  align-items: center;
+  justify-content: center; }
+
 /*# sourceMappingURL=programming.css.map */

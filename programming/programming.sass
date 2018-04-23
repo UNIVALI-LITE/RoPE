@@ -26,13 +26,15 @@ $backcolor: #f2f2f2
     flex: 0 1 auto
 
 #top-area
+  display: flex
+  flex-direction: column
   position: fixed
   background: $backcolor
-  padding: 10px 0
+  padding: 10px 20px
   #rope-connection
-    display: inline-block
     width: 20%
-    text-align: center
+    display: inline-block
+    text-align: left
     img 
       width: 35px
       padding-right: 10px
@@ -50,9 +52,14 @@ $backcolor: #f2f2f2
       background: red
       
   #available-pieces
+    width: 50%
     display: inline-block
     text-align: center
-    width: 60%
+  
+  #debug-button-area
+    width: 20%
+    display: inline-block
+    text-align: right
 
 #placeholders-area
   margin-top: 75px

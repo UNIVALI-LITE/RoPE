@@ -25,7 +25,7 @@
 </head>
 
 <body>
-	<div name="connection screen" id="connecting-view" style="position: absolute">
+	<div name="connection screen" id="connecting-view" style="display:none; position: absolute">
 		<div id="bigger-rect-top">
 			<div id="searching" class="square center">
 				<div>
@@ -38,7 +38,7 @@
 		</div>
 		<div id="smaller-rect-bottom" class="area">
 			<hr>
-			<button id="magnifying-button">
+			<button id="magnifying-button" class="button large">
 				<img src="assets/rope_magnifying.svg" alt="botão para procurar o rope">
 			</button>
 		</div>
@@ -63,6 +63,11 @@
 				<div class="available block piece right" data-command="right">
 					<img src="assets/turn_right.svg"></img>
 				</div>
+			</div>
+			<div id="debug-button-area">
+				<button id="debug-button">
+					<img src="assets/steps.svg" alt="Ativar/desativar depuração">
+				</button>
 			</div>
 		</div>
 		<div id="placeholders-area" style="padding: 5%" class="content centered-content">
