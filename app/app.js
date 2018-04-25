@@ -8,9 +8,14 @@ $(function () {
 
     // Event listeners
 
-    $('#magnifying-button, #rope-connection.disconnected').on('click', () => {
-        //app.startSearch()
-        app.showProgrammingView()
+    $('#magnifying-button').on('click', () => {
+        app.startSearch()
+    })
+
+    $('#rope-connection').on('click', () => {
+        if( $('#rope-connection').hasClass('disconnected') ) {
+            app.startSearch()
+        }
     })
 
     $('#debug-button').on('click', () => {
@@ -46,6 +51,10 @@ $(function () {
         $('#connecting-view').hide(400, () => $('#programming-view').show())
     }
 
+    app.showConnectionView = () => {
+        $('#programming-view').hide(400, () => $('#connecting-view').show())
+    }
+
     app.showDebugging = () => {
         $('#debug-button').toggleClass('active')
     }
@@ -54,6 +63,7 @@ $(function () {
 
     app.startSearch = () => {
         app.bluetooth.search()
+        app.showConnectionView()
         app.showMagnifying(true)
     }
 
