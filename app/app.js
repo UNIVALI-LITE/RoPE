@@ -13,7 +13,7 @@ $(function () {
     })
 
     $('#rope-connection').on('click', () => {
-        if( $('#rope-connection').hasClass('disconnected') ) {
+        if ($('#rope-connection').hasClass('disconnected')) {
             app.startSearch()
         }
     })
@@ -33,7 +33,7 @@ $(function () {
     })
 
     app.bluetooth.on('characteristic-changed', (characteristic) => {
-        app.updateBlocks(characteristic)
+        app.handleChangeOn(characteristic)
     })
 
     // Methods to update ui
@@ -41,8 +41,7 @@ $(function () {
     app.showMagnifying = (show) => {
         if (show) {
             $('#magnifying').show('fast')
-        }
-        else {
+        } else {
             $('#magnifying').hide('slow')
         }
     }
@@ -57,6 +56,19 @@ $(function () {
 
     app.showDebugging = () => {
         $('#debug-button').toggleClass('active')
+    }
+
+    app.showStarted = () => {
+        $('#go-block').css('border','3px solid green')
+    }
+
+    app.showStopped = () => {
+        $('#go-block').css('border','3px solid red')
+    }
+
+    app.showAddedCommand = () => {
+        $('#go-block').css('border','none')
+        app.blocks.setCommands()
     }
 
     // Methods to dealing with the model
@@ -83,8 +95,19 @@ $(function () {
             $('#rope-connection').addClass('disconnected').removeClass('connected')
     }
 
-    app.updateBlocks = (characteristic) => {
-
+    app.handleChangeOn = (characteristic) => {
+        const action = characteristic.split(':')[0]
+        console.log(characteristic)
+        switch (action) {
+            case 'started':
+                return app.showStarted();
+            case 'stopped':
+                return app.showStopped();
+            case 'updatedCommands':
+                return app.showAddedCommand();
+            default:
+                break;
+        }
     }
 
     app.toggleDebug = () => {
