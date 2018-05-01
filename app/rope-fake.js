@@ -44,23 +44,30 @@ rope.startCommunication = () => {
         const key = Object.keys(rope.buttons)[index]
         const button = rope.buttons[key]
         rope.state.handleClick(button)
-    }, 2000)
+    }, 5000)
+}
+
+rope.nothingToExecute = () => {
+    return rope.actions.length === 0 || 
+           rope.state === rope.states.STOPPED
 }
 
 rope.executeActions = () => {
     rope.state = rope.states.EXECUTING
+    rope.actionIndex = -1
     const millins = 2000
     const executing = setInterval(() => {
-        if (!rope.actions) return
+        if (rope.nothingToExecute()) return
         const action = rope.actions.shift()
-        rope.onChangeHandler.call(this, 'executed:' + action)
+        rope.actionIndex++
+        rope.onChangeHandler.call(this, `executed:${action}:${rope.actionIndex}`)
         if (!rope.actions.length) {
             rope.stop()
         }
     }, millins)
 
     setInterval(() => {
-        if (!rope.actions.length) {
+        if (rope.nothingToExecute()) {
             clearInterval(executing)
         }
     }, millins)
