@@ -4,9 +4,9 @@ const rope = {
 rope.buttons = {
     START: 'i',
     ADVANCE: 'a',
-    GO_BACK: 'r',
-    TURN_LEFT: 'e',
-    TURN_RIGHT: 'd',
+    GO_BACK: 'b',
+    TURN_LEFT: 'l',
+    TURN_RIGHT: 'r',
 }
 rope.states = {
     STOPPED: {

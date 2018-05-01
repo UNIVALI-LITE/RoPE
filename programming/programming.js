@@ -97,9 +97,13 @@ class BlocksView {
 
     createInitialPieces() {
         $('.available.block.piece').on('mousedown', (e) => {
-            let $cloned = this.clone($(e.target))
-            this.createPiece($cloned)
+            this.cloneAndCreatePiece($(e.target))
         }).trigger('mousedown')
+    }
+
+    cloneAndCreatePiece($elm) {
+        let $cloned = this.clone($elm)
+        return this.createPiece($cloned)
     }
 
     createInitialPlaceholders() {
@@ -193,7 +197,7 @@ class BlocksView {
             this.snapToPlaceholder(piece)
         }
         this.movePiecesToLeft()
-        this.removePlaceholders()
+        this.removeRemainingPlaceholders()
         this.adjustAreaWidth()
         this.adjustPiecesToPlaceholders()
         this.addRightPlaceholder()
@@ -298,6 +302,10 @@ class BlocksView {
         return this.placeholders.filter(p => !p.empty())
     }
 
+    getFreePlaceholders() {
+        return this.placeholders.filter(p => p.empty())
+    }
+
     freesPlaceholder(movingPiece) {
         let freedPlaceholder = this.placeholders.filter(placeholder => placeholder.has(movingPiece))[0]
         if (freedPlaceholder) {
@@ -338,7 +346,7 @@ class BlocksView {
         }
     }
 
-    removePlaceholders() {
+    removeRemainingPlaceholders() {
         let ocupped = this.getOccupedPlaceholders().length
         if (this.placeholders.length > ocupped + 3) {
             this.placeholders.pop()
@@ -433,6 +441,60 @@ class BlocksView {
         }
         this.snap(placeholdeToGo, placeholder.internalRectangle)
         placeholder.frees()
+    }
+
+    setCommands(commands) {
+        /** The expected behaviour is that commands arrived
+         * from RoPE will have 
+         * a) one more command than this number of pieces (user clickes RoPE's buttons)
+         * b) none command (the commands are cleared)
+         * 
+         * The first n - 1 commands must be equal in RoPE and here.
+         * If this is false, than remove all pieces from here
+         * and syncronize.
+         * If true just add the new RoPE's command on this list.
+         */
+
+        const snappedPieces = this.getOccupedPlaceholders().map((placeholder) => placeholder.internalRectangle)
+
+        if (this.syncronized(snappedPieces, commands.slice(0, -1))) {
+            this.addPieceFrom(commands[commands.length - 1])
+        } else {
+            this.removeSnappedPieces()
+            this.removeRemainingPlaceholders()
+            commands.forEach((command) => this.addPieceFrom(command))
+        }
+
+        this.adjustAreaWidth()
+        this.adjustPiecesToPlaceholders()
+    }
+
+    syncronized(pieces, commands) {
+        if (pieces.length != commands.length)
+            return false
+        for (let i = 0; i < commands.length; i++) {
+            const command = commands[i]
+            if (!pieces[i].$elm.hasClass(command)) {
+                return false
+            }
+        }
+        return true
+    }
+
+    addPieceFrom(command) {
+        const piece = this.cloneAndCreatePiece($('.available.piece.' + command))
+        const placeholder = this.getFreePlaceholders()[0]
+        piece.moveTo(placeholder)
+        this.snap(placeholder, piece)
+        this.movePiecesToLeft()
+        this.addRightPlaceholder()
+    }
+
+    removeSnappedPieces() {
+        this.getOccupedPlaceholders().forEach((placeholder) => {
+            placeholder.internalRectangle.$elm.remove()
+            placeholder.frees()
+        })
     }
 
 }

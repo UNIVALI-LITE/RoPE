@@ -10,9 +10,10 @@ bluetooth.search = () => {
         bluetooth.notify(message)
         let i = 0
         if (message === 'connected') {
-            setInterval(() => {
-                bluetooth.notify(i++ % 2 == 0 ? 'connection-failed' : 'connected')
-            }, time)
+            // setInterval(() => {
+
+            //     bluetooth.notify(i++ % 2 == 0 ? 'connection-failed' : 'connected')
+            // }, time)
             rope.onChange((instructions) => {
                 bluetooth.notify('characteristic-changed', instructions)
             })

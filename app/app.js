@@ -59,16 +59,16 @@ $(function () {
     }
 
     app.showStarted = () => {
-        $('#go-block').css('border','3px solid green')
+        $('#go-block').css('border', '3px solid green')
     }
 
     app.showStopped = () => {
-        $('#go-block').css('border','3px solid red')
+        $('#go-block').css('border', '3px solid red')
     }
 
-    app.showAddedCommand = () => {
-        $('#go-block').css('border','none')
-        app.blocks.setCommands()
+    app.showAddedCommand = (commands) => {
+        $('#go-block').css('border', 'none')
+        app.blocks.setCommands(commands)
     }
 
     // Methods to dealing with the model
@@ -96,18 +96,36 @@ $(function () {
     }
 
     app.handleChangeOn = (characteristic) => {
-        const action = characteristic.split(':')[0]
+        const characteristicSplit = characteristic.split(':')
+        const action = characteristicSplit[0]
         console.log(characteristic)
         switch (action) {
             case 'started':
-                return app.showStarted();
+                return app.showStarted()
             case 'stopped':
-                return app.showStopped();
+                return app.showStopped()
             case 'updatedCommands':
-                return app.showAddedCommand();
+                let commands = characteristicSplit[1]
+                commands = app.translate( commands )
+                return app.showAddedCommand( commands )
             default:
-                break;
+                break
         }
+    }
+
+    app.translate = (commandsStr) => {
+        const dictionary = {
+            a: 'advance',
+            b: 'back',
+            l: 'left',
+            r: 'right'
+        }
+        const commands = []
+        for (let i = 0; i < commandsStr.length; i++) {
+            const char = commandsStr.charAt(i)
+            commands.push(dictionary[char])
+        }
+        return commands
     }
 
     app.toggleDebug = () => {
