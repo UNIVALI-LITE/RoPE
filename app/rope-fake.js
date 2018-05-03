@@ -12,7 +12,6 @@ rope.states = {
     STOPPED: {
         handleClick: (button) => {
             if (button === rope.buttons.START) {
-                rope.onChangeHandler.call(this, 'started')
                 rope.executeActions()
             } else {
                 rope.actions.push(button)
@@ -24,10 +23,10 @@ rope.states = {
     },
     EXECUTING: {
         handleClick: (button) => {
-            if (button === rope.buttons.START) {
-                rope.actions = []
-                rope.stop()
-            }
+            // if (button === rope.buttons.START) {
+            //     rope.actions = []
+            //     rope.stop()
+            // }
         }
     }
 }
@@ -39,43 +38,49 @@ rope.onChange = (handler) => {
 rope.startCommunication = () => {
     rope.state = rope.states.STOPPED
     // simulates rope behaviour
-    setInterval(() => {
-        const index = Math.round(Math.random() * 100) % 4
-        const key = Object.keys(rope.buttons)[index]
-        const button = rope.buttons[key]
-        rope.state.handleClick(button)
-    }, 5000)
+    // setInterval(() => {
+    //     const index = Math.round(Math.random() * 100) % 4
+    //     const key = Object.keys(rope.buttons)[index]
+    //     const button = rope.buttons[key]
+    //     rope.state.handleClick(button)
+    // }, 5000)
 }
 
 rope.nothingToExecute = () => {
-    return rope.actions.length === 0 || 
-           rope.state === rope.states.STOPPED
+    return rope.actions.length === 0 ||
+        rope.state === rope.states.STOPPED
 }
 
-rope.executeActions = () => {
-    rope.state = rope.states.EXECUTING
-    rope.actionIndex = -1
-    const millins = 2000
-    const executing = setInterval(() => {
-        if (rope.nothingToExecute()) return
+setInterval(() => {
+    if (rope.state == rope.states.EXECUTING) {
+        if (rope.nothingToExecute()) {
+            return rope.stop()
+        }
         const action = rope.actions.shift()
         rope.actionIndex++
         rope.onChangeHandler.call(this, `executed:${action}:${rope.actionIndex}`)
-        if (!rope.actions.length) {
-            rope.stop()
-        }
-    }, millins)
+    }
+}, 2000)
 
-    setInterval(() => {
-        if (rope.nothingToExecute()) {
-            clearInterval(executing)
-        }
-    }, millins)
+rope.executeActions = () => {
+    rope.onChangeHandler.call(this, 'started')
+    rope.state = rope.states.EXECUTING
+    rope.actionIndex = -1
 }
 
-rope.stop = function () {
+rope.stop = () => {
     rope.state = rope.states.STOPPED
     rope.onChangeHandler.call(this, 'stopped')
+}
+
+rope.write = (string) => {
+    if (string.length == 1 && string.indexOf('s') != -1) {
+        if (rope.actions.length) {
+            rope.executeActions()
+        }
+    } else {
+        rope.actions = string.split("")
+    }
 }
 
 rope.state = rope.states.STOPPED

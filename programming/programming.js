@@ -78,6 +78,7 @@ class Rectangle {
 }
 Rectangle.prototype.LEFT = -1
 Rectangle.prototype.RIGHT = 1
+const audio = new Audio('assets/snapsound.mp3')
 
 class BlocksView {
 
@@ -118,6 +119,7 @@ class BlocksView {
             clearTimeout($.data(this, 'scrollTimer'));
             $.data(this, 'scrollTimer', setTimeout(() => {
                 $('.ready.piece').show()
+                this.adjustPiecesToPlaceholders()
                 this.adjustAvailableReadyPieces()
             }, 250))
         })
@@ -201,6 +203,7 @@ class BlocksView {
         this.adjustAreaWidth()
         this.adjustPiecesToPlaceholders()
         this.addRightPlaceholder()
+        this.notifyChangedPieces()
     }
 
     markThatThePieceEnteredPlaceholdersArea(movingPiece) {
@@ -306,6 +309,10 @@ class BlocksView {
         return this.placeholders.filter(p => p.empty())
     }
 
+    getSnappedPieces() {
+        return this.getOccupedPlaceholders().map((placeholder) => placeholder.internalRectangle)
+    }
+
     freesPlaceholder(movingPiece) {
         let freedPlaceholder = this.placeholders.filter(placeholder => placeholder.has(movingPiece))[0]
         if (freedPlaceholder) {
@@ -334,9 +341,10 @@ class BlocksView {
     snap(placeholder, piece) {
         placeholder.add(piece)
         piece.moveTo(placeholder)
-        const audio = new Audio('assets/snapsound.mp3')
         audio.play()
     }
+
+
 
     addRightPlaceholder() {
         const ocuppedPlaceholders = this.getOccupedPlaceholders()
@@ -455,13 +463,19 @@ class BlocksView {
          * If true just add the new RoPE's command on this list.
          */
 
-        const snappedPieces = this.getOccupedPlaceholders().map((placeholder) => placeholder.internalRectangle)
+        const snappedPieces = this.getSnappedPieces()
 
         if (this.syncronized(snappedPieces, commands.slice(0, -1))) {
             this.addPieceFrom(commands[commands.length - 1])
         } else {
             this.removeSnappedPieces()
             this.removeRemainingPlaceholders()
+
+            if (this.highlightPiece) {
+                this.removePiece(this.highlightPiece)
+                this.highlightPiece = undefined
+            }
+
             commands.forEach((command) => this.addPieceFrom(command))
         }
 
@@ -495,6 +509,55 @@ class BlocksView {
             placeholder.internalRectangle.$elm.remove()
             placeholder.frees()
         })
+    }
+
+    highlightSnapped() {
+        this.getSnappedPieces().forEach(piece => {
+            piece.$elm.css('z-index', 40)
+        })
+    }
+
+    hideHighlight(){
+        this.removePiece( this.highlightPiece )
+        this.highlightPiece = undefined
+    }
+
+    highlight({ command, index }) {
+        const placeholder = this.getOccupedPlaceholders()[index]
+        if (!placeholder)
+            return
+
+        const piece = placeholder.internalRectangle
+        if (!this.highlightPiece) {
+            const $cloned = this.clone(piece.$elm);
+            $cloned.draggable('disable')
+            $cloned.find('img').attr('src', 'assets/executing.svg')
+            $cloned.appendTo($('#placeholders-area'))
+            $cloned.css('z-index', 99)
+            this.highlightPiece = new Rectangle($cloned)
+        }
+        this.highlightPiece.moveTo(piece.$elm)
+    }
+
+    removePiece(piece) {
+        piece.disappear()
+        piece = undefined
+    }
+
+    on(event, callback) {
+        if (!this[event]) {
+            this[event] = []
+        }
+        this[event].push(callback)
+    }
+
+    notify(event, param) {
+        this[event].forEach(callback => callback.call(this, param))
+    }
+
+    notifyChangedPieces() {
+        const pieces = this.getSnappedPieces()
+        this.notify('changed', pieces)
     }
 
 }

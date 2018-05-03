@@ -1,9 +1,20 @@
 /*global $ global bluetooth navigator*/
 $(function () {
 
+    const dictionary = {
+        a: 'advance',
+        b: 'back',
+        l: 'left',
+        r: 'right'
+    }
+
     const app = {
         bluetooth: bluetooth,
-        blocks: new BlocksView()
+        blocks: new BlocksView(),
+        sounds : {
+            start : new Audio('assets/startsound.wav'),
+            stop : new Audio('assets/stopsound.wav')
+        }
     }
 
     // Event listeners
@@ -22,6 +33,10 @@ $(function () {
         app.toggleDebug()
     })
 
+    $('#go-block').on('click', () => {
+        app.bluetooth.setCharacteristic('s')
+    })
+
     app.bluetooth.on('connected', () => {
         app.showProgrammingView()
         app.setConnected(true)
@@ -34,6 +49,10 @@ $(function () {
 
     app.bluetooth.on('characteristic-changed', (characteristic) => {
         app.handleChangeOn(characteristic)
+    })
+
+    app.blocks.on('changed', (pieces) => {
+        app.setCharacteristic(pieces)
     })
 
     // Methods to update ui
@@ -51,6 +70,8 @@ $(function () {
     }
 
     app.showConnectionView = () => {
+        if ($('#connecting-view').is(':visible'))
+            return
         $('#programming-view').hide(400, () => $('#connecting-view').show())
     }
 
@@ -59,24 +80,44 @@ $(function () {
     }
 
     app.showStarted = () => {
-        $('#go-block').css('border', '3px solid green')
+        app.sounds.start.play()
+        if (!$('#shadow').length) {
+            $('<div id="shadow"></div>').css({
+                width: '100%',
+                height: '100vh',
+                opacity: '0.5',
+                background: 'gray',
+                position: 'absolute',
+                'z-index': '3',
+                display: 'none'
+            }).prependTo($('body'))
+        }
+
+        $('#shadow').fadeIn(400, 'linear')
+        app.blocks.highlightSnapped()
     }
 
     app.showStopped = () => {
-        $('#go-block').css('border', '3px solid red')
+        app.sounds.stop.play()
+        app.blocks.hideHighlight()
+        app.blocks.removeSnappedPieces()
+        $('#shadow').fadeOut(1000, 'linear')
     }
 
-    app.showAddedCommand = (commands) => {
-        $('#go-block').css('border', 'none')
+    app.showAdded = (commands) => {
         app.blocks.setCommands(commands)
+    }
+
+    app.showExecuted = ({ command, index }) => {
+        app.blocks.highlight({ command, index })
     }
 
     // Methods to dealing with the model
 
     app.startSearch = () => {
         app.bluetooth.search()
-        app.showConnectionView()
         app.showMagnifying(true)
+        app.showConnectionView()
     }
 
     app.registerServiceWorker = () => {
@@ -106,20 +147,18 @@ $(function () {
                 return app.showStopped()
             case 'updatedCommands':
                 let commands = characteristicSplit[1]
-                commands = app.translate( commands )
-                return app.showAddedCommand( commands )
+                commands = app.translate(commands)
+                return app.showAdded(commands)
+            case 'executed':
+                let command = characteristicSplit[1]
+                let index = characteristicSplit[2]
+                return app.showExecuted({ command, index })
             default:
                 break
         }
     }
 
     app.translate = (commandsStr) => {
-        const dictionary = {
-            a: 'advance',
-            b: 'back',
-            l: 'left',
-            r: 'right'
-        }
         const commands = []
         for (let i = 0; i < commandsStr.length; i++) {
             const char = commandsStr.charAt(i)
@@ -131,6 +170,15 @@ $(function () {
     app.toggleDebug = () => {
         app.debug = !app.debugging
         app.showDebugging()
+    }
+
+    app.setCharacteristic = (pieces) => {
+        let characteristic = ''
+        pieces.forEach(piece => {
+            const command = piece.$elm.attr('data-command')
+            characteristic += command.charAt(0)
+        })
+        app.bluetooth.setCharacteristic(characteristic)
     }
 
     // Start

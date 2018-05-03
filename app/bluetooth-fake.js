@@ -16,6 +16,10 @@ bluetooth.search = () => {
     }
 }
 
+bluetooth.setCharacteristic = (characteristic) => {
+    rope.write(characteristic)
+}
+
 bluetooth.on = (event, handler) => {
     bluetooth.getEventHandlers(event).push(handler)
 }
