@@ -47,12 +47,16 @@
   #top-area #available-pieces {
     width: 56%;
     text-align: center; }
-  #top-area #debug-button-area {
-    width: 20%;
-    text-align: right; }
-    #top-area #debug-button-area #debug-button.active {
-      border-color: #ffeeaa;
-      background: #ffdd55; }
+
+#debug-button {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 3; }
+
+#debug-button.active {
+  border-color: #ffeeaa;
+  background: #ffdd55; }
 
 #placeholders-area {
   margin-top: 75px;

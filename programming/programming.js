@@ -513,13 +513,20 @@ class BlocksView {
 
     highlightSnapped() {
         this.getSnappedPieces().forEach(piece => {
-            piece.$elm.css('z-index', 40)
+            piece.$elm.css('z-index', 10)
         })
     }
 
     hideHighlight(){
         this.removePiece( this.highlightPiece )
         this.highlightPiece = undefined
+    }
+
+    disableDragging() {
+        $('.ui-draggable').draggable('disable')
+    }
+    enableDragging(){
+        $('.ui-draggable-handle').draggable('enable')
     }
 
     highlight({ command, index }) {

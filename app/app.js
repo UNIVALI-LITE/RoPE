@@ -90,7 +90,7 @@ $(function () {
                 position: 'absolute',
                 'z-index': '3',
                 display: 'none'
-            }).prependTo($('body'))
+            }).prependTo($('#programming-view'))
         }
 
         $('#shadow').fadeIn(400, 'linear')
@@ -142,8 +142,10 @@ $(function () {
         console.log(characteristic)
         switch (action) {
             case 'started':
+                app.blocks.disableDragging()
                 return app.showStarted()
             case 'stopped':
+                app.blocks.enableDragging()
                 return app.showStopped()
             case 'updatedCommands':
                 let commands = characteristicSplit[1]
