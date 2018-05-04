@@ -1,5 +1,6 @@
 const rope = {
-    actions: []
+    actions: [],
+    actionIndex : -1
 }
 rope.buttons = {
     START: 'i',
@@ -19,6 +20,15 @@ rope.states = {
                 rope.actions.forEach((a) => actionsString += a)
                 rope.onChangeHandler.call(this, 'updatedCommands:' + actionsString)
             }
+        },
+        handleWrite: (string) => {
+            if( string === 's' && rope.actions.length ){
+                rope.executeActions()
+            } else if( string.indexOf('d:') != -1 ) {
+                rope.debugging = string.split(':')[1] == 1
+            } else {
+                rope.actions = string.split("")
+            }
         }
     },
     EXECUTING: {
@@ -27,6 +37,14 @@ rope.states = {
             //     rope.actions = []
             //     rope.stop()
             // }
+        },
+        handleWrite: (string) => {
+            if( string === 's' ){
+                rope.actions = []
+                rope.stop()
+            } else if( string.indexOf('d:') != -1 ) {
+                rope.debugging = string.split(':')[1] == 1
+            }
         }
     }
 }
@@ -51,14 +69,19 @@ rope.nothingToExecute = () => {
         rope.state === rope.states.STOPPED
 }
 
+rope.executeNextAction = () => {
+    if (rope.nothingToExecute()) {
+        return rope.stop()
+    }
+    const action = rope.actions.shift()
+    rope.actionIndex++
+    rope.onChangeHandler.call(this, `executed:${action}:${rope.actionIndex}`)
+}
+
 setInterval(() => {
     if (rope.state == rope.states.EXECUTING) {
-        if (rope.nothingToExecute()) {
-            return rope.stop()
-        }
-        const action = rope.actions.shift()
-        rope.actionIndex++
-        rope.onChangeHandler.call(this, `executed:${action}:${rope.actionIndex}`)
+        if(!rope.debugging)
+            rope.executeNextAction()
     }
 }, 2000)
 
@@ -71,16 +94,12 @@ rope.executeActions = () => {
 rope.stop = () => {
     rope.state = rope.states.STOPPED
     rope.onChangeHandler.call(this, 'stopped')
+    rope.actionIndex = -1
 }
 
 rope.write = (string) => {
-    if (string.length == 1 && string.indexOf('s') != -1) {
-        if (rope.actions.length) {
-            rope.executeActions()
-        }
-    } else {
-        rope.actions = string.split("")
-    }
+
+    rope.state.handleWrite( string )
 }
 
 rope.state = rope.states.STOPPED

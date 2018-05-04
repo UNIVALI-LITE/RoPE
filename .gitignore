@@ -1,5 +1,4 @@
 node_modules
 package-lock.json
 rope.min.js
-.sass-cache
-programming/.sass-cache/1f3747674a862362423b01f620669f3414587c2c/programming.sassc
+**/*.sass-cache

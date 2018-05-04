@@ -518,6 +518,7 @@ class BlocksView {
     }
 
     hideHighlight(){
+        if(!this.highlightPiece) return
         this.removePiece( this.highlightPiece )
         this.highlightPiece = undefined
     }

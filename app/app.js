@@ -79,7 +79,7 @@ $(function () {
         $('#debug-button').toggleClass('active')
     }
 
-    app.showStarted = () => {
+    app.showShadow = () => {
         app.sounds.start.play()
         if (!$('#shadow').length) {
             $('<div id="shadow"></div>').css({
@@ -99,8 +99,12 @@ $(function () {
 
     app.showStopped = () => {
         app.sounds.stop.play()
-        app.blocks.hideHighlight()
+        app.hideShadow()
         app.blocks.removeSnappedPieces()
+    }
+
+    app.hideShadow = () => {
+        app.blocks.hideHighlight()
         $('#shadow').fadeOut(1000, 'linear')
     }
 
@@ -143,7 +147,11 @@ $(function () {
         switch (action) {
             case 'started':
                 app.blocks.disableDragging()
-                return app.showStarted()
+                return app.showShadow()
+            case 'debugging':
+                return app.showShadow()
+            case 'debugging_exit':
+                return app.hideShadow()
             case 'stopped':
                 app.blocks.enableDragging()
                 return app.showStopped()
@@ -170,7 +178,8 @@ $(function () {
     }
 
     app.toggleDebug = () => {
-        app.debug = !app.debugging
+        app.debug = !app.debug
+        app.bluetooth.setCharacteristic('d:' + (app.debug ? 1 : 0) )
         app.showDebugging()
     }
 
