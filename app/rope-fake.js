@@ -1,6 +1,6 @@
 const rope = {
     actions: [],
-    actionIndex : -1
+    actionIndex: -1
 }
 rope.buttons = {
     START: 'i',
@@ -22,9 +22,9 @@ rope.states = {
             }
         },
         handleWrite: (string) => {
-            if( string === 's' && rope.actions.length ){
+            if (string === 's') {
                 rope.executeActions()
-            } else if( string.indexOf('d:') != -1 ) {
+            } else if (string.indexOf('d:') != -1) {
                 rope.debugging = string.split(':')[1] == 1
             } else {
                 rope.actions = string.split("")
@@ -39,10 +39,10 @@ rope.states = {
             // }
         },
         handleWrite: (string) => {
-            if( string === 's' ){
+            if (string === 's') {
                 rope.actions = []
                 rope.stop()
-            } else if( string.indexOf('d:') != -1 ) {
+            } else if (string.indexOf('d:') != -1) {
                 rope.debugging = string.split(':')[1] == 1
             }
         }
@@ -66,7 +66,7 @@ rope.startCommunication = () => {
 
 rope.nothingToExecute = () => {
     return rope.actions.length === 0 ||
-        rope.state === rope.states.STOPPED
+           rope.state === rope.states.STOPPED
 }
 
 rope.executeNextAction = () => {
@@ -80,12 +80,13 @@ rope.executeNextAction = () => {
 
 setInterval(() => {
     if (rope.state == rope.states.EXECUTING) {
-        if(!rope.debugging)
+        if (!rope.debugging)
             rope.executeNextAction()
     }
 }, 2000)
 
 rope.executeActions = () => {
+    if (!rope.actions.length) return
     rope.onChangeHandler.call(this, 'started')
     rope.state = rope.states.EXECUTING
     rope.actionIndex = -1
@@ -98,8 +99,7 @@ rope.stop = () => {
 }
 
 rope.write = (string) => {
-
-    rope.state.handleWrite( string )
+    rope.state.handleWrite(string)
 }
 
 rope.state = rope.states.STOPPED
