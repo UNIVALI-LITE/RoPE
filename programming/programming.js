@@ -35,15 +35,22 @@ class Rectangle {
             obj = obj.$elm
         }
         if (obj instanceof jQuery) {
-            let $elm = this.$elm
-            this.moving = true
-            this.$elm.animate({
-                top: obj.offset().top,
-                left: obj.offset().left
-            }, 200, function () {
-                this.moving = false
-            })
+            const x = obj.offset().left
+            const y = obj.offset().top
+            this.moveToPoint(new Point(x, y))
         }
+        if (obj instanceof Point) {
+            this.moveToPoint(obj)
+        }
+    }
+    moveToPoint(point) {
+        this.moving = true
+        this.$elm.animate({
+            top: point.y,
+            left: point.x
+        }, 200, function () {
+            this.moving = false
+        })
     }
     sideOf(obj) {
         if (obj instanceof Point) {
@@ -344,8 +351,6 @@ class BlocksView {
         audio.play()
     }
 
-
-
     addRightPlaceholder() {
         const ocuppedPlaceholders = this.getOccupedPlaceholders()
         if (this.placeholders.length === ocuppedPlaceholders.length) {
@@ -517,16 +522,17 @@ class BlocksView {
         })
     }
 
-    hideHighlight(){
-        if(!this.highlightPiece) return
-        this.removePiece( this.highlightPiece )
+    hideHighlight() {
+        if (!this.highlightPiece) return
+        this.removePiece(this.highlightPiece)
         this.highlightPiece = undefined
     }
 
     disableDragging() {
         $('.ui-draggable').draggable('disable')
     }
-    enableDragging(){
+
+    enableDragging() {
         $('.ui-draggable-handle').draggable('enable')
     }
 
@@ -566,6 +572,17 @@ class BlocksView {
     notifyChangedPieces() {
         const pieces = this.getSnappedPieces()
         this.notify('changed', pieces)
+    }
+
+    pointToIndex(index) {
+        const placeholder = this.placeholders[index]
+        if (!placeholder)
+            return
+        const $pointer = $('#pointer')
+        const rect = new Rectangle($pointer)
+        const point = new Point(placeholder.x, placeholder.y + 60)
+        rect.moveTo( point )
+        $pointer.fadeIn(400)
     }
 
 }

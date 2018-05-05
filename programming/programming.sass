@@ -24,56 +24,71 @@ $backcolor: #f2f2f2
     flex: 1 1 auto
   .footer
     flex: 0 1 auto
-
-#top-area
-  display: flex
-  flex-direction: row
-  position: fixed
-  background: $backcolor
-  padding: 10px 20px
-  #rope-connection
-    width: 20%
-    img 
-      width: 35px
-      padding-right: 10px
-    #connection-status
-      border-radius: 100%
-      text-indent: 9999px
-      padding: 0 9px
-      box-sizing: border-box
-      border: 1px solid #241c1c
-  #rope-connection.connected
-    #connection-status
-      background: #0aff0a
-  #rope-connection.disconnected
-    #connection-status
-      background: red
-      
-  #available-pieces
-    width: 56%
-    text-align: center
-  
-#debug-button
-  position: fixed
-  top: 10px
-  right: 10px
-  z-index: 3
-#debug-button.active
-  border-color: #ffeeaa
-  background: #ffdd55
-
-#placeholders-area
-  margin-top: 75px
-  overflow-x: scroll
-  box-sizing: border-box
-  border: 3px solid #bcb8ae
-  background: #fcf9ee
-  width: 100%
-  #go-block
+#programming-view
+  #top-area
+    display: flex
+    flex-direction: row
     position: fixed
-    right: 20px
-    bottom: 12px
-    z-index: 5
+    background: $backcolor
+    padding: 10px 20px
+    #rope-connection
+      width: 20%
+      img 
+        width: 35px
+        padding-right: 10px
+      #connection-status
+        border-radius: 100%
+        text-indent: 9999px
+        padding: 0 9px
+        box-sizing: border-box
+        border: 1px solid #241c1c
+    #rope-connection.connected
+      #connection-status
+        background: #0aff0a
+    #rope-connection.disconnected
+      #connection-status
+        background: red
+        
+    #available-pieces
+      width: 56%
+      text-align: center
+    
+  #debug-button
+    position: fixed
+    top: 10px
+    right: 10px
+    z-index: 3
+  #debug-button.active
+    border-color: #ffeeaa
+    background: #ffdd55
+
+  #pointer
+    position: absolute
+    animation: up-down 1s linear infinite
+    z-index: 3
+    img
+      width: 60px
+  
+  @keyframes up-down
+    0%
+      margin-top: -3px
+    50%
+      margin-top: +3px
+    100%
+      margin-top: -3px
+
+  #placeholders-area
+    margin-top: 75px
+    overflow-x: scroll
+    box-sizing: border-box
+    border: 3px solid #bcb8ae
+    background: #fcf9ee
+    width: 100%
+    #go-block
+      position: fixed
+      right: 20px
+      bottom: 12px
+      z-index: 5
 
 .centered-content  
   display: flex

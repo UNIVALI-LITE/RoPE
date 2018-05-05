@@ -11,10 +11,11 @@ $(function () {
     const app = {
         bluetooth: bluetooth,
         blocks: new BlocksView(),
-        sounds : {
-            start : new Audio('assets/startsound.wav'),
-            stop : new Audio('assets/stopsound.wav')
-        }
+        sounds: {
+            start: new Audio('assets/startsound.wav'),
+            stop: new Audio('assets/stopsound.wav')
+        },
+        executedIndex: -1
     }
 
     // Event listeners
@@ -53,6 +54,10 @@ $(function () {
 
     app.blocks.on('changed', (pieces) => {
         app.setCharacteristic(pieces)
+    })
+
+    app.blocks.on('click', (index) => {
+        app.setCharacteristic('n')
     })
 
     // Methods to update ui
@@ -116,6 +121,12 @@ $(function () {
         app.blocks.highlight({ command, index })
     }
 
+    app.pointPieceToExecute = () => {
+        if(app.debug) {
+            app.blocks.pointToIndex( app.executedIndex + 1 )
+        }
+    }
+
     // Methods to dealing with the model
 
     app.startSearch = () => {
@@ -147,13 +158,11 @@ $(function () {
         switch (action) {
             case 'started':
                 app.blocks.disableDragging()
-                return app.showShadow()
-            case 'debugging':
-                return app.showShadow()
-            case 'debugging_exit':
-                return app.hideShadow()
+                app.showShadow()
+                return app.pointPieceToExecute()
             case 'stopped':
                 app.blocks.enableDragging()
+                app.executedIndex = -1
                 return app.showStopped()
             case 'updatedCommands':
                 let commands = characteristicSplit[1]
@@ -162,6 +171,7 @@ $(function () {
             case 'executed':
                 let command = characteristicSplit[1]
                 let index = characteristicSplit[2]
+                app.executedIndex = index
                 return app.showExecuted({ command, index })
             default:
                 break
@@ -179,7 +189,7 @@ $(function () {
 
     app.toggleDebug = () => {
         app.debug = !app.debug
-        app.bluetooth.setCharacteristic('d:' + (app.debug ? 1 : 0) )
+        app.bluetooth.setCharacteristic('d:' + (app.debug ? 1 : 0))
         app.showDebugging()
     }
 

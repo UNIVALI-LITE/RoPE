@@ -44,6 +44,8 @@ rope.states = {
                 rope.stop()
             } else if (string.indexOf('d:') != -1) {
                 rope.debugging = string.split(':')[1] == 1
+            } else if (string.indexOf('n')) {
+                rope.mustExecuteNextAction = true
             }
         }
     }
@@ -80,8 +82,13 @@ rope.executeNextAction = () => {
 
 setInterval(() => {
     if (rope.state == rope.states.EXECUTING) {
-        if (!rope.debugging)
+        if (!rope.debugging) {
             rope.executeNextAction()
+        }
+        if (rope.debugging && rope.mustExecuteNextAction) {
+            rope.executeNextAction()
+            rope.mustExecuteNextAction = false
+        }
     }
 }, 2000)
 
