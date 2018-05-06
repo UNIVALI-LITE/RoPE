@@ -68,7 +68,7 @@ class Rectangle {
             .css({ 'z-index': 1000 })
     }
     disappear() {
-        this.$elm.fadeOut(500, () => this.$elm.remove())
+        this.$elm.fadeOut(200, () => this.$elm.remove())
     }
     empty() {
         return !this.internalRectangle
@@ -96,6 +96,7 @@ class BlocksView {
         this.clickedIds = []
         this.$programmingView = $('#programming-view')
         this.$placeholdersArea = $('#placeholders-area')
+        this.highlightPiece = new Rectangle( $('#highlight'))
         this.isTimeToSnap = true
 
         this.createInitialPieces()
@@ -128,7 +129,11 @@ class BlocksView {
                 $('.ready.piece').show()
                 this.adjustPiecesToPlaceholders()
                 this.adjustAvailableReadyPieces()
-            }, 250))
+                
+                const placeholder = this.getOccupedPlaceholders()[this.highlightPiece.index]
+                this.highlightPiece.moveTo( placeholder )
+
+            }, 450))
         })
     }
 
@@ -148,7 +153,7 @@ class BlocksView {
                 stop: (e) => this.handleDragStop(e),
                 drag: (e) => this.handleDrag(e),
                 scroll: false
-            })
+            }).mouseup((e) => this.notifyClickedPiece(e))
 
         let id = ++this.idCounter
         $cloned.id = id
@@ -263,6 +268,10 @@ class BlocksView {
                 placeholder.internalRectangle.moveTo(placeholder)
             }
         })
+        // remove ready class because the piece was used
+        this.getSnappedPieces().forEach(p=>{
+            p.$elm.removeClass('ready')
+        })
     }
 
     organizePostionZ(piece) {
@@ -361,7 +370,7 @@ class BlocksView {
 
     removeRemainingPlaceholders() {
         let ocupped = this.getOccupedPlaceholders().length
-        if (this.placeholders.length > ocupped + 3) {
+        while (this.placeholders.length > ocupped + 3) {
             this.placeholders.pop()
             $('.placeholder').last().remove()
             this.adjustPiecesToPlaceholders()
@@ -475,12 +484,7 @@ class BlocksView {
         } else {
             this.removeSnappedPieces()
             this.removeRemainingPlaceholders()
-
-            if (this.highlightPiece) {
-                this.removePiece(this.highlightPiece)
-                this.highlightPiece = undefined
-            }
-
+            this.hideHighlight()
             commands.forEach((command) => this.addPieceFrom(command))
         }
 
@@ -523,9 +527,7 @@ class BlocksView {
     }
 
     hideHighlight() {
-        if (!this.highlightPiece) return
-        this.removePiece(this.highlightPiece)
-        this.highlightPiece = undefined
+        this.highlightPiece.$elm.hide()
     }
 
     disableDragging() {
@@ -542,15 +544,10 @@ class BlocksView {
             return
 
         const piece = placeholder.internalRectangle
-        if (!this.highlightPiece) {
-            const $cloned = this.clone(piece.$elm);
-            $cloned.draggable('disable')
-            $cloned.find('img').attr('src', 'assets/executing.svg')
-            $cloned.appendTo($('#placeholders-area'))
-            $cloned.css('z-index', 99)
-            this.highlightPiece = new Rectangle($cloned)
-        }
-        this.highlightPiece.moveTo(piece.$elm)
+        this.highlightPiece.$elm.show()
+        this.highlightPiece.moveTo( piece.$elm )
+        this.scrollToShowX( piece.$elm.offset().left )
+        this.highlightPiece.index = index
     }
 
     removePiece(piece) {
@@ -574,15 +571,44 @@ class BlocksView {
         this.notify('changed', pieces)
     }
 
+    notifyClickedPiece(e) {
+        const id = e.currentTarget.id
+        const placeholder = this.getOccupedPlaceholders().find(p => p.internalRectangle.id() == id)
+        const clickedIndex = this.placeholders.indexOf(placeholder)
+        this.notify('click', clickedIndex)
+    }
+
     pointToIndex(index) {
-        const placeholder = this.placeholders[index]
+        const placeholder = this.getOccupedPlaceholders()[index]
         if (!placeholder)
             return
         const $pointer = $('#pointer')
         const rect = new Rectangle($pointer)
         const point = new Point(placeholder.x, placeholder.y + 60)
-        rect.moveTo( point )
+        rect.moveTo(point)
         $pointer.fadeIn(400)
+        this.scrollToShowX(point.x)
     }
 
+    scrollToShowX(x){
+        const scroll = $('html').scrollLeft()
+        /**
+         * Scroll the view as necessary to show hidden pointer
+         */
+        if (x < scroll) {
+            this.scrollTo(x - 25)
+        } else if (x + 100 > $(window).width()) {
+            this.scrollTo( x + 100 - $(window).width() )
+        }
+    }
+
+    scrollTo(position) {
+        $('html').animate({
+            scrollLeft: position
+        }, 400);
+    }
+
+    hidePointer() {
+        $('#pointer').fadeOut(400)
+    }
 }

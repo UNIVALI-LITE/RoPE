@@ -18,7 +18,7 @@ rope.states = {
                 rope.actions.push(button)
                 let actionsString = ''
                 rope.actions.forEach((a) => actionsString += a)
-                rope.onChangeHandler.call(this, 'updatedCommands:' + actionsString)
+                rope.onChangeHandler.call(this, 'updated_commands:' + actionsString)
             }
         },
         handleWrite: (string) => {
@@ -44,7 +44,7 @@ rope.states = {
                 rope.stop()
             } else if (string.indexOf('d:') != -1) {
                 rope.debugging = string.split(':')[1] == 1
-            } else if (string.indexOf('n')) {
+            } else if (string.indexOf('n') != -1) {
                 rope.mustExecuteNextAction = true
             }
         }
@@ -64,11 +64,14 @@ rope.startCommunication = () => {
     //     const button = rope.buttons[key]
     //     rope.state.handleClick(button)
     // }, 5000)
+    const actionString = 'aralalararabbalararra'
+    rope.actions = actionString.split('')
+    rope.onChangeHandler.call(this, 'updated_commands:'+actionString)
 }
 
 rope.nothingToExecute = () => {
     return rope.actions.length === 0 ||
-           rope.state === rope.states.STOPPED
+        rope.state === rope.states.STOPPED
 }
 
 rope.executeNextAction = () => {
@@ -77,17 +80,25 @@ rope.executeNextAction = () => {
     }
     const action = rope.actions.shift()
     rope.actionIndex++
-    rope.onChangeHandler.call(this, `executed:${action}:${rope.actionIndex}`)
+    rope.onChangeHandler.call(this, `started_action:${action}:${rope.actionIndex}`)
+    rope.previousAction = action
 }
 
 setInterval(() => {
     if (rope.state == rope.states.EXECUTING) {
+
+        if( rope.previousAction ) {
+            rope.onChangeHandler.call(this, `finished_action:${rope.previousAction}:${rope.actionIndex - 1}`)
+            rope.previousAction = undefined
+        }
+
         if (!rope.debugging) {
             rope.executeNextAction()
-        }
-        if (rope.debugging && rope.mustExecuteNextAction) {
+        } else if (rope.debugging && rope.mustExecuteNextAction) {
             rope.executeNextAction()
             rope.mustExecuteNextAction = false
+        } else if (rope.nothingToExecute()){
+            rope.stop()
         }
     }
 }, 2000)

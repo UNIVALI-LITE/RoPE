@@ -13,7 +13,9 @@ $(function () {
         blocks: new BlocksView(),
         sounds: {
             start: new Audio('assets/startsound.wav'),
-            stop: new Audio('assets/stopsound.wav')
+            stop: new Audio('assets/stopsound.wav'),
+            error: new Audio('assets/error.flac'),
+            next: new Audio('assets/next.wav'),
         },
         executedIndex: -1
     }
@@ -53,11 +55,24 @@ $(function () {
     })
 
     app.blocks.on('changed', (pieces) => {
-        app.setCharacteristic(pieces)
+        app.setPiecesCharacteristic(pieces)
     })
 
     app.blocks.on('click', (index) => {
-        app.setCharacteristic('n')
+        // If debug is active and execution started, must listen clicks on
+        // next piece
+        if (app.debug && app.started) {
+            if (app.executedIndex + 1 != index) {
+                app.sounds.error.play()
+            } else {
+                app.sounds.next.play()
+                app.bluetooth.setCharacteristic('n')
+            }
+        }
+    })
+
+    $(window).on('scroll', () => {
+        app.adjustShadowWidth()
     })
 
     // Methods to update ui
@@ -82,6 +97,7 @@ $(function () {
 
     app.showDebugging = () => {
         $('#debug-button').toggleClass('active')
+        app.pointPieceToExecute()
     }
 
     app.showShadow = () => {
@@ -92,7 +108,7 @@ $(function () {
                 height: '100vh',
                 opacity: '0.5',
                 background: 'gray',
-                position: 'absolute',
+                position: 'fixed',
                 'z-index': '3',
                 display: 'none'
             }).prependTo($('#programming-view'))
@@ -106,6 +122,9 @@ $(function () {
         app.sounds.stop.play()
         app.hideShadow()
         app.blocks.removeSnappedPieces()
+        app.blocks.removeRemainingPlaceholders()
+        app.blocks.adjustAreaWidth()
+        app.blocks.hidePointer()
     }
 
     app.hideShadow = () => {
@@ -117,13 +136,21 @@ $(function () {
         app.blocks.setCommands(commands)
     }
 
-    app.showExecuted = ({ command, index }) => {
+    app.showStartedAction = ({ command, index }) => {
         app.blocks.highlight({ command, index })
     }
 
     app.pointPieceToExecute = () => {
-        if(app.debug) {
-            app.blocks.pointToIndex( app.executedIndex + 1 )
+        if (app.debug) {
+            app.blocks.pointToIndex(app.executedIndex + 1)
+        } else {
+            app.blocks.hidePointer()
+        }
+    }
+
+    app.adjustShadowWidth = () => {
+        if ($('#shadow').length) {
+            $('#shadow').width('100%')
         }
     }
 
@@ -159,20 +186,27 @@ $(function () {
             case 'started':
                 app.blocks.disableDragging()
                 app.showShadow()
+                app.started = true
                 return app.pointPieceToExecute()
             case 'stopped':
                 app.blocks.enableDragging()
                 app.executedIndex = -1
+                app.started = false
                 return app.showStopped()
-            case 'updatedCommands':
+            case 'updated_commands':
                 let commands = characteristicSplit[1]
                 commands = app.translate(commands)
                 return app.showAdded(commands)
-            case 'executed':
+            case 'started_action':
                 let command = characteristicSplit[1]
                 let index = characteristicSplit[2]
-                app.executedIndex = index
-                return app.showExecuted({ command, index })
+                app.executedIndex = new Number(index)
+                app.showStartedAction({ command, index })
+                return app.pointPieceToExecute()
+            case 'finished_action':
+                app.blocks.hideHighlight()
+                app.pointPieceToExecute()
+                return
             default:
                 break
         }
@@ -193,7 +227,7 @@ $(function () {
         app.showDebugging()
     }
 
-    app.setCharacteristic = (pieces) => {
+    app.setPiecesCharacteristic = (pieces) => {
         let characteristic = ''
         pieces.forEach(piece => {
             const command = piece.$elm.attr('data-command')
