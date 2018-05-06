@@ -542,10 +542,10 @@ class BlocksView {
         const placeholder = this.getOccupedPlaceholders()[index]
         if (!placeholder)
             return
-
         const piece = placeholder.internalRectangle
-        this.highlightPiece.$elm.show()
+        this.highlightPiece.$elm.hide()
         this.highlightPiece.moveTo( piece.$elm )
+        this.highlightPiece.$elm.show()
         this.scrollToShowX( piece.$elm.offset().left )
         this.highlightPiece.index = index
     }
