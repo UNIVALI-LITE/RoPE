@@ -97,7 +97,6 @@ $(function () {
 
     app.showDebugging = () => {
         $('#debug-button').toggleClass('active')
-        app.pointPieceToExecute()
     }
 
     app.showShadow = () => {

@@ -30,6 +30,12 @@ class Rectangle {
         let centerY = this.y + (this.height / 2)
         return new Point(centerX, centerY)
     }
+    getX(){
+        return this.$elm.offset().left
+    }
+    getWidth(){
+        return this.$elm.width()
+    }
     moveTo(obj) {
         if (obj instanceof Rectangle) {
             obj = obj.$elm
@@ -129,7 +135,7 @@ class BlocksView {
                 $('.ready.piece').show()
                 this.adjustPiecesToPlaceholders()
                 this.adjustAvailableReadyPieces()
-                
+                this.updatePlaceholderElements()
                 const placeholder = this.getOccupedPlaceholders()[this.highlightPiece.index]
                 this.highlightPiece.moveTo( placeholder )
 
@@ -527,7 +533,7 @@ class BlocksView {
     }
 
     hideHighlight() {
-        this.highlightPiece.$elm.hide()
+        this.highlightPiece.$elm.fadeOut(400)
     }
 
     disableDragging() {
@@ -543,10 +549,9 @@ class BlocksView {
         if (!placeholder)
             return
         const piece = placeholder.internalRectangle
-        this.highlightPiece.$elm.hide()
         this.highlightPiece.moveTo( piece.$elm )
-        this.highlightPiece.$elm.show()
-        this.scrollToShowX( piece.$elm.offset().left )
+        this.highlightPiece.$elm.fadeIn(100)
+        this.scrollToShow( piece )
         this.highlightPiece.index = index
     }
 
@@ -580,26 +585,34 @@ class BlocksView {
 
     pointToIndex(index) {
         const placeholder = this.getOccupedPlaceholders()[index]
-        if (!placeholder)
-            return
+        if (!placeholder) return
+        const x = placeholder.getX()
         const $pointer = $('#pointer')
         const rect = new Rectangle($pointer)
-        const point = new Point(placeholder.x, placeholder.y + 60)
+        const point = new Point(x, placeholder.y + 60)
         rect.moveTo(point)
         $pointer.fadeIn(400)
-        this.scrollToShowX(point.x)
+        this.scrollToShow(placeholder)
     }
 
-    scrollToShowX(x){
+    scrollToShow(rectangle){
         const scroll = $('html').scrollLeft()
-        /**
-         * Scroll the view as necessary to show hidden pointer
-         */
-        if (x < scroll) {
-            this.scrollTo(x - 25)
-        } else if (x + 100 > $(window).width()) {
-            this.scrollTo( x + 100 - $(window).width() )
+        const maxX = rectangle.getX() + rectangle.getWidth()
+        const windowWidth = $(window).width()
+        
+        if( maxX > (windowWidth + scroll) ){
+            const scrollNeeded = (maxX - windowWidth)
+            this.scrollTo( scrollNeeded + 50 )
+        } else if ( scroll > rectangle.getX() ){
+            this.scrollTo( rectangle.getX() - 50 )
         }
+        
+        // if(  > )
+        // if (x < scroll) {
+        //     this.scrollTo(x - 25)
+        // } else if (x + 100 > ) {
+        //     this.scrollTo( x + 100 - $(window).width() )
+        // }
     }
 
     scrollTo(position) {
