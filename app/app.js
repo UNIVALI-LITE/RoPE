@@ -237,6 +237,6 @@ $(function () {
 
     // Start
 
-    // app.registerServiceWorker()
+    app.registerServiceWorker()
 
 })
