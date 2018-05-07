@@ -9,7 +9,7 @@ class BlocksView {
         this.clickedIds = []
         this.$programmingView = $('#programming-view')
         this.$placeholdersArea = $('#placeholders-area')
-        this.highlightPiece = new Rectangle( $('#highlight'))
+        this.highlightPiece = new Rectangle($('#highlight'))
         this.isTimeToSnap = true
 
         this.createInitialPieces()
@@ -44,7 +44,7 @@ class BlocksView {
                 this.adjustAvailableReadyPieces()
                 this.updatePlaceholderElements()
                 const placeholder = this.getOccupedPlaceholders()[this.highlightPiece.index]
-                this.highlightPiece.moveTo( placeholder )
+                this.highlightPiece.moveTo(placeholder)
 
             }, 450))
         })
@@ -124,10 +124,10 @@ class BlocksView {
             this.snapToPlaceholder(piece)
         }
         this.movePiecesToLeft()
-        this.removeRemainingPlaceholders()
         this.adjustAreaWidth()
         this.adjustPiecesToPlaceholders()
         this.addRightPlaceholder()
+        this.removeRemainingPlaceholders()
         this.notifyChangedPieces()
     }
 
@@ -180,10 +180,6 @@ class BlocksView {
             if (!placeholder.empty()) {
                 placeholder.internalRectangle.moveTo(placeholder)
             }
-        })
-        // remove ready class because the piece was used
-        this.getSnappedPieces().forEach(p=>{
-            p.$elm.removeClass('ready')
         })
     }
 
@@ -403,6 +399,7 @@ class BlocksView {
 
         this.adjustAreaWidth()
         this.adjustPiecesToPlaceholders()
+        this.getSnappedPieces().forEach(p=>p.setDragged())
     }
 
     syncronized(pieces, commands) {
@@ -456,9 +453,9 @@ class BlocksView {
         if (!placeholder)
             return
         const piece = placeholder.internalRectangle
-        this.highlightPiece.moveTo( piece.$elm )
+        this.highlightPiece.moveTo(piece.$elm)
         this.highlightPiece.$elm.fadeIn(100)
-        this.scrollToShow( piece )
+        this.scrollToShow(piece)
         this.highlightPiece.index = index
     }
 
@@ -502,16 +499,16 @@ class BlocksView {
         this.scrollToShow(placeholder)
     }
 
-    scrollToShow(rectangle){
+    scrollToShow(rectangle) {
         const scroll = $('html').scrollLeft()
         const maxX = rectangle.getX() + rectangle.getWidth()
         const windowWidth = $(window).width()
-        
-        if( maxX > (windowWidth + scroll) ){
+
+        if (maxX > (windowWidth + scroll)) {
             const scrollNeeded = (maxX - windowWidth)
-            this.scrollTo( scrollNeeded + 50 )
-        } else if ( scroll > rectangle.getX() ){
-            this.scrollTo( rectangle.getX() - 50 )
+            this.scrollTo(scrollNeeded + 50)
+        } else if (scroll > rectangle.getX()) {
+            this.scrollTo(rectangle.getX() - 50)
         }
     }
 
