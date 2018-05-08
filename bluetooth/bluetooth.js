@@ -59,7 +59,7 @@ bluetooth.notify = (event, result) => {
 
 bluetooth.setCharacteristic = (value) => {
     log('Setting Characteristic User Description...')
-    myCharacteristic.writeValue(bluetooth.encoder.encode(value+'&'))
+    bluetooth.characteristic.writeValue(bluetooth.encoder.encode(value+'&'))
         .then(_ => {
             log('> Characteristic User Description changed to: ' + value)
         })
