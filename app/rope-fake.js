@@ -36,7 +36,7 @@ rope.states = {
             // if (button === rope.buttons.START) {
             //     rope.actions = []
             //     rope.stop()
-            // }
+            // 
         },
         handleWrite: (string) => {
             if (string === 's') {
@@ -88,7 +88,7 @@ setInterval(() => {
     if (rope.state == rope.states.EXECUTING) {
 
         if( rope.previousAction ) {
-            rope.onChangeHandler.call(this, `finished_action:${rope.previousAction}:${rope.actionIndex - 1}`)
+            rope.onChangeHandler.call(this, `finished_action:${rope.previousAction}`)
             rope.previousAction = undefined
         }
 

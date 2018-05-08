@@ -1,12 +1,11 @@
 /* global navigator TextEncoder $ */
 
 const bluetooth = {
-    eventHandlers: {}
+    eventHandlers: {},
+    encoder : new TextEncoder('utf-8')
 }
 
-// Main method
-
-bluetooth.search = ()=>{
+bluetooth.search = () => {
     let serviceUuid = '0000ffe0-0000-1000-8000-00805f9b34fb'
     let characteristicUuid = '0000ffe1-0000-1000-8000-00805f9b34fb'
     let options = {
@@ -41,38 +40,34 @@ bluetooth.search = ()=>{
         .catch(error => {
             bluetooth.notify('connection-failed', {})
             log('Argh! ' + error)
-        })    
+        })
 }
 
 bluetooth.on = (event, handler) => {
-    bluetooth.getEventHandlers(event).push( handler )
+    bluetooth.getEventHandlers(event).push(handler)
 }
 
 bluetooth.getEventHandlers = (event) => {
-    if( !bluetooth.eventHandlers[event] )
+    if (!bluetooth.eventHandlers[event])
         bluetooth.eventHandlers[event] = []
     return bluetooth.eventHandlers[event]
 }
 
 bluetooth.notify = (event, result) => {
-    bluetooth.getEventHandlers(event).forEach(handler=> handler.call( result ) )
+    bluetooth.getEventHandlers(event).forEach(handler => handler.call(result))
 }
 
-const log = function(text) {
+bluetooth.setCharacteristic = (value) => {
+    log('Setting Characteristic User Description...')
+    myCharacteristic.writeValue(bluetooth.encoder.encode(value+'&'))
+        .then(_ => {
+            log('> Characteristic User Description changed to: ' + value)
+        })
+        .catch(error => {
+            log('Argh! ' + error)
+        })
+}
+
+const log = function (text) {
     console.log(text)
 }
-
-
-// function onWriteButtonClick() {
-//     let encoder = new TextEncoder('utf-8')
-//     let value = document.querySelector('#description').value;
-//     alert(value)
-//     log('Setting Characteristic User Description...')
-//     myCharacteristic.writeValue(encoder.encode(value))
-//         .then(_ => {
-//             log('> Characteristic User Description changed to: ' + value)
-//         })
-//         .catch(error => {
-//             log('Argh! ' + error)
-//         })
-// }
