@@ -2,7 +2,7 @@
 
 const bluetooth = {
     eventHandlers: {},
-    encoder : new TextEncoder('utf-8')
+    encoder: new TextEncoder('utf-8')
 }
 
 bluetooth.search = () => {
@@ -14,6 +14,8 @@ bluetooth.search = () => {
     }
     navigator.bluetooth.requestDevice(options)
         .then(device => {
+            bluetooth.device = device
+            bluetooth.device.addEventListener('gattserverdisconnected', bluetooth.onDisconnected)
             return device.gatt.connect()
         })
         .then(server => {
@@ -59,13 +61,17 @@ bluetooth.notify = (event, result) => {
 
 bluetooth.setCharacteristic = (value) => {
     log('Setting Characteristic User Description...')
-    myCharacteristic.writeValue(bluetooth.encoder.encode(value+'&'))
+    bluetooth.characteristic.writeValue(bluetooth.encoder.encode(value + '&'))
         .then(_ => {
             log('> Characteristic User Description changed to: ' + value)
         })
         .catch(error => {
             log('Argh! ' + error)
         })
+}
+
+bluetooth.onDisconnected = () => {
+    bluetooth.notify('connection_failed')
 }
 
 const log = function (text) {
