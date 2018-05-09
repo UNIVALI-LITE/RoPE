@@ -227,12 +227,12 @@ $(function () {
     }
 
     app.setPiecesCharacteristic = (pieces) => {
-        let characteristic = ''
+        let comandos = ''
         pieces.forEach(piece => {
             const command = piece.$elm.attr('data-command')
-            characteristic += command.charAt(0)
+            comandos += command.charAt(0)
         })
-        app.bluetooth.setCharacteristic(characteristic)
+        app.bluetooth.setCharacteristic('comandos:'+comandos)
     }
 
     // Start
