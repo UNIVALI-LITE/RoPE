@@ -3,9 +3,9 @@ $(function () {
 
     const dictionary = {
         a: 'advance',
-        b: 'back',
-        l: 'left',
-        r: 'right'
+        r: 'back',
+        e: 'left',
+        d: 'right'
     }
 
     const app = {
@@ -182,27 +182,27 @@ $(function () {
         const action = characteristicSplit[0]
         console.log(characteristic)
         switch (action) {
-            case 'started':
+            case 'iniciou':
                 app.blocks.disableDragging()
                 app.showShadow()
                 app.started = true
                 return app.pointPieceToExecute()
-            case 'stopped':
+            case 'parou': 
                 app.blocks.enableDragging()
                 app.executedIndex = -1
                 app.started = false
                 return app.showStopped()
-            case 'updated_commands':
+            case 'alterou_comandos':
                 let commands = characteristicSplit[1]
                 commands = app.translate(commands)
                 return app.showAdded(commands)
-            case 'started_action':
+            case 'ini':
                 let command = characteristicSplit[1]
                 let index = characteristicSplit[2]
                 app.executedIndex = new Number(index)
                 app.showStartedAction({ command, index })
                 return app.pointPieceToExecute()
-            case 'finished_action':
+            case 'fim':
                 app.blocks.hideHighlight()
                 app.pointPieceToExecute()
                 return
