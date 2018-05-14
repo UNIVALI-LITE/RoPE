@@ -1,6 +1,6 @@
-/* global caches self */
-var cacheName = 'rope-cache'
+var CACHE_NAME = 'rope-cache-3'
 var filesToCache = [
+    '/',
     'index.html',
     'favicon-16x16.png',
     'favicon.ico',
@@ -10,6 +10,7 @@ var filesToCache = [
     'android-chrome-384x384.png',
     'app.js',
     'bluetooth/bluetooth.js',
+    'assets/highlight.svg',
     'assets/advance.svg',
     'assets/advance_exit.svg',
     'assets/go_active.svg',
@@ -21,6 +22,7 @@ var filesToCache = [
     'assets/ico48.png',
     'assets/magnifying.svg',
     'assets/placeholder.svg',
+    'assets/pointer.svg',
     'assets/rope_2.svg', 
     'assets/rope_hide.svg',
     'assets/rope_magnifying.svg',
@@ -36,46 +38,81 @@ var filesToCache = [
     'assets/turn_right_exit.svg',
     'assets/turn_right.svg',
     'assets/searching.svg',
+    'assets/highlight.svg',
+    'assets/next.wav',
+    'jquery/jquery-3.3.1.min.js',
+    'jquery/jquery-ui.min.js',
+    'jquery/jquery.ui.touch-punch.min.js',
     'connecting/connecting.css',
     'connecting/connecting.js',
     'mstile-150x150.png',
     'programming/programming.css',
     'programming/programming.js',
+    'programming/geometry.js',
     'style/buttons.css',
-    'style/reset.css'
+    'style/reset.css',
+    'style/general.css'
 ]
 
-self.addEventListener('install', (e) => {
-    console.log('[ServiceWorker] Install')
-    e.waitUntil(
-        caches.open(cacheName).then((cache) => {
-            console.log('[ServiceWorker] Caching app shell')
-            return cache.addAll(filesToCache)
+self.addEventListener('install', function(event) {
+    console.log('A *new* Service Worker is installing.');
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+        .then(function(cache){
+            cache.addAll(filesToCache)
+        })
+    )
+});
+  
+self.addEventListener('activate', function(event) {
+    console.log('Finally i\'m active. Ready to start serving content!');
+});
+
+self.addEventListener('fetch', function(event){
+    event.respondWith(
+        caches.match(event.request)
+        .then(function(response){
+            if(response)
+                return response
+            return fetch(event.request)
         })
     )
 })
 
-self.addEventListener('activate', (e) => {
-    console.log('[ServiceWorker] Activate')
-    e.waitUntil(
-        caches.keys().then((keyList) => {
-            return Promise.all(keyList.map((key) => {
-                if (key !== cacheName) {
-                    console.log('[ServiceWorker] Removing old cache', key)
-                    return caches.delete(key)
-                }
-            }))
-        })
-    )
-    return self.clients.claim()
-})
+// /* global caches self */
+// 
+// var filesToCache = [
 
-self.addEventListener('fetch', (e) => {
-    console.log('[ServiceWorker] Fetch', e.request.url)
-    if(e.request.url.contains(''))
-    e.respondWith(
-        caches.match(e.request).then((response) => {
-            return response || fetch(e.request)
-        })
-    )
-})
+// self.addEventListener('install', (e) => {
+//     console.log('[ServiceWorker] Install')
+//     e.waitUntil(
+//         caches.open(cacheName).then((cache) => {
+//             console.log('[ServiceWorker] Caching app shell')
+//             return cache.addAll(filesToCache)
+//         })
+//     )
+// })
+
+// self.addEventListener('activate', (e) => {
+//     console.log('[ServiceWorker] Activate')
+//     e.waitUntil(
+//         caches.keys().then((keyList) => {
+//             return Promise.all(keyList.map((key) => {
+//                 if (key !== cacheName) {
+//                     console.log('[ServiceWorker] Removing old cache', key)
+//                     return caches.delete(key)
+//                 }
+//             }))
+//         })
+//     )
+//     return self.clients.claim()
+// })
+
+// self.addEventListener('fetch', (e) => {
+//     console.log('[ServiceWorker] Fetch', e.request.url)
+//     e.respondWith(
+//         caches.match(e.request).then((response) => {
+//             return response || fetch(e.request)
+//         })
+//     )
+// })
