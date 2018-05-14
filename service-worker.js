@@ -1,5 +1,5 @@
 /* global caches self */
-var cacheName = 'rope-cache-3'
+var cacheName = 'rope-cache'
 var filesToCache = [
     'index.html',
     'favicon-16x16.png',
@@ -8,10 +8,10 @@ var filesToCache = [
     'browserconfig.xml',
     'android-chrome-192x192.png',
     'android-chrome-384x384.png',
-    'app/app.js',
-    'app/bluetooth.js',
-    'assets/advance_exit.svg',
+    'app.js',
+    'bluetooth/bluetooth.js',
     'assets/advance.svg',
+    'assets/advance_exit.svg',
     'assets/go_active.svg',
     'assets/go_back_exit.svg',
     'assets/go_back.svg',
@@ -20,8 +20,8 @@ var filesToCache = [
     'assets/ico36.png',
     'assets/ico48.png',
     'assets/magnifying.svg',
-    'assets/placeholder.png',
-    'assets/rope_2.svg',
+    'assets/placeholder.svg',
+    'assets/rope_2.svg', 
     'assets/rope_hide.svg',
     'assets/rope_magnifying.svg',
     'assets/rope_not_found_2.svg',
@@ -37,16 +37,11 @@ var filesToCache = [
     'assets/turn_right.svg',
     'assets/searching.svg',
     'connecting/connecting.css',
-    'connecting/connecting.css.map',
     'connecting/connecting.js',
-    'connecting/connecting.sass',
     'mstile-150x150.png',
     'programming/programming.css',
     'programming/programming.js',
-    'programming/programming.sass',
     'style/buttons.css',
-    'style/buttons.css.map',
-    'style/buttons.sass',
     'style/reset.css'
 ]
 
@@ -77,6 +72,7 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
     console.log('[ServiceWorker] Fetch', e.request.url)
+    if(e.request.url.contains(''))
     e.respondWith(
         caches.match(e.request).then((response) => {
             return response || fetch(e.request)
