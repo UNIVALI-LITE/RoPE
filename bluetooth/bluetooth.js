@@ -26,6 +26,11 @@ bluetooth.search = () => {
         })
         .then(characteristic => {
             bluetooth.characteristic = characteristic
+            bluetooth.characteristic.addEventListener('characteristicvaluechanged', (event)=>{
+                const value = event.target.value.getUint8(0)
+                console.log(value)
+                bluetooth.notify('characteristic-changed', value)
+            })
             log('> Characteristic UUID:  ' + characteristic.uuid)
             log('> Broadcast:            ' + characteristic.properties.broadcast)
             log('> Read:                 ' + characteristic.properties.read)
