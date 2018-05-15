@@ -2,7 +2,8 @@
 
 const bluetooth = {
     eventHandlers: {},
-    encoder: new TextEncoder('utf-8')
+    encoder: new TextEncoder('utf-8'),
+    decoder: new TextDecoder('utf-8')
 }
 
 bluetooth.search = () => {
@@ -25,24 +26,20 @@ bluetooth.search = () => {
             return service.getCharacteristic(characteristicUuid)
         })
         .then(characteristic => {
-            bluetooth.characteristic = characteristic
-            bluetooth.characteristic.addEventListener('characteristicvaluechanged', (event)=>{
-                const value = event.target.value.getUint8(0)
-                console.log(value)
-                bluetooth.notify('characteristic-changed', value)
+            
+            characteristic.startNotifications()
+            .then(_=>{
+                log("Notificações iniciadas")
+                
+                characteristic.oncharacteristicvaluechanged = (event) => {
+                    const value = bluetooth.decoder.decode( event.target.value ).trim()
+                    bluetooth.notify('characteristic-changed', value)
+                }  
+                
+                bluetooth.characteristic = characteristic
+                bluetooth.notify('connected', bluetooth.characteristic)
+                
             })
-            log('> Characteristic UUID:  ' + characteristic.uuid)
-            log('> Broadcast:            ' + characteristic.properties.broadcast)
-            log('> Read:                 ' + characteristic.properties.read)
-            log('> Write w/o response:   ' + characteristic.properties.writeWithoutResponse)
-            log('> Write:                ' + characteristic.properties.write)
-            log('> Notify:               ' + characteristic.properties.notify)
-            log('> Indicate:             ' + characteristic.properties.indicate)
-            log('> Signed Write:         ' +
-                characteristic.properties.authenticatedSignedWrites)
-            log('> Queued Write:         ' + characteristic.properties.reliableWrite)
-            log('> Writable Auxiliaries: ' + characteristic.properties.writableAuxiliaries)
-            bluetooth.notify('connected', bluetooth.characteristic)
         })
         .catch(error => {
             bluetooth.notify('connection-failed', {})
@@ -61,7 +58,9 @@ bluetooth.getEventHandlers = (event) => {
 }
 
 bluetooth.notify = (event, result) => {
-    bluetooth.getEventHandlers(event).forEach(handler => handler.call(result))
+    bluetooth.getEventHandlers(event).forEach(function(handler){
+        handler.call(this,result)
+    })
 }
 
 bluetooth.setCharacteristic = (value) => {
