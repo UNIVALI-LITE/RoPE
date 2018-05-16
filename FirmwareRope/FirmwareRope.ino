@@ -1,9 +1,19 @@
 #include "libs/Button/Button.cpp"
 #include "libs/RoPE_Steppers_28BYJ48/RoPE_Steppers_28BYJ48.cpp"
 
+const byte TAMANHO_MAXIMO_INSTRUCAO_BLUETOOTH = 50;
+const char CARACTER_FIM_INSTRUCAO_BLUETOOTH = '&';
+const char CARACTER_VAZIO = '_';
+char mensagemBluetooth[TAMANHO_MAXIMO_INSTRUCAO_BLUETOOTH] = {};
+byte indicemensagemBluetooth = 0;
+bool debugAtivo = false;
+bool deveExecutarProximaAcao = false;
+bool ehPlacaRoPE = true;
+const byte DELAY_MSG_BLUETOOTH = 60;
+
 #define QUANTIDADE_MAXIMA_ACOES 45
 bool testing_loop = 0;
-bool sound_off = 0;
+bool sound_off = 1;
 int easter_egg;
 int TURN_STEP_OVERWRITE = 170;
 int WALK_STEP_OVERWRITE = 360;
@@ -27,23 +37,28 @@ Button btnFrente = Button (A5);
 #define ESTADO_AGUARDANDO 1
 #define ESTADO_EXECUTANDO 2
 
-//Variaveis
-const int acaoTras = 1;
-const int acaoFrente = -1;
-const int acaoEsquerda = 2;
-const int acaoDireita = -2;
+const char ACAO_AVANCAR    = 'a',
+           ACAO_RETROCEDER = 'b',
+           ACAO_ESQUERDA   = 'l',
+           ACAO_DIREITA    = 'r';
 
 int ESTADO_ATUAL;
-int acoesContExec = 0;
-int acoesContProg = 0;
+byte acoesContExec = 0;
+byte acoesContProg = 0;
 
-int acoes[QUANTIDADE_MAXIMA_ACOES] = {0};
+char acoes[QUANTIDADE_MAXIMA_ACOES] = {0};
 
 
 // !--- Acoes de Execucao ----
 
 void feedback(int nota, int duracao, int led)
 {
+  if(!ehPlacaRoPE){
+    debug("feedback: " + led);
+    msgBluetooth("feedback " + led);
+    delay(duracao);
+    return;
+  } 
   if(!sound_off){
     digitalWrite(led, HIGH);
     tone(SAIDA_SOM, nota);
@@ -162,6 +177,7 @@ void feedbackParar()
    delay(50); 
    feedback(1000, 135, LED_ESQUERDA); 
 }
+
 void feedbackEasterEggActivated()
 {
   digitalWrite(LED_FRENTE, HIGH);
@@ -180,21 +196,22 @@ void feedbackEasterEggActivated()
 
 void verificarFeedback(int acoesContExec)
 {
+  //debug("verificarFeedback()");
   switch (acoes[acoesContExec])
   {
-    case acaoEsquerda:
+    case ACAO_ESQUERDA:
       feedbackEsquerda(false);
       break;
 
-    case acaoDireita:
+    case ACAO_DIREITA:
       feedbackDireita(false);
       break;
 
-    case acaoFrente:
+    case ACAO_AVANCAR:
       feedbackFrente(false);
       break;
 
-    case acaoTras:
+    case ACAO_RETROCEDER:
       feedbackTras(false);
       break;
   }
@@ -202,21 +219,26 @@ void verificarFeedback(int acoesContExec)
 
 void verificarInstrucao(int acoesContExec)
 {
+  debug("verificandoInstrucao()");
+  if(!ehPlacaRoPE){
+    debug("verificandoInstrucao: " + acoes[acoesContExec]);
+    return;
+  }
   switch (acoes[acoesContExec])
   {
-    case acaoEsquerda:
+    case ACAO_ESQUERDA:
       motores_esquerda(rope_foi_parado,TURN_STEP_OVERWRITE);
       break;
 
-    case acaoDireita:
+    case ACAO_DIREITA:
       motores_direita(rope_foi_parado,TURN_STEP_OVERWRITE);
       break;
 
-    case acaoFrente:
+    case ACAO_AVANCAR:
       motores_frente(rope_foi_parado);
       break;
 
-    case acaoTras:
+    case ACAO_RETROCEDER:
       motores_tras(rope_foi_parado);
       break;
 
@@ -227,7 +249,7 @@ void verificarInstrucao(int acoesContExec)
 }
 
 bool easter_egg_infinite_loop(){
-  int acoes_infinite[8] = {acaoFrente,acaoTras,acaoEsquerda,acaoDireita,acaoFrente,acaoTras,acaoEsquerda,acaoDireita};
+  char acoes_infinite[8] = {ACAO_AVANCAR,ACAO_RETROCEDER,ACAO_ESQUERDA,ACAO_DIREITA,ACAO_AVANCAR,ACAO_RETROCEDER,ACAO_ESQUERDA,ACAO_DIREITA};
   for(int i = 0; i < 8; i++){
     if(acoes[i] != acoes_infinite[i]){
       return false;
@@ -247,40 +269,43 @@ void executar() {
   easter_egg = -1;
   if (acoesContExec < acoesContProg)
   {
+    notificaBluetoothInicio(acoesContExec);
     verificarFeedback(acoesContExec);
     verificarInstrucao(acoesContExec);
+    notificaBluetoothFim(acoesContExec);
   }
-
+ 
   if(ESTADO_ATUAL == ESTADO_AGUARDANDO && acoesContExec < acoesContProg){
     feedbackParar();
   }
   
   acoesContExec++;
 
-  if (acoesContExec >= acoesContProg && ESTADO_ATUAL == ESTADO_EXECUTANDO) 
+  if (ESTADO_ATUAL == ESTADO_EXECUTANDO && acoesContExec >= acoesContProg) 
   { 
     if(testing_loop){
       acoesContExec = 0;
       return;
     }
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
-    feedbackFim(); 
+    feedbackFim();
   }
   
   if(ESTADO_ATUAL == ESTADO_AGUARDANDO){
+    msgBluetooth("parou");
     reiniciarProgramacao();
   }
 }
 
 void reiniciarProgramacao()
 {
-  
+  debug("reiniciarProgramacao()");
   zerarArrayInstrucoes();
   acoesContProg = 0;
   acoesContExec = 0;
-  desligar_motores();
-  
-  //feedbackAguardando();
+  if(ehPlacaRoPE){
+    desligar_motores();
+  }
 }
 
 void zerarArrayInstrucoes()
@@ -289,46 +314,53 @@ void zerarArrayInstrucoes()
     acoes[i] = 0;
   }
 }
+
 bool rope_foi_parado(){
   btnIr.process();
-  return ESTADO_ATUAL == ESTADO_AGUARDANDO ? true : false;
+  return ESTADO_ATUAL == ESTADO_AGUARDANDO;
 }
+
 void onEsquerdaPress(Button &b){
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
-    acoes[acoesContProg] = acaoEsquerda;
+    acoes[acoesContProg] = ACAO_ESQUERDA;
     acoesContProg++;
     feedbackEsquerda(true);
     delay(100);
   }
 }
+
 void onDireitaPress(Button &b){
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
-    acoes[acoesContProg] = acaoDireita;
+    acoes[acoesContProg] = ACAO_DIREITA;
     acoesContProg++;
     feedbackDireita(true);
     delay(100);
   }
 }
+
 void onFrentePress(Button &b){
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
-    acoes[acoesContProg] = acaoFrente;
+    acoes[acoesContProg] = ACAO_AVANCAR;
     acoesContProg++;
     feedbackFrente(true);
     delay(100);
   }
 }
+
 void onTrasPress(Button &b){
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
-    acoes[acoesContProg] = acaoTras;
+    acoes[acoesContProg] = ACAO_RETROCEDER;
+    notificaAlterouAcoes();
     acoesContProg++;
     feedbackTras(true);
     delay(100);
   }
 }
+
 void onIrPress(Button &b){
   if(acoesContProg == 0 && easter_egg >= 0){
     easter_egg++;
@@ -372,29 +404,166 @@ void setup() {
 
   pinMode(SAIDA_SOM, OUTPUT);
 
-  steppers_setup();
+  if(ehPlacaRoPE){
+    steppers_setup();
+  }
   definirCallBack();
 
   ESTADO_ATUAL = ESTADO_AGUARDANDO;
 
-  setup_processar_estados_invalidos_iniciacao();
+  if(ehPlacaRoPE){
+    setup_processar_estados_invalidos_iniciacao();
+  }
   easter_egg = 0;
+  limpaInstrucoesBluetooth();
 }
 
 void loop()
 {
+  receberInstrucoesBluetooth();
+
   switch (ESTADO_ATUAL)
   {
     case ESTADO_AGUARDANDO:
-      btnTras.process();
-      btnFrente.process();
-      btnEsquerda.process();
-      btnDireita.process();
-      btnIr.process();
+      if(ehPlacaRoPE){
+        btnTras.process();
+        btnFrente.process();
+        btnEsquerda.process();
+        btnDireita.process();
+        btnIr.process();
+      }
       break;
     case ESTADO_EXECUTANDO:
-      executar();
-      break;
+      executar(); 
   }
-  //instrucoes_de_teste();
+}
+
+// !--- Funções bluetooth  ----
+void receberInstrucoesBluetooth(){
+   if(Serial.available()){
+      char caracter = (char) Serial.read();
+      montaInstrucaoOuExecuta(caracter);
+  }
+}
+
+bool montaInstrucaoOuExecuta(char caracter){
+  if(finalDeInstrucao(caracter)){
+    executaInstrucaoMontadaPorBluetooth();
+    limpaInstrucoesBluetooth();
+  } else {
+    montaMensagemBluetooth(caracter);
+  }
+}
+
+bool finalDeInstrucao(char caracter){
+  return caracter == CARACTER_FIM_INSTRUCAO_BLUETOOTH;
+}
+
+void limpaInstrucoesBluetooth(){
+  for(int i=0; i<TAMANHO_MAXIMO_INSTRUCAO_BLUETOOTH; i++){
+    mensagemBluetooth[i] = CARACTER_VAZIO;
+  }
+  indicemensagemBluetooth = 0;
+}
+
+void executaInstrucaoMontadaPorBluetooth(){
+  msgBluetooth("exec bluetooth");
+
+  if(mensagemDeAlteracaoDeComandos()){
+    return copiaComandosBluetoothParaArrayDeAcoes();
+  } else 
+  if(mensagemBluetoothIgual("s")){
+    
+    if(ESTADO_ATUAL == ESTADO_EXECUTANDO) {
+      msgBluetooth("parou");
+      ESTADO_ATUAL = ESTADO_AGUARDANDO;
+    }
+    else
+    if(ESTADO_ATUAL == ESTADO_AGUARDANDO && acoesContProg > 0){
+      msgBluetooth("iniciou");
+      ESTADO_ATUAL = ESTADO_EXECUTANDO;
+    }
+    
+  } else 
+  if(mensagemBluetoothIgual("l")){ // limpa quando conecta primeira vez
+    ESTADO_ATUAL = ESTADO_AGUARDANDO;
+    reiniciarProgramacao();
+  }
+}
+
+// altera estado rope
+
+void copiaComandosBluetoothParaArrayDeAcoes(){
+  debug("copiaComandosBluetoothParaArrayDeAcoes()");
+  reiniciarProgramacao();
+  for(byte i=9; mensagemBluetooth[i] != CARACTER_VAZIO; i++){
+    acoes[acoesContProg++] = mensagemBluetooth[i];
+  }
+}
+
+// verificações na mensagem bluetooth
+
+bool mensagemBluetoothIgual(char instrucao[]){
+  char str[TAMANHO_MAXIMO_INSTRUCAO_BLUETOOTH] = {};
+  byte i=0;
+  while( mensagemBluetooth[i] != CARACTER_VAZIO && i < TAMANHO_MAXIMO_INSTRUCAO_BLUETOOTH ){
+    str[i] = mensagemBluetooth[i];
+    i++;
+  }
+  return strcmp(str, instrucao) == 0;
+}
+
+bool mensagemDeAlteracaoDeComandos(){
+  char inicioMensagemBluetooth[10] = {};
+  const byte tamanhoInicio = 9;
+  strncpy(inicioMensagemBluetooth, mensagemBluetooth, tamanhoInicio);
+  return strcmp(inicioMensagemBluetooth, "comandos:") == 0;
+}
+
+// funcoes uteis
+
+void montaMensagemBluetooth(char caracter){
+  if(indicemensagemBluetooth <= TAMANHO_MAXIMO_INSTRUCAO_BLUETOOTH) {
+    mensagemBluetooth[indicemensagemBluetooth] = caracter;
+    indicemensagemBluetooth++;
+  }
+}
+
+void notificaAlterouAcoes(){
+  String acoesStr = "";
+  for(int i=0;  i<acoesContProg; i++){
+    acoesStr += String(acoes[i]);
+  }
+}
+
+bool mostraMensagemBluetooth(){
+  if(!debugAtivo) return;
+  byte i=0;
+  Serial.print("mensagem bluetooth:");
+  while( mensagemBluetooth[i] != CARACTER_VAZIO && i < TAMANHO_MAXIMO_INSTRUCAO_BLUETOOTH ){
+    Serial.print(mensagemBluetooth[i]);
+    i++;
+  }
+  Serial.println("");
+}
+
+void notificaBluetoothInicio(int acoesContExec){
+  delay(DELAY_MSG_BLUETOOTH);
+  Serial.print("ini:");
+  Serial.println(acoesContExec);
+}
+
+void notificaBluetoothFim(int acoesContExec){
+  msgBluetooth("fim");
+}
+
+void msgBluetooth(String msg){
+  delay(DELAY_MSG_BLUETOOTH);
+  Serial.println(msg);
+}
+
+void debug(String mensagem){
+  // if(debugAtivo){
+  //   Serial.println(mensagem);
+  // }
 }
