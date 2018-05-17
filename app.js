@@ -1,11 +1,11 @@
-/*global $ global bluetooth navigator*/
+/*global $ global bluetooth navigator BlocksView */
 $(function () {
 
     const dictionary = {
         a: 'advance',
-        r: 'back',
-        e: 'left',
-        d: 'right'
+        b: 'back',
+        l: 'left',
+        r: 'right'
     }
 
     const app = {
@@ -17,7 +17,9 @@ $(function () {
             error: new Audio('assets/error.flac'),
             next: new Audio('assets/next.wav'),
         },
-        executedIndex: -1
+        executedIndex: -1,
+        commands : '',
+        completedCommands : true
     }
 
     // Event listeners
@@ -43,11 +45,16 @@ $(function () {
     app.bluetooth.on('connected', () => {
         app.showProgrammingView()
         app.setConnected(true)
+        app.bluetooth.setCharacteristic('l');
+        clearInterval('changeSleepingImage')
+        app.resetProgrammingView()
     })
 
     app.bluetooth.on('connection-failed', () => {
         app.showMagnifying(false)
         app.setConnected(false)
+        app.showSleepingRoPE()
+        app.showConnectionView()
     })
 
     app.bluetooth.on('characteristic-changed', (characteristic) => {
@@ -93,6 +100,18 @@ $(function () {
         if ($('#connecting-view').is(':visible'))
             return
         $('#programming-view').hide(400, () => $('#connecting-view').show())
+    }
+    
+    function changeSleepingImage(){
+        if( $('#rope').attr('src') == 'assets/rope_not_found.svg') {
+            $('#rope').attr('src','assets/rope_not_found_2.svg')
+        } else {
+            $('#rope').attr('src','assets/rope_not_found.svg')
+        }
+    }
+    
+    app.showSleepingRoPE = () => {
+        setInterval(changeSleepingImage , 2000)
     }
 
     app.showDebugging = () => {
@@ -152,6 +171,12 @@ $(function () {
             $('#shadow').width('100%')
         }
     }
+    
+    app.resetProgrammingView = () =>{
+        app.hideShadow()
+        app.blocks.removeSnappedPieces()
+        app.blocks.enableDragging()
+    }
 
     // Methods to dealing with the model
 
@@ -171,42 +196,64 @@ $(function () {
     }
 
     app.setConnected = (connected) => {
-        if (connected)
+        if (connected){
             $('#rope-connection').addClass('connected').removeClass('disconnected')
-        else
+        } else {
             $('#rope-connection').addClass('disconnected').removeClass('connected')
+        }
     }
 
     app.handleChangeOn = (characteristic) => {
-        const characteristicSplit = characteristic.split(':')
-        const action = characteristicSplit[0]
-        console.log(characteristic)
-        switch (action) {
-            case 'iniciou':
-                app.blocks.disableDragging()
-                app.showShadow()
-                app.started = true
-                return app.pointPieceToExecute()
-            case 'parou': 
-                app.blocks.enableDragging()
-                app.executedIndex = -1
-                app.started = false
-                return app.showStopped()
-            case 'alterou_comandos':
-                let commands = characteristicSplit[1]
-                commands = app.translate(commands)
-                return app.showAdded(commands)
-            case 'ini':
-                let index = characteristicSplit[1]
-                app.executedIndex = new Number(index)
-                app.showStartedAction({ index })
-                return app.pointPieceToExecute()
-            case 'fim':
-                app.blocks.hideHighlight()
-                app.pointPieceToExecute()
-                return
-            default:
-                break
+        
+        if(characteristic.indexOf('ini') == -1 &&
+           characteristic.indexOf('fim') == -1 &&
+           characteristic.indexOf('parou') == -1 ) { 
+               
+            if( characteristic.indexOf('alt_cmds') != -1 ) { // novos comandos
+                app.commands = characteristic.split(':')[1]
+            } else {
+            
+                if(characteristic.indexOf('&') == -1){ // ainda terá mais comandos
+                    app.commands += characteristic   
+                } else {   // agora finalizou
+                    app.commands += characteristic.substr(0, characteristic.length - 1)
+                }
+                
+            }
+            
+            if(characteristic.indexOf('&') != -1 ) {
+                const commands = app.translate( app.commands )
+                app.blocks.setCommands( commands )
+            }
+            
+        } else {
+            const characteristicSplit = characteristic.split(':')
+            const action = characteristicSplit[0]
+            switch (action) {
+                case 'iniciou':
+                    app.blocks.disableDragging()
+                    app.showShadow()
+                    app.started = true
+                    app.pointPieceToExecute()
+                    break
+                case 'parou': 
+                    app.blocks.enableDragging()
+                    app.executedIndex = -1
+                    app.started = false
+                    app.showStopped()
+                    break
+                case 'ini':
+                    let index = characteristicSplit[1]
+                    app.executedIndex = new Number(index)
+                    app.showStartedAction({ index })
+                    return app.pointPieceToExecute()
+                case 'fim':
+                    app.blocks.hideHighlight()
+                    app.pointPieceToExecute()
+                    break;
+                default:
+                    break
+            }
         }
     }
 
