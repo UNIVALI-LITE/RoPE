@@ -190,7 +190,6 @@ void feedbackEasterEggActivated()
 
 void verificarFeedback(int acoesContExec)
 {
-  //debug("verificarFeedback()");
   switch (acoes[acoesContExec])
   {
     case ACAO_ESQUERDA:
@@ -524,10 +523,4 @@ void msgBluetoothAcoes(){
     comandos += acoes[i];
   }
   msgBluetooth("alt_cmds:"+comandos+"&");
-}
-
-void debug(String mensagem){
-  // if(debugAtivo){
-  //   Serial.println(mensagem);
-  // }
 }
