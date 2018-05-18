@@ -5,7 +5,7 @@ const char CARACTER_FIM_INSTRUCAO_BLUETOOTH = '&';
 String mensagemBluetooth;
 bool debugAtivo = false;
 bool deveExecutarProximaAcao = false;
-// bool ehPlacaRoPE = true;
+bool ehPlacaRoPE = false;
 const byte DELAY_MSG_BLUETOOTH = 60;
 
 #define QUANTIDADE_MAXIMA_ACOES 45
@@ -50,12 +50,9 @@ char acoes[QUANTIDADE_MAXIMA_ACOES] = {0};
 
 void feedback(int nota, int duracao, int led)
 {
-  // if(!ehPlacaRoPE){
-  //   debug("feedback: " + led);
-  //   msgBluetooth("feedback " + led);
-  //   delay(duracao);
-  //   return;
-  // } 
+  if(!ehPlacaRoPE){
+    return;
+  } 
   if(!sound_off){
     digitalWrite(led, HIGH);
     tone(SAIDA_SOM, nota);
@@ -216,11 +213,11 @@ void verificarFeedback(int acoesContExec)
 
 void verificarInstrucao(int acoesContExec)
 {
-  // debug("verificandoInstrucao()");
-  // if(!ehPlacaRoPE){
-  //   debug("verificandoInstrucao: " + acoes[acoesContExec]);
-  //   return;
-  // }
+  if(!ehPlacaRoPE){
+    delay(500);
+    acoesContExec++;
+    return;
+  }
   switch (acoes[acoesContExec])
   {
     case ACAO_ESQUERDA:
@@ -240,7 +237,6 @@ void verificarInstrucao(int acoesContExec)
       break;
 
     default:
-      //ESTADO_ATUAL = ESTADO_AGUARDANDO;
       break;
   }
 }
@@ -258,6 +254,15 @@ bool easter_egg_infinite_loop(){
 }
 
 void executar() {
+
+  if(debugAtivo){
+    if(!deveExecutarProximaAcao){
+      return;
+    } else {
+      deveExecutarProximaAcao = false;
+    }
+  }
+
   if(easter_egg == 42){
     easter_egg_infinite_loop();
     reiniciarProgramacao();
@@ -294,18 +299,16 @@ void executar() {
   }
 }
 
-void reiniciarProgramacao()
-{
+void reiniciarProgramacao(){
   zerarArrayInstrucoes();
   acoesContProg = 0;
   acoesContExec = 0;
-  //if(ehPlacaRoPE){
-  desligar_motores();
-  //}
+  if(ehPlacaRoPE){
+    desligar_motores();
+  }
 }
 
-void zerarArrayInstrucoes()
-{
+void zerarArrayInstrucoes(){
   for (int i = 0; i < QUANTIDADE_MAXIMA_ACOES; i++) {
     acoes[i] = 0;
   }
@@ -376,8 +379,7 @@ void onIrPress(Button &b){
   delay(100);
 }
 
-void definirCallBack()
-{
+void definirCallBack(){
   btnTras.pressHandler(onTrasPress);
   btnFrente.pressHandler(onFrentePress);
   btnEsquerda.pressHandler(onEsquerdaPress);
@@ -404,34 +406,33 @@ void setup() {
 
   pinMode(SAIDA_SOM, OUTPUT);
 
-  //if(ehPlacaRoPE){
-  steppers_setup();
-  //}
+  if(ehPlacaRoPE){
+    steppers_setup();
+  }
   definirCallBack();
 
   ESTADO_ATUAL = ESTADO_AGUARDANDO;
 
-  //if(ehPlacaRoPE){
-  setup_processar_estados_invalidos_iniciacao();
-  //}
+  if(ehPlacaRoPE){
+    setup_processar_estados_invalidos_iniciacao();
+  }
   easter_egg = 0;
   mensagemBluetooth = "";
 }
 
-void loop()
-{
+void loop(){
   receberInstrucoesBluetooth();
 
   switch (ESTADO_ATUAL)
   {
     case ESTADO_AGUARDANDO:
-      //if(ehPlacaRoPE){
-      btnTras.process();
-      btnFrente.process();
-      btnEsquerda.process();
-      btnDireita.process();
-      btnIr.process();
-      //}
+      if(ehPlacaRoPE){
+        btnTras.process();
+        btnFrente.process();
+        btnEsquerda.process();
+        btnDireita.process();
+        btnIr.process();
+      }
       break;
     case ESTADO_EXECUTANDO:
       executar(); 
@@ -440,10 +441,12 @@ void loop()
 
 // !--- Funções bluetooth  ----
 void receberInstrucoesBluetooth(){
-   if(Serial.available()){
-      mensagemBluetooth = Serial.readString();
-      msgBluetooth(mensagemBluetooth);
-      executaInstrucaoBluetooth();
+  // Flush espera enviar as instruções que estiver enviando, pra poder receber
+  Serial.flush();
+  if(Serial.available()){
+    mensagemBluetooth = Serial.readString();
+    msgBluetooth(mensagemBluetooth);
+    executaInstrucaoBluetooth();
   }
 }
 
@@ -470,6 +473,15 @@ void executaInstrucaoBluetooth(){
   if(mensagemBluetoothIgual("l")){ // limpa quando conecta primeira vez
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
     reiniciarProgramacao();
+  } else 
+  if(mensagemBluetoothIgual("d:1")){
+    debugAtivo = true;
+  } else 
+  if(mensagemBluetoothIgual("d:0")){
+    debugAtivo = false;
+  } else
+  if(mensagemBluetoothIgual("n")){
+    deveExecutarProximaAcao = true;
   }
 }
 
@@ -477,7 +489,7 @@ void executaInstrucaoBluetooth(){
 
 void copiaComandosBluetoothParaArrayDeAcoes(){
   reiniciarProgramacao();
-  // 9 pq comandos: tem tamanho 9 
+  // 9 pq "comandos:" tem tamanho 9 
   for(byte i=9; i < mensagemBluetooth.length(); i++){
     acoes[acoesContProg++] = mensagemBluetooth.charAt(i);
   }
