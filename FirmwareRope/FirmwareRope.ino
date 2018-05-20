@@ -1,12 +1,11 @@
 #include "libs/Button/Button.cpp"
 #include "libs/RoPE_Steppers_28BYJ48/RoPE_Steppers_28BYJ48.cpp"
 
-const char CARACTER_FIM_INSTRUCAO_BLUETOOTH = '&';
 String mensagemBluetooth;
-bool debugAtivo = false;
-bool deveExecutarProximaAcao = false;
-bool ehPlacaRoPE = false;
-const byte DELAY_MSG_BLUETOOTH = 60;
+bool debugAtivo = 0;
+bool deveExecutarProximaAcao = 0;
+bool terminouTransmissaoComandos = 0;
+const bool EH_PLACA_ROPE = 0;
 
 #define QUANTIDADE_MAXIMA_ACOES 45
 bool testing_loop = 0;
@@ -34,10 +33,10 @@ Button btnFrente = Button (A5);
 #define ESTADO_AGUARDANDO 1
 #define ESTADO_EXECUTANDO 2
 
-const char ACAO_AVANCAR    = 'a',
-           ACAO_RETROCEDER = 'b',
-           ACAO_ESQUERDA   = 'l',
-           ACAO_DIREITA    = 'r';
+const char ACAO_FRENTE     = 'f',
+           ACAO_TRAS       = 't',
+           ACAO_ESQUERDA   = 'e',
+           ACAO_DIREITA    = 'd';
 
 int ESTADO_ATUAL;
 byte acoesContExec = 0;
@@ -50,7 +49,7 @@ char acoes[QUANTIDADE_MAXIMA_ACOES] = {0};
 
 void feedback(int nota, int duracao, int led)
 {
-  if(!ehPlacaRoPE){
+  if(!EH_PLACA_ROPE){
     return;
   } 
   if(!sound_off){
@@ -200,11 +199,11 @@ void verificarFeedback(int acoesContExec)
       feedbackDireita(false);
       break;
 
-    case ACAO_AVANCAR:
+    case ACAO_FRENTE:
       feedbackFrente(false);
       break;
 
-    case ACAO_RETROCEDER:
+    case ACAO_TRAS:
       feedbackTras(false);
       break;
   }
@@ -212,9 +211,9 @@ void verificarFeedback(int acoesContExec)
 
 void verificarInstrucao(int acoesContExec)
 {
-  if(!ehPlacaRoPE){
-    delay(500);
+  if(!EH_PLACA_ROPE){
     acoesContExec++;
+    delay(500);
     return;
   }
   switch (acoes[acoesContExec])
@@ -227,11 +226,11 @@ void verificarInstrucao(int acoesContExec)
       motores_direita(rope_foi_parado,TURN_STEP_OVERWRITE);
       break;
 
-    case ACAO_AVANCAR:
+    case ACAO_FRENTE:
       motores_frente(rope_foi_parado);
       break;
 
-    case ACAO_RETROCEDER:
+    case ACAO_TRAS:
       motores_tras(rope_foi_parado);
       break;
 
@@ -241,7 +240,7 @@ void verificarInstrucao(int acoesContExec)
 }
 
 bool easter_egg_infinite_loop(){
-  char acoes_infinite[8] = {ACAO_AVANCAR,ACAO_RETROCEDER,ACAO_ESQUERDA,ACAO_DIREITA,ACAO_AVANCAR,ACAO_RETROCEDER,ACAO_ESQUERDA,ACAO_DIREITA};
+  char acoes_infinite[8] = {ACAO_FRENTE,ACAO_TRAS,ACAO_ESQUERDA,ACAO_DIREITA,ACAO_FRENTE,ACAO_TRAS,ACAO_ESQUERDA,ACAO_DIREITA};
   for(int i = 0; i < 8; i++){
     if(acoes[i] != acoes_infinite[i]){
       return false;
@@ -253,13 +252,11 @@ bool easter_egg_infinite_loop(){
 }
 
 void executar() {
-
   if(debugAtivo){
     if(!deveExecutarProximaAcao){
       return;
-    } else {
-      deveExecutarProximaAcao = false;
     }
+    deveExecutarProximaAcao = false;
   }
 
   if(easter_egg == 42){
@@ -293,8 +290,8 @@ void executar() {
   }
   
   if(ESTADO_ATUAL == ESTADO_AGUARDANDO){
-    msgBluetooth("parou");
     reiniciarProgramacao();
+    msgBluetooth("parou");
   }
 }
 
@@ -302,7 +299,7 @@ void reiniciarProgramacao(){
   zerarArrayInstrucoes();
   acoesContProg = 0;
   acoesContExec = 0;
-  if(ehPlacaRoPE){
+  if(EH_PLACA_ROPE){
     desligar_motores();
   }
 }
@@ -343,7 +340,7 @@ void onDireitaPress(Button &b){
 void onFrentePress(Button &b){
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
-    acoes[acoesContProg] = ACAO_AVANCAR;
+    acoes[acoesContProg] = ACAO_FRENTE;
     acoesContProg++;
     msgBluetoothAcoes();
     feedbackFrente(true);
@@ -354,7 +351,7 @@ void onFrentePress(Button &b){
 void onTrasPress(Button &b){
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
-    acoes[acoesContProg] = ACAO_RETROCEDER;
+    acoes[acoesContProg] = ACAO_TRAS;
     acoesContProg++;
     msgBluetoothAcoes();
     feedbackTras(true);
@@ -405,14 +402,14 @@ void setup() {
 
   pinMode(SAIDA_SOM, OUTPUT);
 
-  if(ehPlacaRoPE){
+  if(EH_PLACA_ROPE){
     steppers_setup();
   }
   definirCallBack();
 
   ESTADO_ATUAL = ESTADO_AGUARDANDO;
 
-  if(ehPlacaRoPE){
+  if(EH_PLACA_ROPE){
     setup_processar_estados_invalidos_iniciacao();
   }
   easter_egg = 0;
@@ -425,7 +422,7 @@ void loop(){
   switch (ESTADO_ATUAL)
   {
     case ESTADO_AGUARDANDO:
-      if(ehPlacaRoPE){
+      if(EH_PLACA_ROPE){
         btnTras.process();
         btnFrente.process();
         btnEsquerda.process();
@@ -439,24 +436,21 @@ void loop(){
 }
 
 // !--- Funções bluetooth  ----
+
 void receberInstrucoesBluetooth(){
   // Flush espera enviar as instruções que estiver enviando, pra poder receber
   Serial.flush();
   if(Serial.available()){
     mensagemBluetooth = Serial.readString();
-    msgBluetooth(mensagemBluetooth);
     executaInstrucaoBluetooth();
   }
 }
 
 void executaInstrucaoBluetooth(){
-  if( mensagemBluetooth.startsWith("teste") ){
-    msgBluetoothAcoes();
-  } else
   if( mensagemBluetooth.startsWith("comandos:") ){
-    return copiaComandosBluetoothParaArrayDeAcoes();
+    return copiaComandosBluetoothParaArrayDeAcoes(9); // começa copia do indice 9 ("comandos:[f]fafa")
   } else 
-  if( mensagemBluetooth.startsWith("s") ){
+  if( mensagemBluetoothIgual("i") ){
     
     if(ESTADO_ATUAL == ESTADO_EXECUTANDO) {
       msgBluetooth("parou");
@@ -471,39 +465,54 @@ void executaInstrucaoBluetooth(){
   } else 
   if(mensagemBluetoothIgual("l")){ // limpa quando conecta primeira vez
     ESTADO_ATUAL = ESTADO_AGUARDANDO;
+    feedbackConectouBluetooth();
     reiniciarProgramacao();
   } else 
   if(mensagemBluetoothIgual("d:1")){
     debugAtivo = true;
+    msgBluetooth("d:1"); // retorna confirmação que ativou
   } else 
   if(mensagemBluetoothIgual("d:0")){
     debugAtivo = false;
+    msgBluetooth("d:0"); // retorna confirmação que desativou
   } else
   if(mensagemBluetoothIgual("n")){
     deveExecutarProximaAcao = true;
+  } else 
+  if(!terminouTransmissaoComandos){
+    copiaComandosBluetoothParaArrayDeAcoes(0);
   }
 }
 
-// altera estado rope
-
-void copiaComandosBluetoothParaArrayDeAcoes(){
-  reiniciarProgramacao();
-  // 9 pq "comandos:" tem tamanho 9 
-  for(byte i=9; i < mensagemBluetooth.length(); i++){
-    acoes[acoesContProg++] = mensagemBluetooth.charAt(i);
-  }
+void feedbackConectouBluetooth(){
+  feedback(704, 135, LED_FRENTE);
+  delay(200);
+  feedback(704, 135, LED_FRENTE);
+  delay(200);
+  feedback(704, 135, LED_FRENTE);
 }
 
-// verificações na mensagem bluetooth
+void copiaComandosBluetoothParaArrayDeAcoes(byte i){
+  bool iniciandoCopia = i != 0;
+  if(iniciandoCopia){
+    reiniciarProgramacao();
+  }
+  terminouTransmissaoComandos = 0;
+  for(; i < mensagemBluetooth.length(); i++){
+    if(mensagemBluetooth.charAt(i) == '&'){
+      terminouTransmissaoComandos = 1;
+    } else {
+      acoes[acoesContProg++] = mensagemBluetooth.charAt(i);
+    }
+  }
+}
 
 bool mensagemBluetoothIgual(String str){
   return mensagemBluetooth.equals(str);
 }
 
-// funcoes uteis
-
 void notificaBluetoothInicio(int acoesContExec){
-  delay(DELAY_MSG_BLUETOOTH);
+  delay(60);
   Serial.print("ini:");
   Serial.println(acoesContExec);
 }
@@ -513,7 +522,7 @@ void notificaBluetoothFim(int acoesContExec){
 }
 
 void msgBluetooth(String msg){
-  delay(DELAY_MSG_BLUETOOTH);
+  delay(60);
   Serial.println(msg);
 }
 
