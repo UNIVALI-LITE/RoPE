@@ -2,10 +2,10 @@
 $(function () {
 
     const dictionary = {
-        a: 'advance',
-        b: 'back',
-        l: 'left',
-        r: 'right'
+        f: 'advance', // frente
+        t: 'back', // tras
+        e: 'left', // esquerda
+        d: 'right' // direita
     }
 
     const app = {
@@ -39,7 +39,7 @@ $(function () {
     })
 
     $('#go-block').on('click', () => {
-        app.bluetooth.setCharacteristic('s')
+        app.bluetooth.setCharacteristic('i') // iniciar
     })
 
     app.bluetooth.on('connected', () => {
@@ -114,8 +114,11 @@ $(function () {
         setInterval(changeSleepingImage , 2000)
     }
 
-    app.showDebugging = () => {
-        $('#debug-button').toggleClass('active')
+    app.showDebugging = (show) => {
+        if(show)
+            $('#debug-button').addClass('active')
+        else
+            $('#debug-button').removeClass('active')
     }
 
     app.showShadow = () => {
@@ -207,7 +210,10 @@ $(function () {
         
         if(characteristic.indexOf('ini') == -1 &&
            characteristic.indexOf('fim') == -1 &&
-           characteristic.indexOf('parou') == -1 ) { 
+           characteristic.indexOf('parou') == -1 &&
+           characteristic.indexOf('d:0') == -1 && 
+           characteristic.indexOf('d:1') == -1 
+           ) { 
                
             if( characteristic.indexOf('alt_cmds') != -1 ) { // novos comandos
                 app.commands = characteristic.split(':')[1]
@@ -251,6 +257,9 @@ $(function () {
                     app.blocks.hideHighlight()
                     app.pointPieceToExecute()
                     break;
+                case 'd':
+                    app.showDebugging(characteristicSplit[1] == "1")
+                    break;
                 default:
                     break
             }
@@ -269,7 +278,6 @@ $(function () {
     app.toggleDebug = () => {
         app.debug = !app.debug
         app.bluetooth.setCharacteristic('d:' + (app.debug ? 1 : 0))
-        app.showDebugging()
     }
 
     app.setPiecesCharacteristic = (pieces) => {

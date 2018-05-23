@@ -75,10 +75,8 @@ bluetooth.setCharacteristic = (value) => {
     log(`Tela diz - ${value}` );
     bluetooth.characteristic.writeValue(bluetooth.encoder.encode(value))
         .then(_ => {
-            //log('> Characteristic User Description changed to: ' + value)
         })
         .catch(error => {
-            log('Argh! ' + error)
         })
 }
 
