@@ -6,6 +6,8 @@ const bluetooth = {
     decoder: new TextDecoder('utf-8')
 }
 
+const TAMANHO_MAXIMO_VALUE = 20
+
 bluetooth.search = () => {
     let serviceUuid = '0000ffe0-0000-1000-8000-00805f9b34fb'
     let characteristicUuid = '0000ffe1-0000-1000-8000-00805f9b34fb'
@@ -72,12 +74,16 @@ bluetooth.notify = (event, result) => {
 }
 
 bluetooth.setCharacteristic = (value) => {
-    log(`Tela diz - ${value}` );
-    bluetooth.characteristic.writeValue(bluetooth.encoder.encode(value))
-        .then(_ => {
-        })
-        .catch(error => {
-        })
+    const chunks = value.match(/.{1,20}/g)
+    chunks.forEach(chunk=>{
+        log(`Tela diz - ${chunk}` );
+        bluetooth.characteristic.writeValue(bluetooth.encoder.encode(chunk))
+            .then(_ => {
+            })
+            .catch(error => {
+            })    
+    })
+    
 }
 
 const log = function (text) {

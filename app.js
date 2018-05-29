@@ -48,6 +48,9 @@ $(function () {
         app.bluetooth.setCharacteristic('l');
         clearInterval('changeSleepingImage')
         app.resetProgrammingView()
+        app.debug = false
+        app.showDebugging(app.debug)
+        app.pointPieceToExecute()
     })
 
     app.bluetooth.on('connection-failed', () => {
@@ -258,7 +261,8 @@ $(function () {
                     app.pointPieceToExecute()
                     break;
                 case 'd':
-                    app.showDebugging(characteristicSplit[1] == "1")
+                    app.debug = characteristicSplit[1] == "1"
+                    app.showDebugging(app.debug)
                     break;
                 default:
                     break
@@ -276,8 +280,7 @@ $(function () {
     }
 
     app.toggleDebug = () => {
-        app.debug = !app.debug
-        app.bluetooth.setCharacteristic('d:' + (app.debug ? 1 : 0))
+        app.bluetooth.setCharacteristic('d:' + (app.debug ? 0 : 1))
     }
 
     app.setPiecesCharacteristic = (pieces) => {
@@ -286,7 +289,7 @@ $(function () {
             const command = piece.$elm.attr('data-command')
             comandos += command.charAt(0)
         })
-        app.bluetooth.setCharacteristic('comandos:'+comandos)
+        app.bluetooth.setCharacteristic('cmds:'+comandos+'&')
     }
 
     // Start
