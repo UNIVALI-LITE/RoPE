@@ -1,11 +1,18 @@
 /*global $ global bluetooth navigator BlocksView */
 $(function () {
 
-    const dictionary = {
+    const dictionaryCharToAction = {
         f: 'advance', // frente
-        t: 'back', // tras
+        t: 'back', // tras 
         e: 'left', // esquerda
         d: 'right' // direita
+    }
+    
+    const dictionaryActionToChar = {
+        advance : 'f', // frente
+        back : 't', // tras 
+        left : 'e', // esquerda
+        right: 'd' // direita
     }
 
     const app = {
@@ -38,14 +45,14 @@ $(function () {
         app.toggleDebug()
     })
 
-    $('#go-block').on('click', () => {
-        app.bluetooth.setCharacteristic('i') // iniciar
+    $('#go-block').on('click', (e) => {
+        app.bluetooth.setCharacteristic('<i>') // iniciar
     })
 
     app.bluetooth.on('connected', () => {
         app.showProgrammingView()
         app.setConnected(true)
-        app.bluetooth.setCharacteristic('l');
+        app.bluetooth.setCharacteristic('<l>');
         clearInterval('changeSleepingImage')
         app.resetProgrammingView()
         app.debug = false
@@ -76,7 +83,7 @@ $(function () {
                 app.sounds.error.play()
             } else {
                 app.sounds.next.play()
-                app.bluetooth.setCharacteristic('n')
+                app.bluetooth.setCharacteristic('<n>')
             }
         }
     })
@@ -142,7 +149,7 @@ $(function () {
         app.blocks.highlightSnapped()
     }
 
-    app.showStopped = () => {
+    app.showStopped = _ => {
         app.sounds.stop.play()
         app.hideShadow()
         app.blocks.removeSnappedPieces()
@@ -151,7 +158,7 @@ $(function () {
         app.blocks.hidePointer()
     }
 
-    app.hideShadow = () => {
+    app.hideShadow = _ => {
         app.blocks.hideHighlight()
         $('#shadow').fadeOut(1000, 'linear')
     }
@@ -165,7 +172,7 @@ $(function () {
     }
 
     app.pointPieceToExecute = () => {
-        if (app.debug) {
+        if (app.debug && app.started) {
             app.blocks.pointToIndex(app.executedIndex + 1)
         } else {
             app.blocks.hidePointer()
@@ -211,6 +218,9 @@ $(function () {
 
     app.handleChangeOn = (characteristic) => {
         
+        if(characteristic.indexOf("debug") != -1) // debugging firmware
+            return
+        
         if(characteristic.indexOf('ini') == -1 &&
            characteristic.indexOf('fim') == -1 &&
            characteristic.indexOf('parou') == -1 &&
@@ -218,19 +228,19 @@ $(function () {
            characteristic.indexOf('d:1') == -1 
            ) { 
                
-            if( characteristic.indexOf('alt_cmds') != -1 ) { // novos comandos
+            if( characteristic.indexOf('<cmds') != -1 ) { // novos comandos
                 app.commands = characteristic.split(':')[1]
             } else {
             
-                if(characteristic.indexOf('&') == -1){ // ainda terá mais comandos
+                if(characteristic.indexOf('>') == -1){  // ainda terá mais comandos
                     app.commands += characteristic   
-                } else {   // agora finalizou
+                } else {                                // agora finalizou
                     app.commands += characteristic.substr(0, characteristic.length - 1)
                 }
                 
             }
             
-            if(characteristic.indexOf('&') != -1 ) {
+            if(characteristic.indexOf('>') != -1 ) {
                 const commands = app.translate( app.commands )
                 app.blocks.setCommands( commands )
             }
@@ -239,31 +249,33 @@ $(function () {
             const characteristicSplit = characteristic.split(':')
             const action = characteristicSplit[0]
             switch (action) {
-                case 'iniciou':
+                case '<iniciou>':
                     app.blocks.disableDragging()
                     app.showShadow()
                     app.started = true
                     app.pointPieceToExecute()
                     break
-                case 'parou': 
+                case '<parou>': 
                     app.blocks.enableDragging()
                     app.executedIndex = -1
                     app.started = false
+                    app.commands = ''
                     app.showStopped()
                     break
-                case 'ini':
-                    let index = characteristicSplit[1]
+                case '<ini':
+                    let index = characteristicSplit[1].slice(0,-1) // remove o ">"
                     app.executedIndex = new Number(index)
                     app.showStartedAction({ index })
-                    return app.pointPieceToExecute()
-                case 'fim':
+                    break
+                case '<fim>':
                     app.blocks.hideHighlight()
                     app.pointPieceToExecute()
-                    break;
-                case 'd':
-                    app.debug = characteristicSplit[1] == "1"
+                    break
+                case '<d':
+                    app.debug = characteristicSplit[1].slice(0,-1) == "1"
                     app.showDebugging(app.debug)
-                    break;
+                    app.pointPieceToExecute()
+                    break
                 default:
                     break
             }
@@ -274,22 +286,24 @@ $(function () {
         const commands = []
         for (let i = 0; i < commandsStr.length; i++) {
             const char = commandsStr.charAt(i)
-            commands.push(dictionary[char])
+            let command = dictionaryCharToAction[char]
+            if(command)
+                commands.push(command)
         }
         return commands
     }
 
     app.toggleDebug = () => {
-        app.bluetooth.setCharacteristic('d:' + (app.debug ? 0 : 1))
+        app.bluetooth.setCharacteristic('<d:' + (app.debug ? 0 : 1) + '>')
     }
 
     app.setPiecesCharacteristic = (pieces) => {
         let comandos = ''
         pieces.forEach(piece => {
             const command = piece.$elm.attr('data-command')
-            comandos += command.charAt(0)
+            comandos += dictionaryActionToChar[command]
         })
-        app.bluetooth.setCharacteristic('cmds:'+comandos+'&')
+        app.bluetooth.setCharacteristic('<cmds:'+comandos+'>')
     }
 
     // Start

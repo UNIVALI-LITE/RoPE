@@ -1,4 +1,4 @@
-var CACHE_NAME = 'rope-cache-3'
+var CACHE_NAME = 'rope-cache-1'
 var filesToCache = [
     '/',
     'index.html',
@@ -8,6 +8,7 @@ var filesToCache = [
     'browserconfig.xml',
     'android-chrome-192x192.png',
     'android-chrome-384x384.png',
+    'android-chrome-530x530.png',
     'app.js',
     'bluetooth/bluetooth.js',
     'assets/highlight.svg',
@@ -78,41 +79,3 @@ self.addEventListener('fetch', function(event){
         })
     )
 })
-
-// /* global caches self */
-// 
-// var filesToCache = [
-
-// self.addEventListener('install', (e) => {
-//     console.log('[ServiceWorker] Install')
-//     e.waitUntil(
-//         caches.open(cacheName).then((cache) => {
-//             console.log('[ServiceWorker] Caching app shell')
-//             return cache.addAll(filesToCache)
-//         })
-//     )
-// })
-
-// self.addEventListener('activate', (e) => {
-//     console.log('[ServiceWorker] Activate')
-//     e.waitUntil(
-//         caches.keys().then((keyList) => {
-//             return Promise.all(keyList.map((key) => {
-//                 if (key !== cacheName) {
-//                     console.log('[ServiceWorker] Removing old cache', key)
-//                     return caches.delete(key)
-//                 }
-//             }))
-//         })
-//     )
-//     return self.clients.claim()
-// })
-
-// self.addEventListener('fetch', (e) => {
-//     console.log('[ServiceWorker] Fetch', e.request.url)
-//     e.respondWith(
-//         caches.match(e.request).then((response) => {
-//             return response || fetch(e.request)
-//         })
-//     )
-// })

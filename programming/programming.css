@@ -77,9 +77,14 @@
   width: 100%; }
   #programming-view #placeholders-area #go-block {
     position: fixed;
-    right: 20px;
-    bottom: 12px;
-    z-index: 5; }
+    background-size: 100% 100%;
+    background-image: url("../assets/go.svg");
+    right: 5px;
+    bottom: 5px;
+    padding: 10px;
+    z-index: 3; }
+  #programming-view #placeholders-area #go-block:active {
+    background-image: url("../assets/go_active.svg"); }
 
 .centered-content {
   display: flex;

@@ -4,7 +4,7 @@
     "start_url": "index.html",
     "background_color": "#f2f2f2",
     "description": "Aplicativo de programação do RoPE por meio de blocos",
-    "display": "standalone",
+    "display": "fullscreen",
     "icons": [{
             "src": "android-chrome-192x192.png",
             "sizes": "192x192",
@@ -13,6 +13,11 @@
         {
             "src": "android-chrome-384x384.png",
             "sizes": "384x384",
+            "type": "image/png"
+        },
+        {
+            "src": "android-chrome-530x530.png",
+            "sizes": "530x530",
             "type": "image/png"
         }
     ],

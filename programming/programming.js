@@ -1,3 +1,4 @@
+/* global Rectangle $ */
 const audio = new Audio('assets/snapsound.mp3')
 
 class BlocksView {
@@ -45,7 +46,6 @@ class BlocksView {
                 this.updatePlaceholderElements()
                 const placeholder = this.getOccupedPlaceholders()[this.highlightPiece.index]
                 this.highlightPiece.moveTo(placeholder)
-
             }, 450))
         })
     }
@@ -108,6 +108,7 @@ class BlocksView {
             this.clone(movingPiece.$elm)
             movingPiece.setDragged()
         }
+        this.startDragPiecesIds = this.getPiecesIdsString()
     }
 
     handleDrag(e) {
@@ -128,7 +129,15 @@ class BlocksView {
         this.adjustPiecesToPlaceholders()
         this.addRightPlaceholder()
         this.removeRemainingPlaceholders()
-        this.notifyChangedPieces()
+        this.notifyChangedPiecesIfChanged()
+    }
+
+    getPiecesIdsString(){
+        let piecesState = ''
+        this.getSnappedPieces().forEach(piece=>{
+            piecesState += piece.id()
+        })
+        return piecesState
     }
 
     markThatThePieceEnteredPlaceholdersArea(movingPiece) {
@@ -475,9 +484,11 @@ class BlocksView {
         this[event].forEach(callback => callback.call(this, param))
     }
 
-    notifyChangedPieces() {
-        const pieces = this.getSnappedPieces()
-        this.notify('changed', pieces)
+    notifyChangedPiecesIfChanged() {
+        if( this.getPiecesIdsString() != this.startDragPiecesIds ){
+            const pieces = this.getSnappedPieces()
+            this.notify('changed', pieces)   
+        }
     }
 
     notifyClickedPiece(e) {

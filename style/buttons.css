@@ -16,8 +16,4 @@ button.large {
 button:active {
   background: #e0a868; }
 
-button[disabled] {
-  background: lightgray;
-  border-color: lightgray; }
-
 /*# sourceMappingURL=buttons.css.map */
