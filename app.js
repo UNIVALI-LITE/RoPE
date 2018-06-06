@@ -125,10 +125,13 @@ $(function () {
     }
 
     app.showDebugging = (show) => {
-        if(show)
+        if(show){
             $('#debug-button').addClass('active')
-        else
+            $('#placeholders-area').addClass('debug')
+        } else {
             $('#debug-button').removeClass('active')
+            $('#placeholders-area').removeClass('debug')
+        }
     }
 
     app.showShadow = () => {
