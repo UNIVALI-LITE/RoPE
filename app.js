@@ -46,7 +46,16 @@ $(function () {
     })
 
     $('#go-block').on('click', (e) => {
+        if(app.blockGoClick) 
+            return
+        
         app.bluetooth.setCharacteristic('<i>') // iniciar
+        app.blockGoClick = true
+        $('#go-block').addClass('disabled')
+        setTimeout(_=>{
+            app.blockGoClick = false
+            $('#go-block').removeClass('disabled')
+        }, 1000)
     })
 
     app.bluetooth.on('connected', () => {

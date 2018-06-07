@@ -1,4 +1,4 @@
-var CACHE_NAME = 'rope-cache-3'
+var CACHE_NAME = 'rope-cache-4'
 var filesToCache = [
     '/',
     'index.html',
@@ -14,10 +14,11 @@ var filesToCache = [
     'assets/highlight.svg',
     'assets/advance.svg',
     'assets/advance_exit.svg',
+    'assets/go.svg',
     'assets/go_active.svg',
+    'assets/go_disabled.svg',
     'assets/go_back_exit.svg',
     'assets/go_back.svg',
-    'assets/go.svg',
     'assets/ico_48.svg',
     'assets/ico36.png',
     'assets/ico48.png',
