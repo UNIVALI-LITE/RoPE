@@ -85,6 +85,8 @@
     z-index: 3; }
   #programming-view #placeholders-area #go-block:active {
     background-image: url("../assets/go_active.svg"); }
+  #programming-view #placeholders-area #go-block.disabled {
+    background-image: url("../assets/go_disabled.svg"); }
 #programming-view #placeholders-area.debug {
   background-color: #eeffaa; }
 
