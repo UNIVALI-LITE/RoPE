@@ -4,7 +4,7 @@
 String mensagemBluetooth;
 bool debugAtivo = 0;
 bool deveExecutarProximaAcao = 0;
-bool terminouTransmissaoComandos = 0;
+bool finalizouTransmissao = true;
 const bool EH_PLACA_ROPE = true;
 
 #define QUANTIDADE_MAXIMA_ACOES 45
@@ -460,12 +460,20 @@ void receberMensagemBluetooth(){
   // Flush espera enviar as instruções que estiver enviando, pra poder receber
   Serial.flush();
   if(Serial.available()){
-    mensagemBluetooth = Serial.readString();
+    if(!finalizouTransmissao){
+      mensagemBluetooth += Serial.readString();
+      //monitorDebug("+=");
+    } else {
+      mensagemBluetooth = Serial.readString();
+    }
+    // monitorDebug(mensagemBluetooth);
+    finalizouTransmissao = mensagemBluetooth.endsWith(">");
     executaInstrucaoBluetooth();
   }
 }
 
 void executaInstrucaoBluetooth(){
+  //Serial.println(mensagemBluetooth);
   if( mensagemBluetooth.indexOf("cmds") != -1 ){
     reiniciarProgramacao();
     byte i = mensagemBluetooth.lastIndexOf("<cmds:") + 6;
@@ -492,9 +500,6 @@ void executaInstrucaoBluetooth(){
   } else
   if(mensagemBluetoothIgual("<n>")){
     deveExecutarProximaAcao = true;
-  } else 
-  if(!terminouTransmissaoComandos){
-    copiaComandosBluetoothParaArrayDeAcoes(0);
   }
 }
 
@@ -507,18 +512,18 @@ void feedbackConectouBluetooth(){
 }
 
 void copiaComandosBluetoothParaArrayDeAcoes(byte i){
-  terminouTransmissaoComandos = false;
   for(; i < mensagemBluetooth.length(); i++){
     char c = mensagemBluetooth.charAt(i);
     if( c != '>' && c != ACAO_FRENTE && c != ACAO_TRAS && c != ACAO_ESQUERDA && c != ACAO_DIREITA){
       continue;
     }
     if(c == '>'){
-      executaFeedback(mensagemBluetooth[i-1], true);
-      terminouTransmissaoComandos = true;
+      char ultimaAcao = mensagemBluetooth[i-1];
+      executaFeedback(ultimaAcao, true);
       break;
     } else {
       acoes[acoesContProg++] = c;
+      //Serial.print(acoesContProg);
     }
   }
 }
