@@ -45,7 +45,7 @@ $(function () {
         app.toggleDebug()
     })
 
-    $('#go-block').on('click', (e) => {
+    $('#go-block').on('mouseup', (e) => {
         if(app.blockGoClick) 
             return
         
