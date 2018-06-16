@@ -1,0 +1,1 @@
+uglifyjs connecting/*.js programming/*.js app/*.js > rope.min.js --compress --mangle

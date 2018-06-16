@@ -1,0 +1,27 @@
+{
+  "name": "rope-blocks",
+  "version": "1.0.0",
+  "description": "RoPE's hibrid programming interface",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cesarviana/rope_hybrid_interface.git"
+  },
+  "keywords": [
+    "Programming",
+    "Toys",
+    "Hybrid"
+  ],
+  "author": "Cesar Viana",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cesarviana/rope_hybrid_interface/issues"
+  },
+  "homepage": "https://github.com/cesarviana/rope_hybrid_interface#readme",
+  "dependencies": {
+    "uglify-es": "^3.3.9"
+  }
+}
