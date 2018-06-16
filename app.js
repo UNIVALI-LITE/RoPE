@@ -237,7 +237,8 @@ $(function () {
            characteristic.indexOf('fim') == -1 &&
            characteristic.indexOf('parou') == -1 &&
            characteristic.indexOf('d:0') == -1 && 
-           characteristic.indexOf('d:1') == -1 
+           characteristic.indexOf('d:1') == -1 &&
+           characteristic.indexOf('<l>') == -1 
            ) { 
                
             if( characteristic.indexOf('<cmds') != -1 ) { // novos comandos

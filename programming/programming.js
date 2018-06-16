@@ -96,6 +96,7 @@ class BlocksView {
     }
 
     handleDragStart(e) {
+        this.startDragPiecesIds = this.getPiecesIdsString()
         this.adjustAvailableReadyPieces()
         let movingPiece = this.getOrCreatePiece(e)
         this.isTimeToSnap = false
@@ -108,7 +109,6 @@ class BlocksView {
             this.clone(movingPiece.$elm)
             movingPiece.setDragged()
         }
-        this.startDragPiecesIds = this.getPiecesIdsString()
     }
 
     handleDrag(e) {
