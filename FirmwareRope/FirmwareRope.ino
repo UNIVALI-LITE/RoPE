@@ -7,8 +7,10 @@ bool sound_off = 0;
 int easter_egg;
 int TURN_STEP_OVERWRITE = 170;
 int WALK_STEP_OVERWRITE = 360;
-//Entradas
+int steps;
+bool use_steps = false;
 
+//Entradas
 Button btnTras = Button (A1); 
 Button btnDireita = Button (A2);
 Button btnIr = Button (A3);
@@ -344,6 +346,11 @@ void onIrPress(Button &b){
   delay(100);
 }
 
+void onIrHold(Button &b){
+  feedbackEasterEggActivated();
+  delay(100);
+}
+
 void definirCallBack()
 {
   btnTras.pressHandler(onTrasPress);
@@ -351,6 +358,7 @@ void definirCallBack()
   btnEsquerda.pressHandler(onEsquerdaPress);
   btnDireita.pressHandler(onDireitaPress);
   btnIr.pressHandler(onIrPress);
+  btnIr.holdHandler(onIrHold, 5000);
 }
 
 void setup_processar_estados_invalidos_iniciacao(){
