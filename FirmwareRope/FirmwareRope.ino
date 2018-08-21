@@ -1,14 +1,24 @@
+#include <EEPROM.h>
 #include "libs/Button/Button.cpp"
 #include "libs/RoPE_Steppers_28BYJ48/RoPE_Steppers_28BYJ48.cpp"
+
 
 #define QUANTIDADE_MAXIMA_ACOES 45
 bool testing_loop = 0;
 bool sound_off = 0;
+bool calibrando = 0;
 int easter_egg;
 int TURN_STEP_OVERWRITE = 170;
 int WALK_STEP_OVERWRITE = 360;
-int steps;
-bool use_steps = false;
+int steps_frente = 0;
+int steps_tras = 0;
+int steps_direita = 0;
+int steps_esquerda = 0;
+
+int posicaoMemEsquerda = 0;
+int posicaoMemDireita = 2;
+int posicaoMemFrente = 4;
+int posicaoMemTras = 6;
 
 //Entradas
 Button btnTras = Button (A1); 
@@ -202,24 +212,55 @@ void verificarFeedback(int acoesContExec)
   }
 }
 
+void salvarStep(int endereco, int valor)
+{
+  byte hiByte = highByte(valor);
+  byte loByte = lowByte(valor);
+  EEPROM.write(endereco, hiByte);
+  EEPROM.write(endereco+1, loByte);
+}
+
+int lerStep(int endereco)
+{
+  byte hiByte = EEPROM.read(endereco);
+  byte loByte = EEPROM.read(endereco+1);
+  return word(hiByte, loByte);
+}
+
 void verificarInstrucao(int acoesContExec)
 {
   switch (acoes[acoesContExec])
   {
     case acaoEsquerda:
-      motores_esquerda(rope_foi_parado,TURN_STEP_OVERWRITE);
+      if(steps_esquerda>0){
+        motores_esquerda(rope_foi_parado,steps_esquerda);
+      }else{
+        motores_esquerda(rope_foi_parado,TURN_STEP_OVERWRITE);
+      }      
       break;
 
     case acaoDireita:
-      motores_direita(rope_foi_parado,TURN_STEP_OVERWRITE);
+      if(steps_direita>0){
+        motores_direita(rope_foi_parado,steps_direita);    
+      }else{
+        motores_direita(rope_foi_parado,TURN_STEP_OVERWRITE);
+      }      
       break;
 
     case acaoFrente:
-      motores_frente(rope_foi_parado);
+      if(steps_frente>0){
+        motores_frente(rope_foi_parado, steps_frente);  
+      }else{
+        motores_frente(rope_foi_parado);
+      }      
       break;
 
     case acaoTras:
-      motores_tras(rope_foi_parado);
+      if(steps_tras>0){
+        motores_tras(rope_foi_parado, steps_tras);
+      }else{
+        motores_tras(rope_foi_parado);
+      }      
       break;
 
     default:
@@ -249,7 +290,10 @@ void executar() {
   easter_egg = -1;
   if (acoesContExec < acoesContProg)
   {
-    verificarFeedback(acoesContExec);
+    if(testing_loop=0)
+    {
+      verificarFeedback(acoesContExec);
+    }
     verificarInstrucao(acoesContExec);
   }
 
@@ -296,6 +340,18 @@ bool rope_foi_parado(){
   return ESTADO_ATUAL == ESTADO_AGUARDANDO ? true : false;
 }
 void onEsquerdaPress(Button &b){
+  if(calibrando)
+  {
+    feedbackEsquerda(true);
+    delay(100);
+    ESTADO_ATUAL = ESTADO_EXECUTANDO;    
+    steps_esquerda = motores_esquerda_calibracao(rope_foi_parado);
+    ESTADO_ATUAL = ESTADO_AGUARDANDO;
+    feedbackEsquerda(true);
+    delay(100);
+    salvarStep(posicaoMemEsquerda, steps_esquerda);
+    return;
+  }
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
     acoes[acoesContProg] = acaoEsquerda;
@@ -305,6 +361,18 @@ void onEsquerdaPress(Button &b){
   }
 }
 void onDireitaPress(Button &b){
+  if(calibrando)
+  {
+    feedbackDireita(true);
+    delay(100);
+    ESTADO_ATUAL = ESTADO_EXECUTANDO;
+    steps_direita = motores_direita_calibracao(rope_foi_parado);
+    ESTADO_ATUAL = ESTADO_AGUARDANDO;
+    feedbackDireita(true);
+    delay(100);
+    salvarStep(posicaoMemDireita, steps_direita);
+    return;
+  }
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
     acoes[acoesContProg] = acaoDireita;
@@ -314,6 +382,18 @@ void onDireitaPress(Button &b){
   }
 }
 void onFrentePress(Button &b){
+  if(calibrando)
+  {
+    feedbackFrente(true);
+    delay(100);
+    ESTADO_ATUAL = ESTADO_EXECUTANDO;
+    steps_frente = motores_frente_calibracao(rope_foi_parado);
+    ESTADO_ATUAL = ESTADO_AGUARDANDO;
+    feedbackFrente(true);
+    delay(100);
+    salvarStep(posicaoMemFrente, steps_frente);
+    return;
+  }
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
     acoes[acoesContProg] = acaoFrente;
@@ -323,6 +403,18 @@ void onFrentePress(Button &b){
   }
 }
 void onTrasPress(Button &b){
+  if(calibrando)
+  {
+    feedbackTras(true);
+    delay(100);
+    ESTADO_ATUAL = ESTADO_EXECUTANDO;
+    steps_tras = motores_tras_calibracao(rope_foi_parado);
+    ESTADO_ATUAL = ESTADO_AGUARDANDO;
+    feedbackTras(true);
+    delay(100);
+    salvarStep(posicaoMemTras, steps_tras);
+    return;
+  }
   if (acoesContProg < QUANTIDADE_MAXIMA_ACOES)
   {
     acoes[acoesContProg] = acaoTras;
@@ -348,6 +440,14 @@ void onIrPress(Button &b){
 
 void onIrHold(Button &b){
   feedbackEasterEggActivated();
+  acoesContProg = 0;
+  if(calibrando)
+  {
+    calibrando = 0;
+  }
+  else{
+    calibrando = 1;
+  }  
   delay(100);
 }
 
@@ -370,6 +470,13 @@ void setup_processar_estados_invalidos_iniciacao(){
   btnIr.process();
 }
 
+void load_steps(){
+  steps_direita = lerStep(posicaoMemDireita);
+  steps_esquerda = lerStep(posicaoMemEsquerda);
+  steps_frente = lerStep(posicaoMemFrente);
+  steps_tras = lerStep(posicaoMemTras);
+}
+
 void setup() {
   Serial.begin(9600);
   
@@ -381,12 +488,13 @@ void setup() {
   pinMode(SAIDA_SOM, OUTPUT);
 
   steppers_setup();
+  load_steps(); 
+
   definirCallBack();
-
   ESTADO_ATUAL = ESTADO_AGUARDANDO;
-
-  setup_processar_estados_invalidos_iniciacao();
   easter_egg = 0;
+
+  setup_processar_estados_invalidos_iniciacao();  
 }
 
 void loop()
