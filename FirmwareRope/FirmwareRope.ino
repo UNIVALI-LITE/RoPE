@@ -227,6 +227,18 @@ int lerStep(int endereco)
   return word(hiByte, loByte);
 }
 
+void limparMemoria()
+{
+  steps_frente = 0;
+  steps_tras = 0;
+  steps_direita = 0;
+  steps_esquerda = 0;
+  salvarStep(posicaoMemEsquerda, 0);
+  salvarStep(posicaoMemDireita, 0);
+  salvarStep(posicaoMemFrente, 0);
+  salvarStep(posicaoMemTras, 0);
+}
+
 void verificarInstrucao(int acoesContExec)
 {
   switch (acoes[acoesContExec])
@@ -290,7 +302,7 @@ void executar() {
   easter_egg = -1;
   if (acoesContExec < acoesContProg)
   {
-    if(testing_loop=0)
+    if(!testing_loop)
     {
       verificarFeedback(acoesContExec);
     }
@@ -440,6 +452,20 @@ void onIrPress(Button &b){
 
 void onIrHold(Button &b){
   feedbackEasterEggActivated();
+
+  if(easter_egg > 5)
+  {
+    limparMemoria();
+    feedbackFrente(true);
+    delay(50);
+    feedbackTras(true);
+    delay(50);
+    feedbackEsquerda(true);
+    delay(50);
+    feedbackDireita(true);
+    delay(50);
+    return;
+  }
   acoesContProg = 0;
   if(calibrando)
   {
