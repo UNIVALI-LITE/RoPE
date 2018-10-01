@@ -108,14 +108,14 @@ void motores_frente(bool(*callback)(), int steps = (((360*DISTANCIA_ANDAR)/(DIAM
     private_RoPE_Steppers_28BYJ48_MOTOR1_step_one();
     private_RoPE_Steppers_28BYJ48_MOTOR2_step_one();
     delay(DELAY_MAX);
-    private_RoPE_Steppers_28BYJ48_MOTOR1_step_two();
-    private_RoPE_Steppers_28BYJ48_MOTOR2_step_four();
+    private_RoPE_Steppers_28BYJ48_MOTOR1_step_four();
+    private_RoPE_Steppers_28BYJ48_MOTOR2_step_two();
     delay(DELAY_MAX-1);
     private_RoPE_Steppers_28BYJ48_MOTOR1_step_three();
     private_RoPE_Steppers_28BYJ48_MOTOR2_step_three();
     delay(DELAY_MAX);
-    private_RoPE_Steppers_28BYJ48_MOTOR1_step_four();
-    private_RoPE_Steppers_28BYJ48_MOTOR2_step_two();
+    private_RoPE_Steppers_28BYJ48_MOTOR1_step_two();
+    private_RoPE_Steppers_28BYJ48_MOTOR2_step_four();
     delay(DELAY_MAX-1);
     steps--;
   }
@@ -126,14 +126,14 @@ void motores_tras(bool(*callback)(), int steps = (((360*DISTANCIA_ANDAR)/(DIAMET
     private_RoPE_Steppers_28BYJ48_MOTOR1_step_one();
     private_RoPE_Steppers_28BYJ48_MOTOR2_step_one();
     delay(DELAY_MAX);
-    private_RoPE_Steppers_28BYJ48_MOTOR1_step_four();
-    private_RoPE_Steppers_28BYJ48_MOTOR2_step_two();
+    private_RoPE_Steppers_28BYJ48_MOTOR1_step_two();
+    private_RoPE_Steppers_28BYJ48_MOTOR2_step_four();
     delay(DELAY_MAX-1);
     private_RoPE_Steppers_28BYJ48_MOTOR1_step_three();
     private_RoPE_Steppers_28BYJ48_MOTOR2_step_three();
     delay(DELAY_MAX);
-    private_RoPE_Steppers_28BYJ48_MOTOR1_step_two();
-    private_RoPE_Steppers_28BYJ48_MOTOR2_step_four();
+    private_RoPE_Steppers_28BYJ48_MOTOR1_step_four();
+    private_RoPE_Steppers_28BYJ48_MOTOR2_step_two();
     delay(DELAY_MAX-1);
     steps--;
   }
