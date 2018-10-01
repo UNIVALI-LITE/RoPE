@@ -7,4 +7,4 @@
 <a href="https://www.arduino.cc">Baixe a IDE do Arduino</a> e instale.
 
 # Contato
-<a href="http://lite.acad.univali.br/pt/#contact" taget="_blank">cesarviana@edu.univali.br</a>
+<a href="http://lite.acad.univali.br/pt/#contact" taget="_blank">Página do Lite</a>
