@@ -2,3 +2,7 @@
 *BASE*
 *REMOTE*
 *.swp
+
+FirmwareRope/\.vscode/
+
+FirmwareRope/build/

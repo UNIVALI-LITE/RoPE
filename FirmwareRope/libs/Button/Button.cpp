@@ -103,12 +103,13 @@ void Button::process(void)
   if (bitRead(state,CURRENT) != bitRead(state,PREVIOUS))
   {
     unsigned int interval = millis() - debounceStartTime;
-    // if(debounceMode){
-    //   Serial.print("debounceStartTime: ");
-    //   Serial.print(debounceStartTime);
-    //   Serial.print("\tdebounceDuration: ");
-    //   Serial.println(debounceDuration);
-      // Serial.println(interval);
+    //Serial.print("State Changed");
+    //  if(debounceMode){
+    //    Serial.print("debounceStartTime: ");
+    //    Serial.print(debounceStartTime);
+    //    Serial.print("\tdebounceDuration: ");
+    //    Serial.println(debounceDuration);
+    //    Serial.println(interval);
     // }
     if(debounceMode && interval < debounceDuration){
       // not enough time has passed; ignore
@@ -117,7 +118,7 @@ void Button::process(void)
     // Serial.println("state changed");
     debounceStartTime = millis();
     //the state changed to PRESSED
-    if (bitRead(state,CURRENT) == true) 
+    if (bitRead(state,CURRENT) == false) 
     {
       numberOfPresses++;
       if (cb_onPress) { cb_onPress(*this); }   //fire the onPress event
@@ -136,6 +137,7 @@ void Button::process(void)
   }
   else
   {
+    //Serial.print("State did not Changed");
     //note that the state did not change
     bitWrite(state,CHANGED,false);
     //should we trigger an onHold event?
