@@ -1,0 +1,73 @@
+Passo a passo para gravar Bootloader e Firmware do Rope
+
+******************************
+Passos para Gravar o BootLoader
+*******************************
+
+- conectar cabos no rope (4juntos -> miso = branco) + (cabos unitarios -> gnd = preto + vcc = branco)
+
+Na pasta Gravação AVR:
+- Abrir AVRDUDESS 
+- escolher USBasp
+- clicar detect 
+----------------------------------------------------
+-> Se driver não reconheceu porta USB
+- Executar ZADIG 
+- clicar em Options/list all devices
+- Selecionar USBasp
+- selecionar driver WINUSB
+- clicar Install
+----------------------------------------------------
+-> Após detect reconhecer ATMEga328P
+- Em Flash ... carregar optiboot_atmega328_8mhz.hex
+- Ajustar Fuses e Lock Bits
+LOW Fuse: 0xE2
+HIGH Fuse: 0xDE
+Extended: 0xFF
+LOCK: 0xFF
+- Em options selecionar:
+force
+Erase flash and EEPROM
+- clicar em Program
+
+----------------------------
+-> Para testar 
+- Em Flash ... carregar firmware-test.hex
+- Program 
+----------------------------
+
+
+******************************
+Passos para gravar o firmware
+*******************************
+
+- acessar VSC com platformio instalado
+- carregar pasta firmware (dentro de A new Rope/ Firmware2023)
+- clicar na formiga
+- Plugar o gravador na USB do computador
+- Plugar no Rope alinhando o GND do gravador e do Rope
+- verificar no device manager se ele reconheceu o driver e qual a porta
+----------------------------------------------------
+-> se driver não for reconhecido baixar ide do arduino e na pasta drivers tentar indicar via device manager 
+- atualizar a porta no platformio.ini
+----------------------------------------------------
+- Escolher projeto conforme a posicao dos cabos no motor de passo
+1o é rosa = usar release-motors-inverted
+1o é azul = usar release
+----------------------------------------------------
+Para correção do giro alterar a seção config do platformio.ini
+deadZoneCorrection = 3
+0 = sem folga - 6 = folga máxima 
+----------------------------------------------------
+- Clicar em build e ele grava no rope. 
+
+
+
+
+
+
+
+
+
+
+
